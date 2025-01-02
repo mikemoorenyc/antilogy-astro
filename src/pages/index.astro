@@ -1,11 +1,102 @@
 ---
-import Welcome from '../components/Welcome.astro';
-import Layout from '../layouts/Layout.astro';
 
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+import Layout from '../layouts/Layout.astro';
+import logoImg from "../assets/logo.png"
 ---
 
 <Layout>
-	<Welcome />
+    <div class="body-container">
+		<div class="lockup">
+		<h1 class="logo" style={`background-image: url(${logoImg.src})`}>Antilogy Design</h1>
+		<h2 class="font-bold">Quality screenprinting in Kingston, NY</h2>
+		</div>
+		<address>
+		<dl>
+		<dt>Physical Address: </dt>
+		<dd>ANTILOGY<br/>
+		<a href="https://goo.gl/maps/qiHJDkb7ZsWWBqPUA" target="_blank">658 Ulster Ave, Kingston, NY, 12401</a><dd>
+		
+		<dt>Shop hours:</dt>
+		<dd>Monday &ndash; Thursday<br/>
+8:00AM EST &ndash; 5:30PM EST</dd>
+
+	<dt>Email Address:</dt>
+	<dd><a href="mailto:antilogydesign@gmail.com">antilogydesign@gmail.com</a>
+		
+		</dl>
+		
+		</address>
+	</div>
 </Layout>
+
+
+<style>
+
+	.body-container {
+	position:absolute;
+	left: 50%;
+	top: 50%;
+	transform: translate(-50%,-50%);
+	width: 100%;
+	max-width: 420px;
+	margin-top: -16px;
+	}
+	.lockup h1 {
+	margin: 0;
+	line-height:1;
+	font-size: 1px; 
+	}
+	.lockup {
+	max-width: 420px;
+	padding: 0 16px;
+	}
+	.lockup h1 img {
+	
+	max-width: 420px;
+	width: 100%;
+	}
+	.lockup h2{
+		margin: 16px 0 0;
+		font-size: 22px;
+		text-align: center;
+		text-transform: uppercase; 
+	}
+	address {
+	font-style:normal; 
+	text-align: center;
+	}
+	dl {
+	padding: 18px 0;
+	margin: 24px 16px 0 ;
+	border: 1px solid currentColor; 
+	border-width: 1px 0;
+	}
+	dd {
+	margin: 0;
+	}
+	dd:not(:last-child) {
+		margin-bottom: 18px;
+	}
+	dt {
+	font-size: 12px;
+	text-transform:uppercase;
+	margin-bottom:2px;
+	}
+	h1.logo {
+	width: 388px;
+	height: 185px;
+	background: url("./logo.png");
+	background-size: cover;
+	background-position: center center;
+	font-size: .001em;
+	text-indent:-9999px;
+	}
+	@media(max-width:420px) {
+		h1.logo {
+		width: 320px;
+		height: calc(185px * .82);
+		margin:0 auto; 
+		}
+	
+	}
+</style>
