@@ -1,0 +1,98 @@
+---
+import {  SignOut } from 'auth-astro/components'
+import Layout from './Layout.astro'
+import LayoutSkeleton from './LayoutSkeleton.astro'
+
+import Button from '../components/Button.astro'
+import { type TSettings } from '../../types'
+
+const nav = [
+  ["settings","Settings","/admin/settings"],["about","About Page","/admin/about"],["about","Contact Page","/admin/contact"],["samples","Samples","/admin/samples"], ["faqs","FAQs","/admin/faqs"]
+]
+const pathname = new URL(Astro.request.url).pathname;
+const currentPath = pathname.slice(1);
+
+interface Props {
+  pageTitle:string,
+  settingsData: TSettings
+}
+const {settingsData,pageTitle} = Astro.props
+const {siteTitle} = settingsData
+
+
+---
+
+<LayoutSkeleton pageTitle={pageTitle} settingsData={settingsData}>
+<div class="hidden md:flex bg-foreground text-background text-sm justify-between py-1 px-2 h-8 items-center font-bold">
+  <a href="/" class="uppercase ">{siteTitle}</a>
+  <div>
+    <SignOut >Sign out</SignOut>
+  </div>
+</div>
+
+<div class="wrapper md:flex min-h-[calc(100vh-28px)]">
+  <div class="p-3 relative md:hidden">
+    <Button label='Menu' icon="ri-menu-fill" type="action" actionId='menu-opener' classes='menu-opener'/>
+  </div>
+  <div id="nav-container" class="navigation hidden inset-0 bg-background md:block w-52 md:pt-3">
+    <div class="p-2 md:hidden"><Button label='Close' icon="ri-close-fill" type="action" actionId='menu-opener' classes='menu-opener'/></div>
+    <div class="p-3 pt-0">
+      <div class="font-bold text-lg font-heading uppercase tracking-wider leading-none">{siteTitle}</div>
+      <div class="text-sm mb-4 uppercase">Admin portal</div>
+    <ul>
+    {nav.map(n => {
+      return <li class="mb-2"><a href={n[2]} class={`md:block ${currentPath.includes(n[0])?"font-bold":""} text-foreground uppercase no-underline text-2xl`}>{n[1]}</a></li>
+    })} 
+    </ul>
+
+    <ul class="mt-8">
+    <li><a href="/" class="no-underline text-sm">Site homepage</a></li>
+    <li><SignOut class="no-underline text-sm text-action">Sign out</SignOut></li>
+    </ul>
+    
+    </div>
+  </div>
+   <div class="p-3 md:p-5 pt-2 md:flex-1 md:border-l border-foreground">
+    <slot />
+  
+  </div>
+</div>
+
+
+
+
+
+ 
+
+
+
+
+</LayoutSkeleton>
+
+
+<script>
+
+
+(function () {
+  const menuBtn = document.querySelectorAll(".menu-opener");
+  const navContainer = document.getElementById("nav-container");
+
+  if(!menuBtn.length || !navContainer) return false; 
+let menuOpen = false;
+menuBtn.forEach(m => {
+  m.addEventListener("click",(e)=> {
+    e.preventDefault();
+    if(!menuOpen) {
+      navContainer.classList.remove("hidden")
+      navContainer.classList.add("fixed")
+      menuOpen = true;
+    } else {
+      navContainer.classList.add("hidden");
+      navContainer.classList.remove("fixed")
+      menuOpen = false 
+    }
+  })
+})
+})();
+
+</script>

@@ -1,0 +1,12 @@
+---
+import { type TIcon } from "../../types"
+const {size,fill,icon} = Astro.props as TIcon
+
+const setSize = size || 16
+const setFill = fill || 'currentColor'
+
+---
+
+<svg style={`width:${setSize}px; height:${setSize}px; fill:${setFill}`}>
+  <use  href={`/remixicon.symbol.svg#${icon}`}></use>
+</svg>

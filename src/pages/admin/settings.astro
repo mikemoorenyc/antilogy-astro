@@ -1,0 +1,36 @@
+---
+import { getSession } from 'auth-astro/server';
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import PageHeader from './_adminComponents/PageHeader.astro';
+import SettingsForm from "./_adminComponents/SettingsForm"
+import type {TSettings} from "../../../types"
+import {getSettings} from "../api/dynamodb/settings"
+
+
+const session = await getSession(Astro.request);
+
+const defaultSettings : TSettings = {
+  siteTitle: "Site Title",
+  siteDescription : "Description of site that appears on homepage"
+}
+
+if(!session) {
+  return Astro.redirect('/login');
+}
+export const prerender = false;
+
+const settings = await getSettings();
+
+if(!settings) return Astro.redirect("/404");
+
+const settingsData = !settings?.siteTitle?   defaultSettings :settings
+
+---
+
+<AdminLayout pageTitle={`Settings - Admin - ${settings.siteTitle}`} settingsData={settingsData}>
+<PageHeader pageTitle='Settings' />
+  <SettingsForm client:only="react" settingsData={settingsData}/>
+ 
+
+</AdminLayout>
+

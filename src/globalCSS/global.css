@@ -2,12 +2,18 @@
 @tailwind components;
 @tailwind utilities;
 
-@layer base,components,utilities;
+@layer  base, components,utilities;
+
+
 
 :root {
-  --action: #007DD7;
-  --bg: #0E0E0E;
-  --for: white; 
+  --action: #7B5F26;
+  --bg: white;
+  --for: #222127; 
+   --font-mono:  "Source Code Pro", serif;
+    --font-serif: "Source Sans 3", serif;
+    --font-heading:  "Bakbak One", serif;
+	--accent: #4dc3ff
 }
 
 	body,html {
@@ -20,12 +26,30 @@
     line-height:1.3
 	}
 	
-	a, a:hover, a:visited, a:active {
+	a {
 	color: var(--action);
-  text-decoration: underline;
+
+	}
+	a:hover {
+		text-decoration: underline; 
 	}
 	body {
 	background: var(--bg);
 	color: var(--for); 
-	font-family: 'IBM Plex Mono', monospace;
+	font-family: var(--font-mono)
 	}
+
+@layer components {
+
+
+  .button-component {
+    @apply bg-background85 border border-foreground text-xs uppercase pt-2 pb-2 pl-3 pr-3 
+    flex items-center
+  }
+  .button-component.big {
+
+  }
+  .button-component .svg-container {
+    margin-right: 6px;
+  }
+}

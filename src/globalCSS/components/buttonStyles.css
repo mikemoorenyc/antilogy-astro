@@ -1,0 +1,32 @@
+@layer components {
+
+
+  .button-component {
+    box-shadow: 1px 1px 0 var(--action), 2px 2px 0 var(--action),3px 3px 0 var(--action);
+    @apply bg-background border-2 border-foreground text-xs uppercase pt-2 pb-2 pl-3 pr-3 
+   text-foreground flex items-center leading-none
+  }
+  
+  .button-component.big {
+    line-height: 48px;
+    height:48px;
+    font-size:22px;
+    @apply  font-bold px-4 py-0 
+  }
+  .button-component.reverse {
+    text-shadow: none;
+    @apply bg-foreground text-background
+  }
+  .button-component.ghost {
+    text-shadow: none;
+    box-shadow: none;
+    @apply bg-transparent border-none
+  }
+  .button-component .svg-container {
+    margin-right: 6px;
+  }
+
+  .button-component:active {
+    @apply bg-action
+  }
+}

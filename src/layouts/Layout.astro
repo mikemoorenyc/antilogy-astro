@@ -1,20 +1,62 @@
 ---
-import "../globalCSS/global.css"
+import { type TSettings } from "../../types"
+
+
+interface Props {
+	pageTitle: string, 
+	meta?: string,
+	children: any,
+	settingsData: TSettings
+}
+import LayoutSkeleton from "./LayoutSkeleton.astro"
+import { Image } from "astro:assets"
+
+import testImage from "../../public/dev/main_bg.webp"
+
+import LiveData from "../components/LiveData"
+const {pageTitle,settingsData} = Astro.props
+const social = ["instagram","tiktok","snapchat"]
 ---
+<LayoutSkeleton pageTitle={pageTitle} settingsData={settingsData} bodyCSS="flex min-h-screen flex-col">
+
+	
+
+		<div class="fixed inset-0">
+		<Image widths={[400,800,1600,testImage.width]} class="fixed h-full w-full object-cover" src={testImage} alt="Image of screen printing press" quality={"high"} width={2016} height={905} sizes={`(max-width: 400px) 400px, (max-width: 800px) 800px, (max-width: 1600px) 1600px, 2016px`} />
+		</div>
+	<main class="relative flex-1 mb-12">
+		<slot />
+	</main>
+	<LiveData client:only="react" />
+	<footer class="bg-background relative">
+		<ul class="flex justify-center">
+			{social.map((e,i) => {
+				
+				const classes ="block flex-1 text-center relative p-2 text-smDisplay text-foreground uppercase"
+				return <li class="flex-1 flex-center">
+					{i!== 0 && <span class=" w-[1px] h-[calc(100%-18px)] bg-foreground"></span>}
+					<a class={classes} href="" >{e}</a>
+				</li>
+			})}
+		</ul>
+	</footer>
+
+</LayoutSkeleton>
 
 <!doctype html>
 <html lang="en">
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
-	<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,700;1,400;1,700&family=IBM+Plex+Serif:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
 		<meta name="generator" content={Astro.generator} />
-		<title>Antilogy Design &amp; Screenprinting - Quality screenprinting in Kingston, NY</title>
+		<title>{pageTitle || `Antilogy Design & Screenprinting - Quality screenprinting in Kingston, NY`}</title>
 	</head>
-	<body>
-		<slot />
+	<body class="flex min-h-screen flex-col">
+	
+		<div id="modal-container"></div>
 	</body>
 </html>
 

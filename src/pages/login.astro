@@ -1,0 +1,31 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { SignIn, SignOut } from 'auth-astro/components'
+import RemixSVG from "../components/RemixSVG.astro";
+import { getSession } from 'auth-astro/server';
+import { getSettings } from "./api/dynamodb/settings";
+
+const session = await getSession(Astro.request);
+const settings = await getSettings();
+
+if(!settings) return Astro.redirect('/404');
+
+if(session) {
+  return Astro.redirect('/admin/settings');
+}
+export const prerender = false;
+
+---
+
+<Layout settingsData={settings} pageTitle={`${settings.siteTitle} - Login`}>
+<div class="flex items-center justify-center h-lvh w-lvw">
+
+<SignIn provider="google" class="button-component">
+  <span class="svg-container"><RemixSVG size={14} icon="ri-google-fill"/></span>
+  <span>Sign in with Gmail account </span>
+
+</SignIn>
+
+</div>
+
+</Layout>

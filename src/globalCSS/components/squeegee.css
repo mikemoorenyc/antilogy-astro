@@ -1,0 +1,66 @@
+@layer components {
+  .squeegee-container {
+  width: 178px;
+  height: 238px;
+  position:relative;
+  /*background: grey; */
+  font-size: .75px;
+}
+.squeegee-screen {
+  box-sizing: border-box;
+  width: 168em;
+  height: 211em;
+  background: white;
+  position:absolute;
+  left: 36em;
+  top: 12em;
+  border: 5em solid black; 
+}
+.squeegee-screen:before {
+  position:absolute;
+  display:block;
+  content: "";
+  width: 149em;
+  height: 193em;
+  left: 4em;
+  top: 4em;
+  border: 5em solid black;
+  box-sizing: border-box;
+    background-image:   linear-gradient(to left,transparent, transparent 3px, black 3px), linear-gradient(to bottom, transparent, transparent 3px, black 3px);
+
+   background-position: top left, top left;
+  background-size: 4px 4px,4px 4px;
+}
+.squeegee-handle {
+  box-sizing: border-box;
+  position:absolute;
+  left: 60em;
+  top: 64em;
+  height: 56em;
+  width: 120em;
+  border: 5em solid black; 
+  background:white;
+  animation: squeegeemove 1s steps(8,end) infinite
+  
+}
+.squeegee-ink {
+  width: 110em;
+  height: 15em;
+  left: 65em;
+  top: 50em;
+  background: black;
+  position:absolute;
+  animation: inkfill 1s steps(8,end) infinite
+}
+
+@keyframes squeegeemove{
+  to {
+    transform: translateY(140em);
+  }
+}
+@keyframes inkfill {
+  to {
+    height: 154em;
+  }
+}
+}

@@ -1,0 +1,23 @@
+---
+
+import { type IButton } from "../../types"
+import RemixSVG from "./RemixSVG.astro"
+
+interface Props extends IButton {
+
+}
+//type IFooBar = IButton & Props 
+const cProps  = Astro.props ;
+
+const {type,label,style,icon,classes,href,actionId, modClasses=[]}  = cProps
+
+
+const mc = modClasses.join(" ")
+const Element = type == "link" ? "a" : "button"
+---
+<Element style={typeof style == "string"?style:undefined} id={actionId||undefined}href={href} class={`button-component ${classes||""} ${mc}`}>
+{icon && <span class="svg-container"><RemixSVG size={14} icon={icon} /></span>}
+<span>{label}</span>
+</Element>
+
+
