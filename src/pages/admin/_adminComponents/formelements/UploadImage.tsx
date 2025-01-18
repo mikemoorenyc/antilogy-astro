@@ -24,11 +24,11 @@ type TUploadImageProps ={
 }
 
 export default function UploadImage({accept,uploadedImage,requirements,fileCallback,errorCallback}:TUploadImageProps) {
-  console.log(uploadedImage);
+
   const [localFileUrl,updateLocalFileUrl] = useState<string|null>(null)
   const inputRef = useRef<null|HTMLInputElement>(null);
   const changeImage = async (imageFile:File) => {
-    console.log(imageFile); 
+    
     const reader = new FileReader(); 
     reader.onloadend = (e) => {
   

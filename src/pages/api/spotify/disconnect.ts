@@ -1,0 +1,29 @@
+import type { TSettings } from "../../../../types";
+import { badResponse } from "../_lib";
+import { updateSettings,getSettings } from "../dynamodb/settings";
+import { getSession } from "auth-astro/server";
+
+export async function spotifyDisconnect() {
+  const settings = await getSettings()
+  if(!settings) return false ; 
+  const newPayload :TSettings = {...settings, ...{spotifyRefreshToken:""}} 
+  const removedConnection = await updateSettings(newPayload );
+  if (!removedConnection){console.log("error updating"); return false}; 
+}
+
+export async function POST({ params,request }:{params:{path:string},request:Request}) {
+  const session = await getSession(request);
+  if(!session) {
+    return badResponse("Not logged in",401);
+  }
+  const deletedConnection = await spotifyDisconnect();
+  if(!deletedConnection) {
+    return badResponse("couldn't delete");
+  }
+  return new Response(JSON.stringify({"deleted":true}),{
+    status: 200,
+    headers: {
+      "Content-Type": "application/json"
+    }
+  })
+}

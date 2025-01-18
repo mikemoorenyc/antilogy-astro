@@ -5,9 +5,8 @@ export default defineConfig({
 	providers: [
     Google(
       {
-        clientId: import.meta.env.AUTH_GOOGLE_ID || process.env.AUTH_GOOGLE_ID,
-        clientSecret: import.meta.env.AUTH_GOOGLE_SECRET || process.env.AUTH_GOOGLE_SECRET,
-        
+        clientId: import.meta.env.AUTH_GOOGLE_ID,
+        clientSecret: import.meta.env.AUTH_GOOGLE_SECRET 
       }
     )
 	],
@@ -15,8 +14,7 @@ export default defineConfig({
   callbacks: {
     
     signIn({ profile }) {
-      const userList = import.meta.env.ALLOWED_USERS || process.env.ALLOWED_USERS
-
+      const userList = import.meta.env.ALLOWED_USERS 
       if(! userList) return "/loginerror" ; 
       if(!profile || !profile?.email) {
         console.log("no match")

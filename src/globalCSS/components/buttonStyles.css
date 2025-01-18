@@ -4,7 +4,7 @@
   .button-component {
     box-shadow: 1px 1px 0 var(--action), 2px 2px 0 var(--action),3px 3px 0 var(--action);
     @apply bg-background border-2 border-foreground text-xs uppercase pt-2 pb-2 pl-3 pr-3 
-   text-foreground flex items-center leading-none
+   text-foreground inline-flex items-center leading-none
   }
   
   .button-component.big {

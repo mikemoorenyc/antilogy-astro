@@ -8,7 +8,8 @@ export type TSettings = {
   homepageLogo?: string, 
   siteLogo?: string ,
   siteBg?: string,
-  
+  spotifyRefreshToken?:string,
+  section:string
 }
 
 export type IButton ={
@@ -27,4 +28,40 @@ export type TIcon = {
   icon:string,
   size?:number,
   fill?:string
+}
+export type TSpotifyImage = {
+    url: string;
+    height: number;
+    width: number;
+}
+export type  TSpotifyUserProfile = {
+
+    display_name: string;
+    email: string;
+
+    external_urls: { spotify: string; };
+
+    href: string;
+    id: string;
+    images: TSpotifyImage[];
+  
+ 
+    uri: string;
+}
+export type TSpotifyData = {
+  appId : string, 
+  requestUrl?: string, 
+  profileData?: TSpotifyUserProfile
+  
+}
+export type TContactInfoSection = {
+  title:string,
+  content:string
+}
+export type TContact = {
+  pageTitle: string, 
+  pageIntro?:string,
+  contactInfo:TContactInfoSection[],
+  contactForm:[],
+  section:string
 }

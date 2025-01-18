@@ -1,0 +1,14 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { getSettings } from "./api/dynamodb/settings";
+
+const settings = await getSettings(); 
+---
+
+
+{settings && <Layout settingsData={settings} pageTitle="Page no found">
+<div class="fixed inset-0 bg-background flex-center-center">  
+  <div>Page not found<br/><a href="/">Go back home</a></div>
+</div>
+
+</Layout>}

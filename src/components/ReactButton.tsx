@@ -11,10 +11,11 @@ type ReactIButton = Omit<IButton, 'icon'> & {
 
 export default function ReactButton (props:ReactIButton) {
   const {label,icon,modClasses=[],type="action",classes,onClick,href,target} = props
+
   
   const modString = modClasses.join(" ")
   
-  const classString = `button-component hover:no-underline ${classes} ${modString}`
+  const classString = `button-component hover:no-underline ${classes||""} ${modString}`
   
   const iconComp = icon? cloneElement(icon as ReactElement<any>, {size:14}) : null
  

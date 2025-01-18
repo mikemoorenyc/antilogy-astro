@@ -7,7 +7,7 @@ import Button from '../components/Button.astro'
 import { type TSettings } from '../../types'
 
 const nav = [
-  ["settings","Settings","/admin/settings"],["about","About Page","/admin/about"],["about","Contact Page","/admin/contact"],["samples","Samples","/admin/samples"], ["faqs","FAQs","/admin/faqs"]
+  ["settings","Settings","/admin/settings"],["about","About Page","/admin/about"],["contact","Contact Page","/admin/contact"],["samples","Samples","/admin/samples"], ["faqs","FAQs","/admin/faqs"]
 ]
 const pathname = new URL(Astro.request.url).pathname;
 const currentPath = pathname.slice(1);

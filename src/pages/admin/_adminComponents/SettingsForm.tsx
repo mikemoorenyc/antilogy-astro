@@ -2,21 +2,24 @@ import FormContainer from "./formelements/FormContainer"
 import { useState,useEffect, type SyntheticEvent } from "react"
 import ReactButton from "../../../components/ReactButton"
 import FormInput from "./formelements/FormInput"
-import { type TSettings } from "../../../../types"
+import { type TSettings, type TSpotifyData } from "../../../../types"
 import { createPortal } from "react-dom"
 import UploadImage from "./formelements/UploadImage"
 import { Ri24HoursFill } from "@remixicon/react"
 import { uploader } from "../../../_lib/uploader"
+import SpotifySection from "./formelements/SpotifySection"
 
 type TProps = {
-  settingsData: TSettings
+  settingsData: TSettings,
+  spotifyData?: TSpotifyData
 }
 type TUploadItem = {
   file: File,
   settingsKey: string
 }
 
-export default function SettingsForm({settingsData}:TProps) {
+export default function SettingsForm({settingsData,spotifyData}:TProps) {
+
   const [formData,updateFormData] = useState(settingsData);
   const [edited, updateEdited] = useState(false);
   const [settingsSent, updateSettingsSent] = useState(false);
@@ -25,7 +28,7 @@ export default function SettingsForm({settingsData}:TProps) {
   const [modalContainer,updateModalContainer] = useState<HTMLElement|null>(null);
   const [errors,updateErrors] = useState<[string,boolean][]>([])
   const [filesToUpload,updateFilesToUpload] = useState<{id:string,file:File}[]>([])
-  console.log(formData);
+  
   
 
   const beforeUnload = (e:BeforeUnloadEvent) => {
@@ -77,7 +80,7 @@ export default function SettingsForm({settingsData}:TProps) {
           alert("Couldn't delete old one");
         }
       }
-      const upload = await uploader(file.file,`settings_files/${file.id}.${file.file.name.split(".")[1]}-${Date.now()}`);
+      const upload = await uploader(file.file,`settings_files/${file.id}-${Date.now()}.${file.file.name.split(".")[1]}`);
       if(!upload) {
         console.log("couldn't upload",file);
         return false; 
@@ -170,9 +173,13 @@ export default function SettingsForm({settingsData}:TProps) {
       />
     
     </FormContainer>
+    <FormContainer label="Spotify Integration">
+      <SpotifySection spotifyData={spotifyData}/>
+    
+    </FormContainer>
 
 
-    <div className="flex-col md:flex-row flex-center  mt-7">
+    <div className="flex-col md:flex-row flex-center  mt-12">
         <ReactButton label="Update Settings" type="action" classes="mb-3 md:mb-0 md:mr-3"  modClasses={["big","reverse"]}/>
         <ReactButton classes="" onClick={()=> {
           window.removeEventListener('beforeunload', beforeUnload);

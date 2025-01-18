@@ -1,0 +1,32 @@
+---
+import type { TSettings, TContact } from '../../../types';
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import { getSettings } from '../api/dynamodb/settings';
+import PageHeader from './_adminComponents/PageHeader.astro';
+import ContactForm from './_adminComponents/ContactForm';
+export const prerender = false
+const settings = await getSettings() as TSettings; 
+if(!settings) return Astro.redirect("/404");
+const contactSettings : TContact = await getSettings("contact") as TContact
+
+const starterData:TContact = {
+  pageTitle:"Contact page",
+  contactInfo:[],
+  contactForm:[],
+  section:"contact"
+}
+
+if(!contactSettings || !contactSettings?.pageTitle) {
+
+}
+
+
+---
+
+
+<AdminLayout settingsData={settings} pageTitle={`Contact form & info - Admin - ${settings.siteTitle}`}>
+<PageHeader pageTitle='Contact form & info' />
+
+  <ContactForm client:only="react" contactSettings={(!contactSettings || !contactSettings?.pageTitle)? starterData : contactSettings}/>
+
+</AdminLayout>

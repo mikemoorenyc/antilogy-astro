@@ -28,10 +28,11 @@
 	
 	a {
 	color: var(--action);
+	text-decoration:underline;
 
 	}
 	a:hover {
-		text-decoration: underline; 
+		text-decoration: none; 
 	}
 	body {
 	background: var(--bg);

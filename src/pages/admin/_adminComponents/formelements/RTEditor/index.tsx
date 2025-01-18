@@ -1,0 +1,107 @@
+import { useEditor, EditorContent, FloatingMenu, BubbleMenu } from '@tiptap/react'
+import StarterKit from '@tiptap/starter-kit'
+import Link from '@tiptap/extension-link'
+import { type ReactNode } from 'react'
+import { RiBold, RiItalic, RiLink, RiLinkUnlink, RiListCheck, RiListOrdered } from '@remixicon/react'
+import setLink from './setLink'
+
+const extensions = [StarterKit.configure({
+    bulletList: {
+      keepMarks: true,
+      keepAttributes: false, // TODO : Making this as `false` becase marks are not preserved when I try to preserve attrs, awaiting a bit of help
+    },
+    orderedList: {
+      keepMarks: true,
+      keepAttributes: false, // TODO : Making this as `false` becase marks are not preserved when I try to preserve attrs, awaiting a bit of help
+    },
+    
+  }),
+  Link.configure({
+    linkOnPaste: false,
+                openOnClick: false,
+  }
+  )]
+
+
+type TEditorOption = ("bold"|"italic"|"addLink"|"removeLink"|"bulletList"|"orderedList");
+type TTypeOption = [ReactNode,Function,TEditorOption];
+export type TEditorOptions = TEditorOption[]; 
+const availableOptions = ["bold","italic","addLink","removeLink","bulletList","orderedList"]
+
+
+export default function RTEditor({content,updateCallback,options}:{content:string,updateCallback:Function,options:TEditorOptions}) {
+
+  const editor = useEditor({
+    extensions,
+    content,
+    immediatelyRender:false,
+    onUpdate: ({ editor }) => {
+  
+            updateCallback(editor.getHTML());
+    },
+    editorProps: {
+    attributes: {
+      class: 'min-h-36  focus:border-action border-radius-0 outline-none text-sm py-1 px-2 border-2 border-foreground',
+    },
+  }
+  })
+  const iconSize = {
+    width: 16,
+    height: 16
+  }
+
+
+  const typeOptions : TTypeOption[]  = editor ? [
+    [<RiItalic style={iconSize}/>,()=>{editor.chain().focus().toggleItalic().run()},"italic"],
+    [<RiBold style={iconSize} />, ()=>{editor.chain().focus().toggleBold().run()},"bold"],
+    [<RiListCheck style={iconSize} />, ()=>{editor.chain().focus().toggleBulletList().run()},"bulletList"],
+    [<RiListOrdered style={iconSize} />, ()=>{editor.chain().focus().toggleOrderedList().run()},"orderedList"],
+    [<RiLink style={iconSize}/>, () => setLink(editor),"addLink"],
+    [<RiLinkUnlink style={iconSize} />, () => setLink(editor,true),"removeLink"]
+
+  ] : []
+
+const activeTest = (type:string) => {
+    if(!editor) return false; 
+    if(type == "removeLink") {
+      return editor.getAttributes('link').href
+    }
+    
+    return editor?.isActive(type)
+  }
+
+
+  return <div>
+  <div className='flex mb-2'>
+  {typeOptions.filter(o => {
+    return options.includes(o[2])
+  }).map(o => {
+    let isHidden; 
+    if(o[2]=="removeLink" && !editor?.getAttributes('link').href) {
+      isHidden="none";
+    }
+    if(o[2] == "addLink" && editor?.getAttributes('link').href) {
+      isHidden="none"
+    }
+    return (
+<button 
+    style={{display:isHidden}}
+    className={`w-8 h-8 border flex-center-center border-foreground flex mr-2 ${activeTest(o[2])?"border-2":""} hover:border-action`}
+  
+    key={o[2]} 
+    onClick={(e)=>{e.preventDefault();o[1]()}}
+    >
+    {o[0]}
+
+  </button>
+
+
+    )
+
+  })}
+  
+  </div>
+<EditorContent editor={editor} />
+  
+  </div>
+}
