@@ -1,4 +1,5 @@
 import type { CSSProperties } from "react"
+import type { TContactFormSection } from "./src/pages/admin/_adminComponents/FormEditor"
 
 export type TSettings = {
   siteTitle: string, 
@@ -15,11 +16,11 @@ export type TSettings = {
 export type IButton ={
   label:string,
   icon?:string,
-  type: "link"|"action",
+  type?: "link"|"action",
   classes?: string,
   href?: string,
   target?:string
-  modClasses?: ("big"|"sm"|"reverse"|"ghost")[],
+  modClasses?: ("big"|"sm"|"reverse"|"ghost"|"caution")[],
   actionId?: string,
   style?: CSSProperties| React.CSSProperties
   
@@ -54,14 +55,13 @@ export type TSpotifyData = {
   profileData?: TSpotifyUserProfile
   
 }
-export type TContactInfoSection = {
-  title:string,
-  content:string
-}
+
 export type TContact = {
   pageTitle: string, 
   pageIntro?:string,
-  contactInfo:TContactInfoSection[],
-  contactForm:[],
-  section:string
+
+  contactForm:TContactFormSection[],
+  physicalAddress?:string,
+  hours?:string, 
+  email?:string 
 }

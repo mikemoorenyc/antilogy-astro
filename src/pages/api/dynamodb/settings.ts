@@ -35,8 +35,11 @@ const settingsValues : TSettingsValues  = {
   main: ["spotifyRefreshToken","siteTitle","siteDescription","siteFavicon","siteFaviconSVG","homepageLogo","siteLogo","siteBg"],
   contact : ["pageTitle", 
     "pageIntro",
+    "physicalAddress",
     "contactInfo",
-    "contactForm"]
+    "contactForm",
+    "hours",
+    "email"]
 }
 
 export const updateSettings = async (updatePackage :any ) =>{

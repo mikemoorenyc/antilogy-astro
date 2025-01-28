@@ -2,7 +2,7 @@ type TInput = {
   forValue: string, 
   value: string | number | undefined, 
   onChange: Function,
-  type?:string,
+  type?:"text"|"textarea"|"email",
   required?: boolean
   rows?: number,
   errored?: boolean

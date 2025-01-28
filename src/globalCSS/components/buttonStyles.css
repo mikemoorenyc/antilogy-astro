@@ -6,6 +6,10 @@
     @apply bg-background border-2 border-foreground text-xs uppercase pt-2 pb-2 pl-3 pr-3 
    text-foreground inline-flex items-center leading-none
   }
+  .button-component.caution {
+    box-shadow: 1px 1px 0 var(--for), 2px 2px 0 var(--for),3px 3px 0 var(--for);
+    @apply text-red-800 border-red-800
+  }
   
   .button-component.big {
     line-height: 48px;
@@ -14,8 +18,11 @@
     @apply  font-bold px-4 py-0 
   }
   .button-component.reverse {
-    text-shadow: none;
+    box-shadow: none;
     @apply bg-foreground text-background
+  }
+  .button-component.reverse.caution {
+    @apply bg-red-800
   }
   .button-component.ghost {
     text-shadow: none;
@@ -27,6 +34,6 @@
   }
 
   .button-component:active {
-    @apply bg-action
+    @apply bg-action text-background
   }
 }

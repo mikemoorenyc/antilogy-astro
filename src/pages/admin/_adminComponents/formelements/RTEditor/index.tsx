@@ -1,9 +1,11 @@
-import { useEditor, EditorContent, FloatingMenu, BubbleMenu } from '@tiptap/react'
+import { useEditor, EditorContent, BubbleMenu } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import Link from '@tiptap/extension-link'
-import { type ReactNode } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import { RiBold, RiItalic, RiLink, RiLinkUnlink, RiListCheck, RiListOrdered } from '@remixicon/react'
 import setLink from './setLink'
+import { createPortal } from 'react-dom'
+import LinkModal from './LinkModal'
 
 const extensions = [StarterKit.configure({
     bulletList: {
@@ -30,7 +32,16 @@ const availableOptions = ["bold","italic","addLink","removeLink","bulletList","o
 
 
 export default function RTEditor({content,updateCallback,options}:{content:string,updateCallback:Function,options:TEditorOptions}) {
+  const [addLinkOpen,updateAddLinkOpen] = useState(false);
+  const [linkUrl,updateLinkUrl] = useState("");
+  const [modalContainer,updateModalContainer] = useState<null|HTMLElement>(null);
 
+  useEffect(()=> {
+    if(window) {
+      const div = document.getElementById("modal-container");
+      if(div) updateModalContainer(div); 
+    }
+  },[])
   const editor = useEditor({
     extensions,
     content,
@@ -39,6 +50,7 @@ export default function RTEditor({content,updateCallback,options}:{content:strin
   
             updateCallback(editor.getHTML());
     },
+
     editorProps: {
     attributes: {
       class: 'min-h-36  focus:border-action border-radius-0 outline-none text-sm py-1 px-2 border-2 border-foreground',
@@ -56,7 +68,7 @@ export default function RTEditor({content,updateCallback,options}:{content:strin
     [<RiBold style={iconSize} />, ()=>{editor.chain().focus().toggleBold().run()},"bold"],
     [<RiListCheck style={iconSize} />, ()=>{editor.chain().focus().toggleBulletList().run()},"bulletList"],
     [<RiListOrdered style={iconSize} />, ()=>{editor.chain().focus().toggleOrderedList().run()},"orderedList"],
-    [<RiLink style={iconSize}/>, () => setLink(editor),"addLink"],
+    [<RiLink style={iconSize}/>, () => {updateLinkUrl(editor.getAttributes("link").href);updateAddLinkOpen(true)},"addLink"],
     [<RiLinkUnlink style={iconSize} />, () => setLink(editor,true),"removeLink"]
 
   ] : []
@@ -102,6 +114,16 @@ const activeTest = (type:string) => {
   
   </div>
 <EditorContent editor={editor} />
-  
+
+
+{addLinkOpen && <LinkModal isOpen={addLinkOpen} currentValue={linkUrl} closeCallback={()=>{
+  updateAddLinkOpen(false);
+  updateLinkUrl("")
+  editor?.commands.focus();
+}} saveCallback={(linkValue:string )=>{
+  editor?.chain().focus().extendMarkRange('link').setLink({ href: linkValue }).run()
+
+
+}}/>}
   </div>
 }

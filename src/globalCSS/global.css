@@ -39,6 +39,9 @@
 	color: var(--for); 
 	font-family: var(--font-mono)
 	}
+	input {
+		outline:none;
+	}
 
 @layer components {
 

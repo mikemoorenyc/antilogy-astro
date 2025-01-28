@@ -5,4 +5,7 @@
   .flex-center-center {
     @apply flex items-center justify-center
   }
+  .bg-shadow{
+    box-shadow: 1px 1px 0 var(--action), 2px 2px 0 var(--action),3px 3px 0 var(--action);
+  }
 }
