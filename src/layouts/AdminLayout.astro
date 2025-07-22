@@ -32,7 +32,13 @@ const {siteTitle} = settingsData
 
 <div class="wrapper md:flex min-h-[calc(100vh-28px)]">
   <div class="p-3 relative md:hidden">
-    <Button label='Menu' icon="ri-menu-fill" type="action" actionId='menu-opener' classes='menu-opener'/>
+    <Button  label='Menu' icon="ri-menu-fill" type="action" actionId='menu-opener' classes='menu-opener'>
+   <svg slot="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="size-4">
+  <path fill-rule="evenodd" d="M2 3.75A.75.75 0 0 1 2.75 3h10.5a.75.75 0 0 1 0 1.5H2.75A.75.75 0 0 1 2 3.75ZM2 8a.75.75 0 0 1 .75-.75h10.5a.75.75 0 0 1 0 1.5H2.75A.75.75 0 0 1 2 8Zm0 4.25a.75.75 0 0 1 .75-.75h10.5a.75.75 0 0 1 0 1.5H2.75a.75.75 0 0 1-.75-.75Z" clip-rule="evenodd" />
+</svg>
+
+
+    </Button>
   </div>
   <div id="nav-container" class="navigation hidden inset-0 bg-background md:block w-52 md:pt-3">
     <div class="p-2 md:hidden"><Button label='Close' icon="ri-close-fill" type="action" actionId='menu-opener' classes='menu-opener'/></div>

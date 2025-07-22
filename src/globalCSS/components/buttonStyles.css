@@ -29,8 +29,11 @@
     box-shadow: none;
     @apply bg-transparent border-none
   }
-  .button-component .svg-container {
+  .button-component .svg-container:not(:last-child), .button-component > svg:not(:last-child) {
     margin-right: 6px;
+  }
+  .button-component.sm .svg-container:not(:last-child), .button-component.sm > svg:not(:last-child) {
+    margin-right: 3px; 
   }
 
   .button-component:active {

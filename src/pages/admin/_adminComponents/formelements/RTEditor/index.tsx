@@ -2,7 +2,7 @@ import { useEditor, EditorContent, BubbleMenu } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import Link from '@tiptap/extension-link'
 import { useEffect, useState, type ReactNode } from 'react'
-import { RiBold, RiItalic, RiLink, RiLinkUnlink, RiListCheck, RiListOrdered } from '@remixicon/react'
+import { ItalicIcon, BoldIcon, ListBulletIcon,NumberedListIcon,LinkIcon,LinkSlashIcon } from '@heroicons/react/16/solid'
 import setLink from './setLink'
 import { createPortal } from 'react-dom'
 import LinkModal from './LinkModal'
@@ -64,12 +64,12 @@ export default function RTEditor({content,updateCallback,options}:{content:strin
 
 
   const typeOptions : TTypeOption[]  = editor ? [
-    [<RiItalic style={iconSize}/>,()=>{editor.chain().focus().toggleItalic().run()},"italic"],
-    [<RiBold style={iconSize} />, ()=>{editor.chain().focus().toggleBold().run()},"bold"],
-    [<RiListCheck style={iconSize} />, ()=>{editor.chain().focus().toggleBulletList().run()},"bulletList"],
-    [<RiListOrdered style={iconSize} />, ()=>{editor.chain().focus().toggleOrderedList().run()},"orderedList"],
-    [<RiLink style={iconSize}/>, () => {updateLinkUrl(editor.getAttributes("link").href);updateAddLinkOpen(true)},"addLink"],
-    [<RiLinkUnlink style={iconSize} />, () => setLink(editor,true),"removeLink"]
+    [<ItalicIcon style={iconSize}/>,()=>{editor.chain().focus().toggleItalic().run()},"italic"],
+    [<BoldIcon style={iconSize} />, ()=>{editor.chain().focus().toggleBold().run()},"bold"],
+    [<ListBulletIcon style={iconSize} />, ()=>{editor.chain().focus().toggleBulletList().run()},"bulletList"],
+    [<NumberedListIcon style={iconSize} />, ()=>{editor.chain().focus().toggleOrderedList().run()},"orderedList"],
+    [<LinkIcon style={iconSize}/>, () => {updateLinkUrl(editor.getAttributes("link").href);updateAddLinkOpen(true)},"addLink"],
+    [<LinkSlashIcon style={iconSize} />, () => setLink(editor,true),"removeLink"]
 
   ] : []
 

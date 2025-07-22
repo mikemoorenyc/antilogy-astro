@@ -1,7 +1,8 @@
 import { useState,useEffect,useRef } from "react";
 import { createPortal } from "react-dom";
 import ReactButton from "../../../../../components/ReactButton";
-import { RiCloseCircleFill } from "@remixicon/react";
+
+import { XCircleIcon } from "@heroicons/react/24/outline";
 
 type TProps = {
   isOpen: boolean,
@@ -52,7 +53,7 @@ export default function LinkModal({currentValue,saveCallback,closeCallback}:TPro
       <div ref={containerRef} className="border-2 border-foreground bg-shadow bg-background p-5 pt-2 ">
       <div className="flex justify-between pb-3 items-center">
         <div className="font-bold pt-2">{currentValue?"Edit":"Add"} Link</div>
-        <button className="block p-2 relative mr-[-8px]" onClick={()=>{closeCallback()}}><RiCloseCircleFill /></button>
+        <button className="block p-2 relative mr-[-8px]" onClick={()=>{closeCallback()}}><XCircleIcon /></button>
       </div>
       <div className="flex">
       <input className="mr-2 w-64 border-2 border-foreground px-1 focus:border-action" ref={inputRef} type="text" value={linkValue} onChange={(e)=>{e.preventDefault();updateLinkValue(e.target.value)}} />

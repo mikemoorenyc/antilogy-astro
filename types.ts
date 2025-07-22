@@ -10,7 +10,7 @@ export type TSettings = {
   siteLogo?: string ,
   siteBg?: string,
   spotifyRefreshToken?:string,
-  section:string
+  section?:string
 }
 
 export type IButton ={

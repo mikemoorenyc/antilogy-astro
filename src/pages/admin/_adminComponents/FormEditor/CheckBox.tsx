@@ -1,4 +1,5 @@
-import { RiCheckFill } from "@remixicon/react";
+import { CheckIcon } from "@heroicons/react/16/solid";
+
 
 export default function CheckBox({checked,onChange,label,id}:{checked:boolean,onChange:Function,label:string,id:string}) {
 
@@ -10,7 +11,7 @@ export default function CheckBox({checked,onChange,label,id}:{checked:boolean,on
       onChange(!checked);
     }}/>
   <div className={`flex-center-center border-2 border-foreground w-5 h-5 ${checked? "bg-foreground":""}`}>
-    {checked && <RiCheckFill size={16} className="fill-background"/>}
+    {checked && <CheckIcon className="fill-background w-4 h-4"/>}
   </div>
   
   <span className="text-sm ml-2">{label}</span>

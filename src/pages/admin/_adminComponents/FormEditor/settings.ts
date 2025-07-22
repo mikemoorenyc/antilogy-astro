@@ -1,8 +1,12 @@
 type TSettingSchema = {
   title:string, 
-  otherSettings: {}
+  otherSettings?: {}
 }
-
+type TOption = {
+    label:string, 
+    type:string,
+    description?:string
+}
 
 const commonSettings = {
     required: {
@@ -26,29 +30,29 @@ const commonSettings = {
 const formComponents = {
     textField: {
         title: "Text Field",
-        otherSettings: {}
+     
     },
     emailAddress: {
         title: "Email Address",
-        otherSettings: {}
+        
     },
     bigTextField: {
         title :"Big Text Field",
-        otherSettings:{}
+  
     },
     upload: {
         title: "File Uploader",
-        otherSettings: {}
+        
     },
     quantity: {
         title: "Order Quantity",
         otherSettings: {
             min: {
-                type: "textField",
+                type: "numberField",
                 label: "Minimum Amount",
             },
             max: {
-                type: "textField",
+                type: "numberField",
                 label: "Maximum Amount"
             }
         }
@@ -65,7 +69,7 @@ const formComponents = {
     },
     date: {
         title: "Date Picker",
-        otherSettings: {}
+       
     },
     select: {
         title: "Select",

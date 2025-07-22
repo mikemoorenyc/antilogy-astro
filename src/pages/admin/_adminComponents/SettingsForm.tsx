@@ -5,7 +5,7 @@ import FormInput from "./formelements/FormInput"
 import { type TSettings, type TSpotifyData } from "../../../../types"
 import { createPortal } from "react-dom"
 import UploadImage from "./formelements/UploadImage"
-import { Ri24HoursFill } from "@remixicon/react"
+
 import { uploader } from "../../../_lib/uploader"
 import SpotifySection from "./formelements/SpotifySection"
 

@@ -1,0 +1,32 @@
+---
+import { getSession } from 'auth-astro/server';
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import PageHeader from './_adminComponents/PageHeader.astro';
+import {getSettings} from "../api/dynamodb/settings"
+import type { TSettings } from '../../../types';
+import {getFaqs} from "../api/faqs";
+import FaqForm from "./_faqsComponents/faqForm"
+
+export const prerender = false;
+const session = await getSession(Astro.request);
+
+if(!session) {
+  return Astro.redirect('/login');
+}
+const settings = await getSettings() as TSettings;
+if(!settings) return Astro.redirect("/404");
+
+const faqs = await getFaqs() ;
+if(!faqs) return Astro.redirect("/404");
+
+
+
+
+---
+
+<AdminLayout pageTitle={`FAQs - Admin - ${settings.siteTitle}`} settingsData={settings}>
+<PageHeader pageTitle='FAQs' />
+<FaqForm faqs={faqs} client:only="react"/>
+ 
+
+</AdminLayout>

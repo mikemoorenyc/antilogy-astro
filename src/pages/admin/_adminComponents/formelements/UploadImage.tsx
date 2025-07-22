@@ -1,6 +1,7 @@
 import { useState ,useRef} from "react"
-import { RiFileImageLine } from "@remixicon/react"
+
 import ReactButton from "../../../../components/ReactButton"
+import { PhotoIcon } from "@heroicons/react/24/outline"
 
 
 
@@ -47,7 +48,7 @@ export default function UploadImage({accept,uploadedImage,requirements,fileCallb
     {(!localFileUrl&&!uploadedImage) && (
       <div className="w-full border-foreground aspect-square flex-center-center border-2 border-dashed">
         <div className="flex-center-center flex-col"> 
-          <RiFileImageLine className="mb-4" size={64} />
+          <PhotoIcon className="size-16"/>
           <ReactButton label="Upload an image" type="action" onClick={()=> {
             if(inputRef?.current) {
               inputRef.current?.click()

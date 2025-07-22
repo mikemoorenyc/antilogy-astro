@@ -1,5 +1,5 @@
 
-import { RiSpotifyFill } from "@remixicon/react"
+
 import { type TSpotifyData } from "../../../../../types"
 import ReactButton from "../../../../components/ReactButton"
 import { spotifyDisconnect } from "../../../api/spotify/disconnect"
@@ -22,7 +22,7 @@ export default function SpotifySection({spotifyData}:TProps) {
   }
 
   if(!spotifyData?.profileData) {
-    return <ReactButton label={"Connect to spotify"} type="link" icon={<RiSpotifyFill />} href={spotifyData?.requestUrl} target="_self"/>
+    return <ReactButton label={"Connect to spotify"} type="link"  href={spotifyData?.requestUrl} target="_self"/>
   }
   const profileData = spotifyData?.profileData;
   return (
@@ -33,7 +33,7 @@ export default function SpotifySection({spotifyData}:TProps) {
   <div className="flex-1 ml-2 pt-1">
     <div className="font-bold text-sm">Connected as: {profileData.display_name}</div>
     <div className="text-xs mb-4"><a href={profileData.external_urls.spotify}>View profile</a></div>
-    <ReactButton icon={<RiSpotifyFill />} type="action" label="Disconnect from spotify" onClick={()=>{spotifyDisconnect()}}/>
+    <ReactButton  type="action" label="Disconnect from spotify" onClick={()=>{spotifyDisconnect()}}/>
   
   </div>
   

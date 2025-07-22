@@ -24,7 +24,7 @@ export const getSettings = async (id:string="main") => {
   try {
     const data = await ddbDocClient.send(new GetCommand(input));  
      
-    return data.Item ;
+    return data.Item as TSettings;
   } catch (err) {
       console.log("Error", err);
       return false; 

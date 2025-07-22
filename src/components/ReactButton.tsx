@@ -17,13 +17,14 @@ export default function ReactButton (props:ReactIButton) {
   
   const classString = `button-component hover:no-underline ${classes||""} ${modString}`
   
-  const iconComp = icon? cloneElement(icon as ReactElement<any>, {size:14}) : null
+  const iconComp = icon? cloneElement(icon as ReactElement<any>, {width:14,height:14}) : null
+
  
 
   const Interior = ({icon,label}:{label:string,icon?:ReactNode|undefined}) => {
     return <>
         {icon && <span className="svg-container">{iconComp}</span>}
-        <span>{label}</span>
+        {label && <span>{label}</span>}
     </>
   }
   if(type == "action") {

@@ -32,7 +32,9 @@ export default function ContactForm({contactSettings}:{contactSettings:TContact}
 
   }
   const submitForm = async (e:SyntheticEvent) => {
+    
     e.preventDefault(); 
+
     const sendUpdatedSettings = await fetch("/api/dynamodb/settings",{
       method:"POST",
       body: JSON.stringify(formData)

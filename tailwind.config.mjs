@@ -11,7 +11,8 @@ export default {
 				"background": "var(--bg)",
 				"action" : "var(--action)",
 				"background85": "rgba(0,0,0,.85)",
-				"accent" : "var(--accent)"
+				"accent" : "var(--accent)",
+				"caution": "#991b1b"
 			},
 			fontFamily: {
 				"mono": "var(--font-mono)",
