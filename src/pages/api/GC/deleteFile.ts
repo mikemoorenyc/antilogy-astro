@@ -5,7 +5,7 @@ import { createStorage } from './_lib';
 export const prerender = false;
 const bucketName = import.meta.env.GCLOUD_BUCKET || process.env.GCLOUD_BUCKET
 
-export const deleteFile = async (filePath:string) => {
+export const deleteFile = async (filePath:string) : Promise<boolean> => {
   
     //const bucket = createBucket(); 
     const storage = createStorage();
