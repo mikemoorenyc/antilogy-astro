@@ -1,6 +1,9 @@
 ---
-import { type TIcon } from "../../types"
-const {size,fill,icon} = Astro.props as TIcon
+import type { Icon } from "./types"
+interface Props extends Icon{};
+
+const {size,fill,icon} = Astro.props
+
 
 const setSize = size || 16
 const setFill = fill || 'currentColor'

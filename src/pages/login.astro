@@ -3,7 +3,7 @@ import Layout from "../layouts/Layout.astro";
 import { SignIn, SignOut } from 'auth-astro/components'
 import RemixSVG from "../components/RemixSVG.astro";
 import { getSession } from 'auth-astro/server';
-import { getSettings } from "./api/dynamodb/settings";
+import { getSettings } from "./api/settings";
 
 const session = await getSession(Astro.request);
 const settings = await getSettings();

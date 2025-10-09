@@ -1,25 +1,15 @@
 import { useState } from "react"
-import ReactButton from "../../../../components/ReactButton"
-
+import ReactButton from "../../../../components/Button/ReactButton"
+import type { ContactFormSection } from "@/pages/api/contact/types"
 import { formComponents } from "./settings"
 import SelectInput from "./SelectInput"
 import EditPanel from "./EditPanel"
 import { ArrowDownIcon, ArrowUpIcon, PencilIcon, TrashIcon } from "@heroicons/react/16/solid"
 import { PlusCircleIcon } from "@heroicons/react/16/solid"
 
-export type TContactFormSection = {
-  id: number|"new", 
-  fieldType:string,
-  label:string,
-  required:boolean,
-  helperText?:string,
-  width: "half"|"full",
-  min?: number, 
-  max?: number, 
-  options?: string 
-}
+
 type TProps = {
-  data:TContactFormSection[],
+  data:ContactFormSection[],
   updateCallback:Function
 }
 
@@ -27,11 +17,11 @@ export default function FormEditor(props:TProps) {
   const {data,updateCallback} = props
   const [addFieldOpen,updateAddFieldOpen] = useState(false);
   const [addOption,updateAddOption] = useState("");
-  const [currentlyEditing,updateCurrentlyEditing] = useState<null|TContactFormSection>(null)
+  const [currentlyEditing,updateCurrentlyEditing] = useState<null|ContactFormSection>(null)
 
   const typeOptions = Object.entries(formComponents)
   
-  const formUpdate = (item:TContactFormSection,toDelete:boolean) => {
+  const formUpdate = (item:ContactFormSection,toDelete:boolean) => {
  
     const newData = [...data];
     if(item.id == "new") {
@@ -53,7 +43,7 @@ export default function FormEditor(props:TProps) {
     }))
 
   }
-  const switchOrder = (item:TContactFormSection,goingUp?:boolean) => {
+  const switchOrder = (item:ContactFormSection,goingUp?:boolean) => {
     const currentState = [...data];
     const itemIndex = data.findIndex(i => i.id === item.id); 
     if(itemIndex < 0) {console.log("index not found");return};
@@ -65,7 +55,7 @@ export default function FormEditor(props:TProps) {
   return <div className="mb-5 border border-foreground ">
 
   <div className="fields flex flex-wrap w-full py-4 px-2">
-  {data.map((item:TContactFormSection,i) => {
+  {data.map((item:ContactFormSection,i) => {
     const itemType = typeOptions.find(e => e[0] == item.fieldType);
     if(!itemType) {
       return null ; 

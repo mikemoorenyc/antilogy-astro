@@ -1,15 +1,16 @@
 import { cloneElement, type ReactElement, type ReactNode } from "react"
-import { type IButton } from "../../types"
+import type { Button } from "./types"
 
 
 
-type ReactIButton = Omit<IButton, 'icon'> & {
+type ReactButton = Omit<Button, 'icon'> & {
   icon?: ReactNode | undefined,
-  onClick?: Function 
+  onClick?: ()=>void
 }
 
 
-export default function ReactButton (props:ReactIButton) {
+
+export default function ReactButton (props:ReactButton) {
   const {label,icon,modClasses=[],type="action",classes,onClick,href,target} = props
 
   
@@ -28,7 +29,7 @@ export default function ReactButton (props:ReactIButton) {
     </>
   }
   if(type == "action") {
-    return <button className={classString} onClick={onClick?(e)=> {
+    return <button disabled={modClasses.includes("disabled")} className={classString} onClick={onClick?(e)=> {
       e.preventDefault(); 
       onClick();
     }:undefined}>

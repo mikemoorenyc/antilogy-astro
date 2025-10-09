@@ -1,17 +1,18 @@
 import FormContainer from "./formelements/FormContainer"
 import { useState,useEffect, type SyntheticEvent } from "react"
-import ReactButton from "../../../components/ReactButton"
+import ReactButton from "../../../components/Button/ReactButton"
 import FormInput from "./formelements/FormInput"
-import { type TSettings, type TSpotifyData } from "../../../../types"
+import type { Settings,SpotifyData } from "@/pages/api/settings/types"
 import { createPortal } from "react-dom"
 import UploadImage from "./formelements/UploadImage"
 
 import { uploader } from "../../../_lib/uploader"
 import SpotifySection from "./formelements/SpotifySection"
+import SaveFooter from "./formelements/SaveFooter"
 
 type TProps = {
-  settingsData: TSettings,
-  spotifyData?: TSpotifyData
+  settingsData: Settings,
+  spotifyData?: SpotifyData
 }
 type TUploadItem = {
   file: File,
@@ -52,8 +53,8 @@ export default function SettingsForm({settingsData,spotifyData}:TProps) {
 
   const updateFormValue = (value:string,key:string) => {
     updateEdited(true);
-    const payLoad :TSettings  = {...formData};
-    payLoad[key as keyof TSettings] = value;  
+    const payLoad :Settings  = {...formData};
+    payLoad[key as keyof Settings] = value;  
     updateFormData(prev => {
       return {...formData,...payLoad}
     })
@@ -68,8 +69,8 @@ export default function SettingsForm({settingsData,spotifyData}:TProps) {
     
     for (const file of filesToUpload) {
       //DELETE OLD FILE
-      if(settingsData[file.id as keyof TSettings]) {
-        let deletePath = settingsData[file.id as keyof TSettings]?.split("/settings_files/")[1];
+      if(settingsData[file.id as keyof Settings]) {
+        let deletePath = settingsData[file.id as keyof Settings]?.split("/settings_files/")[1];
         deletePath = "settings_files/"+deletePath
         const deleteOld = await fetch("/api/GC/deleteFile",{
           method:"POST",
@@ -85,7 +86,7 @@ export default function SettingsForm({settingsData,spotifyData}:TProps) {
         console.log("couldn't upload",file);
         return false; 
       }
-      settingsPayload[file.id as keyof TSettings] = upload
+      settingsPayload[file.id as keyof Settings] = upload
     }
 
     console.log(settingsPayload);
@@ -178,34 +179,14 @@ export default function SettingsForm({settingsData,spotifyData}:TProps) {
     
     </FormContainer>
 
+    <SaveFooter
+      saveText="Update Settings"
+      {...{isPending,beforeUnload}}
+    
+     />
 
-    <div className="flex-col md:flex-row flex-center  mt-12">
-        <ReactButton label="Update Settings" type="action" classes="mb-3 md:mb-0 md:mr-3"  modClasses={["big","reverse"]}/>
-        <ReactButton classes="" onClick={()=> {
-          window.removeEventListener('beforeunload', beforeUnload);
-          location.reload();
-          return ; 
-        }} label="Cancel" type="action" modClasses={["ghost","big"]}/>
+
     
-    </div>
-    <style dangerouslySetInnerHTML={{__html: isPending? `body{overflow:hidden}`:""}}></style>
-  
-  {modalContainer && isPending &&  createPortal(<>
-    <div className="fixed inset-0 flex-center-center">
-      <div className="bg-foreground border border-background w-72 h-72 flex-center-center">
-        <div>
-          <div className="text-3xl bold text-background font-bold uppercase text-center pt-10">Saving</div>
-        <div className="squeegee-container">
-          <div className="squeegee-screen"></div>
-          <div className="squeegee-handle"></div>
-          <div className="squeegee-ink"></div>
-        </div>
-        </div>
-      </div>
-    
-    </div>
-  
-  </>,modalContainer)}
 </form>
 
   )

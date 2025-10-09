@@ -1,21 +1,43 @@
-import React, { useState } from "react";
-import type { TFaq, TFaqSection } from "../../api/faqs"
+import React, { useEffect, useState, type SyntheticEvent } from "react";
+import type { FaqSection } from "@/pages/api/faqs/types";
 import { DragDropContext, Droppable, Draggable, type DragUpdate } from '@hello-pangea/dnd';
-import ReactButton from "../../../components/ReactButton";
+import ReactButton from "../../../../components/Button/ReactButton";
 import FaqSectionHeader from "./FaqSectionHeader";
 
 import { EllipsisVerticalIcon } from "@heroicons/react/20/solid";
 import { EllipsisVerticalIcon as EllipsisSm } from "@heroicons/react/16/solid";
-import idleDirective from "astro/runtime/client/idle.js";
-import FaqQuestion from "./FaqQuestion";
 
-export default function ({faqs}:{faqs:TFaqSection[]}){
-  const [items,setItems] = useState<TFaqSection[]>([{id:234,title:"Test",questions:[]}]);
+import FaqQuestion from "./FaqQuestion";
+import SaveFooter from "../../_adminComponents/formelements/SaveFooter";
+
+export default function FaqForm({faqs}:{faqs:FaqSection[]}){
+  const [items,setItems] = useState<FaqSection[]>(faqs);
+  const [formUpdated,updateFormUpdated] = useState(false);
+  const [isPending,updateIsPending] = useState(false);
+
+  const beforeUnload = (e:BeforeUnloadEvent) => {
+    e.preventDefault();
+  }
+  useEffect(()=> {
+    if(import.meta.env.DEV) return ; 
+    if(!formUpdated) {
+      window.removeEventListener('beforeunload', beforeUnload);
+      return; 
+    }
+    window.addEventListener('beforeunload', beforeUnload);
+      return ()=> {
+        window.removeEventListener('beforeunload', beforeUnload);
+      }
+  },[formUpdated])
+
+
+  useEffect(()=> {
+    updateFormUpdated(JSON.stringify(items) == JSON.stringify(faqs))
+  },[items])
 
   const handleDragEnd = (result:DragUpdate) => {
     const { source, destination, draggableId, type } = result;
     console.log(result);
-    
 
     if (!destination) {
       return;
@@ -25,14 +47,9 @@ export default function ({faqs}:{faqs:TFaqSection[]}){
       const newParentItems = Array.from(items);
       const [removed] = newParentItems.splice(source.index, 1);
       newParentItems.splice(destination.index, 0, removed);
-
-      setItems(newParentItems);
-     
+      setItems(newParentItems);    
     }
-    
 
-    
-  
     if (type === 'child') {
       
       const sourceParentIndex = items.findIndex((parent) => parent.id === parseInt(source.droppableId));
@@ -58,7 +75,7 @@ export default function ({faqs}:{faqs:TFaqSection[]}){
       }
     }
   };
-  const deleteFaqSection = (item:TFaqSection) => {
+  const deleteFaqSection = (item:FaqSection) => {
     setItems((prev) => {
       return prev.filter(i => i.id !== item.id)
     })
@@ -72,11 +89,36 @@ export default function ({faqs}:{faqs:TFaqSection[]}){
           return section; 
         })
       })
-    }
+  }
+  const updateQuestion = (id:number,payload:{question:string,answer:string}) => {
+    setItems(prev => {
+       return prev.map(s => {
+        const item = s.questions.find(q=>q.id == id);
+        if(!item) return s; 
+        const newQuestions = s.questions.map(q => {
+          if(q.id !== id) return q;
+          return {...q, ...payload}
+          
+        })
+        return {...s,...{questions:newQuestions}}
+       })
+    })
+  }
+
+  const submitForm = async (e:SyntheticEvent) => {
+    e.preventDefault(); 
+    updateIsPending(true);
+    const sendUpdatedFaqs = await fetch("/api/faqs",{
+      method:"POST",
+      body: JSON.stringify({faqs:items})
+    })
+    updateIsPending(false); 
+
+  }
  
 
 
-  return <form className="max-w-screen-lg"><div className="border border-foreground p-4 mb-4">
+  return <form onSubmit={submitForm} className="max-w-screen-lg"><div className="border border-foreground p-4 mb-4">
   <DragDropContext onDragEnd={handleDragEnd}>
     <Droppable droppableId="parent-list" type="parent" >
       {provided => (
@@ -109,7 +151,7 @@ export default function ({faqs}:{faqs:TFaqSection[]}){
                         return <Draggable draggableId={q.id.toString()} index={index} key={q.id}>
                           {(provided, snapshot) => (
                             <div
-                                 className="border border-foreground border-dotted ml-5 bg-background" 
+                                 className={`border border-foreground border-dotted ml-5 bg-background ${index!==0?"mt-2":""}`} 
                                   ref={provided.innerRef}
                                   {...provided.draggableProps}
                                   
@@ -119,7 +161,7 @@ export default function ({faqs}:{faqs:TFaqSection[]}){
                                     <EllipsisSm className="w-4 h-4"/>
                                   </div>
                                   <div className="flex-1">
-                                    <FaqQuestion question={q}/>
+                                    <FaqQuestion updater={updateQuestion} question={q}/>
                                   </div>
                                 </div>
                                 
@@ -172,7 +214,7 @@ export default function ({faqs}:{faqs:TFaqSection[]}){
 
   
   </div>
-  <ReactButton modClasses={["big"] } label="Add a FAQ section" onClick={
+  <ReactButton modClasses={[] } label="Add a FAQ section" onClick={
     () => {
       setItems(prev => {
       return [...prev, ...[{
@@ -182,5 +224,11 @@ export default function ({faqs}:{faqs:TFaqSection[]}){
       }]]
     })
     }
-  }/></form>
+  }/>
+  <SaveFooter 
+    {...{isPending,beforeUnload}}
+    saveText="Save FAQs"
+  />
+  
+  </form>
 }

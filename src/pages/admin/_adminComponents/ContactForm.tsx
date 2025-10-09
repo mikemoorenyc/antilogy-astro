@@ -1,14 +1,15 @@
 import { useState ,useEffect, type SyntheticEvent} from "react";
-import type { TContact } from "../../../../types"
+import type { Contact,ContactFormSection } from "@/pages/api/contact/types";
 import FormContainer from "./formelements/FormContainer";
 import FormInput from "./formelements/FormInput";
-import ReactButton from "../../../components/ReactButton";
 import RTEditor from "./formelements/RTEditor";
-import FormEditor, { type TContactFormSection } from "./FormEditor";
-export default function ContactForm({contactSettings}:{contactSettings:TContact}) {
+import FormEditor from "./FormEditor";
+import SaveFooter from "./formelements/SaveFooter";
+export default function ContactForm({contactSettings}:{contactSettings:Contact}) {
   
   const [formData,updateFormData] = useState({...contactSettings});
   const [edited,updateEdited] = useState(false);
+  const [isPending,updateIsPending] = useState(false)
   
   const beforeUnload = (e:BeforeUnloadEvent) => {
     e.preventDefault();
@@ -24,8 +25,8 @@ export default function ContactForm({contactSettings}:{contactSettings:TContact}
   },[edited])
   const valueChange = (key:string, value: any) => {
     updateEdited(true)
-    const payLoad :TContact  = {...formData};
-    payLoad[key as keyof TContact] = value;  
+    const payLoad :Contact  = {...formData};
+    payLoad[key as keyof Contact] = value;  
     updateFormData(prev => {
       return {...prev,...payLoad}
     })
@@ -34,11 +35,13 @@ export default function ContactForm({contactSettings}:{contactSettings:TContact}
   const submitForm = async (e:SyntheticEvent) => {
     
     e.preventDefault(); 
+    updateIsPending(true);
 
     const sendUpdatedSettings = await fetch("/api/dynamodb/settings",{
       method:"POST",
       body: JSON.stringify(formData)
     })
+    updateIsPending(false); 
     if(sendUpdatedSettings) {
       alert("Settings updated");
       location.reload();
@@ -47,7 +50,7 @@ export default function ContactForm({contactSettings}:{contactSettings:TContact}
   }
   return <form onSubmit={submitForm} className="max-w-screen-lg">
   <FormContainer label="Contact Form">
-    <FormEditor data={formData.contactForm} updateCallback={(value:TContactFormSection[]) => {
+    <FormEditor data={formData.contactForm} updateCallback={(value:ContactFormSection[]) => {
       valueChange("contactForm",value);
     }}/>
   </FormContainer>
@@ -81,7 +84,9 @@ export default function ContactForm({contactSettings}:{contactSettings:TContact}
     }} />
   </FormContainer>
   
-  
-  <ReactButton label="Update Contact Page" type="action" classes="mb-3 md:mb-0 md:mr-3"  modClasses={["big","reverse"]}/>
+  <SaveFooter 
+    saveText="Update Contact page"
+    {...{isPending,beforeUnload}}
+  />
   </form>
 }

@@ -1,18 +1,18 @@
 
 import { CheckIcon, PencilIcon, TrashIcon } from "@heroicons/react/20/solid"
-import type { TFaqSection } from "../../api/faqs"
+import type { FaqSection } from "@/pages/api/faqs/types"
 
 import { useRef,useState,useEffect, useMemo, useCallback, } from "react"
 
 
 
-type TProps = {
+type Props = {
  
-  section: TFaqSection,
-  deleteItem: Function,
-  changeSectionTitle:Function
+  section: FaqSection,
+  deleteItem: ()=>void,
+  changeSectionTitle:(title:string)=>void
 }
-export default function FaqSection ({section,deleteItem,changeSectionTitle}:TProps) {
+export default function FaqSection ({section,deleteItem,changeSectionTitle}:Props) {
   const inputRef = useRef<null|HTMLInputElement>(null)
   const [tempTitle,updateTempTitle] = useState(section.title || "");
   const [editingTitle,updateEditingTitle] = useState(false);
@@ -45,7 +45,7 @@ export default function FaqSection ({section,deleteItem,changeSectionTitle}:TPro
     }
   },[tempTitle])
   return <>
-{!editingTitle && <div className="flex-1">{section.title}</div>}
+{!editingTitle && <div className="flex-1 font-bold text-lg">{section.title || "(No title)"}</div>}
 {editingTitle && <input onBlur={() => {
   updateEditingTitle(false);
   updateTempTitle(section.title);
@@ -73,7 +73,7 @@ export default function FaqSection ({section,deleteItem,changeSectionTitle}:TPro
   <button className="block">
     <TrashIcon className="w-5 h-5 ml-2 text-caution" onClick={(e)=> {
       e.preventDefault(); 
-      if(!confirm("Are you sure abiut deleting this? ")) return ; 
+      if(!confirm("Are you sure about deleting this? ")) return ; 
       deleteItem(); 
     }}/>
 

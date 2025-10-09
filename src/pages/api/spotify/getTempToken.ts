@@ -1,4 +1,4 @@
-import { getSettings } from "../dynamodb/settings";
+import { getSettings } from "../settings";
 
 
 export  async function getTempToken() {

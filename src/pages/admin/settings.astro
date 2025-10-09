@@ -3,14 +3,14 @@ import { getSession } from 'auth-astro/server';
 import AdminLayout from '../../layouts/AdminLayout.astro';
 import PageHeader from './_adminComponents/PageHeader.astro';
 import SettingsForm from "./_adminComponents/SettingsForm"
-import type {TSettings,TSpotifyData,TSpotifyUserProfile} from "../../../types"
-import {getSettings,updateSettings} from "../api/dynamodb/settings"
+import type { Settings ,SpotifyData} from '../api/settings/types';
+import {getSettings,updateSettings} from "../api/settings"
 import {getTempToken} from "../api/spotify/getTempToken"
 
 
 const session = await getSession(Astro.request);
 
-const defaultSettings : TSettings = {
+const defaultSettings : Settings = {
   siteTitle: "Site Title",
   siteDescription : "Description of site that appears on homepage",
   section:"main"
@@ -21,7 +21,7 @@ if(!session) {
 }
 export const prerender = false;
 
-const settings = await getSettings() as TSettings;
+const settings = await getSettings() ;
 
 
 if(!settings) return Astro.redirect("/404");
@@ -30,7 +30,7 @@ const spotifyAppId = import.meta.env.SPOTIFY_APP_ID || process.env.SPOTIFY_APP_I
 const spotifyAppSecret = import.meta.env.SPOTIFY_APP_SECRET || process.env.SPOTIFY_APP_SECRET;
 const spotifyCodeCallback = Astro.url.searchParams.get("code");
 const spotifyRefreshToken = settings?.spotifyRefreshToken
-const spotifyData : TSpotifyData = {appId:spotifyAppId};
+const spotifyData : SpotifyData = {appId:spotifyAppId};
 if(spotifyAppId && spotifyAppSecret) {
   const requestUrl = new URL("https://accounts.spotify.com/authorize")
   requestUrl.searchParams.append("redirect_uri",Astro.url.href);

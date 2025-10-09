@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState } from "react";
-import type { TContactFormSection } from ".";
+import type{ ContactFormSection } from "@/pages/api/contact/types";
 import type { ReactNode } from "react";
 import {commonSettings,formComponents} from "./settings"
 import TextInput from "./TextInput";
 import CheckBox from "./CheckBox";
 import SelectInput from "./SelectInput";
-import ReactButton from "../../../../components/ReactButton";
+import ReactButton from "../../../../components/Button/ReactButton";
 
 type TSchema = {
   title: string,
@@ -17,7 +17,7 @@ const FieldWrapper = ({children,className}:{children:ReactNode,className?:string
   </div>
 }
 
-export default function EditPanel({section,closer,saver}:{section:TContactFormSection,closer:Function,saver:Function}) {
+export default function EditPanel({section,closer,saver}:{section:ContactFormSection,closer:Function,saver:Function}) {
   
   const [tempData,updateTempData] = useState(section); 
   const containerRef=useRef<null|HTMLDivElement>(null)
@@ -29,7 +29,7 @@ console.log(tempData);
 
   },[containerRef])
 
-  const updater = (payload:TContactFormSection) => {
+  const updater = (payload:ContactFormSection) => {
     updateTempData(prev => {
       return {...prev,...payload}; 
     })

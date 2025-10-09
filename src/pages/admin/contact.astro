@@ -1,19 +1,21 @@
 ---
-import type { TSettings, TContact } from '../../../types';
+import type { Settings } from '../api/settings/types';
+import type { Contact } from '../api/contact/types';
 import AdminLayout from '../../layouts/AdminLayout.astro';
-import { getSettings } from '../api/dynamodb/settings';
+import { getSettings } from '../api/settings';
 import PageHeader from './_adminComponents/PageHeader.astro';
 import ContactForm from './_adminComponents/ContactForm';
+import { getContactForm } from '../api/contact/form';
 export const prerender = false
-const settings = await getSettings() as TSettings; 
+const settings = await getSettings() ; 
 if(!settings) return Astro.redirect("/404");
-const contactSettings : TContact = await getSettings("contact") as TContact
+const contactSettings : Contact = await getContactForm(); 
 
-const starterData:TContact = {
+const starterData:Contact = {
   pageTitle:"Contact page",
-  contactInfo:[],
+
   contactForm:[],
-  section:"contact"
+
 }
 
 if(!contactSettings || !contactSettings?.pageTitle) {

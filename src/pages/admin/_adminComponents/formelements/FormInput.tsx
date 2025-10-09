@@ -1,7 +1,7 @@
 type TInput = {
   forValue: string, 
   value: string | number | undefined, 
-  onChange: Function,
+  onChange: (v:string)=>void,
   type?:"text"|"textarea"|"email",
   required?: boolean
   rows?: number,

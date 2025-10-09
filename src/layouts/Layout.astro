@@ -1,12 +1,12 @@
 ---
-import { type TSettings } from "../../types"
+import type { Settings } from "@/pages/api/settings/types"
 
 
 interface Props {
 	pageTitle: string, 
 	meta?: string,
 	children: any,
-	settingsData: TSettings
+	settingsData: Settings
 }
 import LayoutSkeleton from "./LayoutSkeleton.astro"
 import { Image } from "astro:assets"

@@ -39,4 +39,7 @@
   .button-component:active {
     @apply bg-action text-background
   }
+  .button-component.disabled {
+    opacity: .75;
+  }
 }

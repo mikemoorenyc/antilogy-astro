@@ -1,12 +1,12 @@
 import type { ReactNode } from "react"
 
-type TProps = {
+type Props = {
   topLine?:string,
   bottomLine?:string, 
   icon?:ReactNode
 }
 
-export default function DataSection({topLine,bottomLine,icon}:TProps) {
+export default function DataSection({topLine,bottomLine,icon}:Props) {
   return <div>
   {icon && <div>{icon}</div>}
     <div>

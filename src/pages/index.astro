@@ -1,10 +1,10 @@
 ---
-import { getSettings } from './api/dynamodb/settings';
+import { getSettings } from './api/settings';
 import Layout from '../layouts/Layout.astro';
 import logoImg from "../assets/logo.png"
 import Image from 'astro/components/Image.astro';
 const navigation = ["How to order","why to order", "Faqs", "samples"];
-import Button from '../components/Button.astro';
+import Button from '@/components/Button/Button.astro';
 
 const settingsData = await getSettings();
 if(!settingsData) return Astro.redirect("/404")

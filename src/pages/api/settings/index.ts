@@ -1,5 +1,5 @@
-import { type TSettings } from "../../../../types";
-import { ddbDocClient } from "./_lib/ddbDocClient";
+import { type Settings } from "./types";
+import { ddbDocClient } from "../dynamodb/_lib/ddbDocClient";
 import { GetCommand,UpdateCommand,DeleteCommand } from "@aws-sdk/lib-dynamodb";
 import { getSession, } from 'auth-astro/server';
 import { sessionCheck,badResponse } from "../_lib";
@@ -7,7 +7,7 @@ import { sessionCheck,badResponse } from "../_lib";
 export const prerender = false
 const SETTINGS_TABLE = import.meta.env.SETTINGS_TABLE 
 
-export const getSettings = async (id:string="main") => {
+export const getSettings = async (id:string="main") : Promise<Settings> => {
 
   if(!SETTINGS_TABLE) {
     console.log("SETTINGS_TABLE not defined")
@@ -24,14 +24,14 @@ export const getSettings = async (id:string="main") => {
   try {
     const data = await ddbDocClient.send(new GetCommand(input));  
      
-    return data.Item as TSettings;
+    return data.Item as Settings;
   } catch (err) {
       console.log("Error", err);
-      return false; 
+      throw new Error("couldn't get settings")
   }
 }
-type TSettingsValues = {main:string[],contact:string[]}
-const settingsValues : TSettingsValues  = {
+type SettingsValues = {main:string[],contact:string[]}
+const settingsValues : SettingsValues  = {
   main: ["spotifyRefreshToken","siteTitle","siteDescription","siteFavicon","siteFaviconSVG","homepageLogo","siteLogo","siteBg"],
   contact : ["pageTitle", 
     "pageIntro",
@@ -47,7 +47,7 @@ export const updateSettings = async (updatePackage :any ) =>{
   if(!updateKey) {
     return false; 
   } 
-  const updateArray: string[] = settingsValues[updateKey as keyof TSettingsValues]; 
+  const updateArray: string[] = settingsValues[updateKey as keyof SettingsValues]; 
   const expressAttr:any = {};
   let atts = updateArray.filter(a => updatePackage[a ]).map(a => {
     const value = updatePackage[a ];

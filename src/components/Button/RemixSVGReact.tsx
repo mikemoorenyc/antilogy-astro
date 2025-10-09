@@ -1,6 +1,6 @@
-import { type TIcon } from "../../types";
+import type { Icon } from "./types"
 
-export default function RemixSVGReact(props:TIcon) {
+export default function RemixSVGReact(props:Icon) {
 
 const {size,fill,icon} = props
 

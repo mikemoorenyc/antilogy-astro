@@ -1,11 +1,11 @@
 ---
 import { getSession } from 'auth-astro/server';
-import AdminLayout from '../../layouts/AdminLayout.astro';
-import PageHeader from './_adminComponents/PageHeader.astro';
-import {getSettings} from "../api/dynamodb/settings"
-import type { TSettings } from '../../../types';
-import {getFaqs} from "../api/faqs";
-import FaqForm from "./_faqsComponents/faqForm"
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+import PageHeader from '../_adminComponents/PageHeader.astro';
+import { getSettings } from '../../api/settings';
+import type { Settings } from '@/pages/api/settings/types';
+import { getFaqs } from '../../api/faqs';
+import FaqForm from "./_faqsComponents/FaqForm"
 
 export const prerender = false;
 const session = await getSession(Astro.request);
@@ -13,10 +13,11 @@ const session = await getSession(Astro.request);
 if(!session) {
   return Astro.redirect('/login');
 }
-const settings = await getSettings() as TSettings;
+const settings : Settings = await getSettings() 
 if(!settings) return Astro.redirect("/404");
 
 const faqs = await getFaqs() ;
+
 if(!faqs) return Astro.redirect("/404");
 
 

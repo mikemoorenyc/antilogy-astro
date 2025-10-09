@@ -1,12 +1,12 @@
-import type { TSettings } from "../../../../types";
+import type { Settings } from "../settings/types";
 import { badResponse } from "../_lib";
-import { updateSettings,getSettings } from "../dynamodb/settings";
+import { updateSettings,getSettings } from "../settings";
 import { getSession } from "auth-astro/server";
 
 export async function spotifyDisconnect() {
   const settings = await getSettings()
   if(!settings) return false ; 
-  const newPayload :TSettings = {...settings, ...{spotifyRefreshToken:""}} 
+  const newPayload :Settings = {...settings, ...{spotifyRefreshToken:""}} 
   const removedConnection = await updateSettings(newPayload );
   if (!removedConnection){console.log("error updating"); return false}; 
 }

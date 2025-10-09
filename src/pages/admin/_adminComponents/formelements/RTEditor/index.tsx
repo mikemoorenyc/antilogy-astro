@@ -28,10 +28,10 @@ const extensions = [StarterKit.configure({
 type TEditorOption = ("bold"|"italic"|"addLink"|"removeLink"|"bulletList"|"orderedList");
 type TTypeOption = [ReactNode,Function,TEditorOption];
 export type TEditorOptions = TEditorOption[]; 
-const availableOptions = ["bold","italic","addLink","removeLink","bulletList","orderedList"]
+const availableOptions : TEditorOptions = ["bold","italic","addLink","removeLink","bulletList","orderedList"]
 
 
-export default function RTEditor({content,updateCallback,options}:{content:string,updateCallback:Function,options:TEditorOptions}) {
+export default function RTEditor({content,updateCallback,options=availableOptions}:{content:string,updateCallback:(v:string)=>void,options?:TEditorOptions}) {
   const [addLinkOpen,updateAddLinkOpen] = useState(false);
   const [linkUrl,updateLinkUrl] = useState("");
   const [modalContainer,updateModalContainer] = useState<null|HTMLElement>(null);
@@ -53,7 +53,7 @@ export default function RTEditor({content,updateCallback,options}:{content:strin
 
     editorProps: {
     attributes: {
-      class: 'min-h-36  focus:border-action border-radius-0 outline-none text-sm py-1 px-2 border-2 border-foreground',
+      class: 'min-h-36  focus:border-action border-radius-0 outline-none text-sm py-1 px-2 border-2 border-foreground tip-tap',
     },
   }
   })
