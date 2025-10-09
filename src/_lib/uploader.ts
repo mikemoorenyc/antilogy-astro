@@ -1,6 +1,6 @@
 
 
-export  async function uploader(file:File, path:string) {
+export  async function uploader(file:File, path:string) :Promise<string>{
   
   const fetchURL = await fetch("/api/GC/generateSignedUrl",{
     method:"POST",
@@ -19,12 +19,20 @@ export  async function uploader(file:File, path:string) {
     Object.entries({ ...fields, file }).forEach(([key, value]) => {
       formData.append(key, value as string | Blob);
     });
+
+  try {
     const upload = await fetch(url, {
       method: "POST",
       body: formData,
     });
     if(upload.ok) {
       return upload.url + path; 
+    } else {
+      throw new Error(`Response status: ${response.status}`);
     }
-    return false;
+    
+  } catch(err) {
+    throw new Error(`${err.message}`)
+  }
+    
 }
