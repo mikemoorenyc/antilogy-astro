@@ -1,7 +1,7 @@
 import { getSettings } from "../settings";
 
 
-export  async function getTempToken() {
+export  async function getTempToken() : string {
   const spotifyAppId = import.meta.env.SPOTIFY_APP_ID || process.env.SPOTIFY_APP_ID,
         spotifyAppSecret = import.meta.env.SPOTIFY_APP_SECRET || process.env.SPOTIFY_APP_SECRET
   if(!spotifyAppId || !spotifyAppSecret) return false; 
