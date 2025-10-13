@@ -3,7 +3,7 @@ const updateMethod = async (settings: Settings) : Promise<Settings> => {
   if(!session) throw new Error("not logged in"); 
   if(!SETTINGS_TABLE) throw new Error("no settings table defined"); 
   let UpdateExpression = "set ";
-  let ExpressionAttributeValues: {}; 
+  let ExpressionAttributeValues = {}; 
 
   Object.entries(settings).forEach(([key, value]) => {
     UpdateExpression += ` ${key}=:${key},`
