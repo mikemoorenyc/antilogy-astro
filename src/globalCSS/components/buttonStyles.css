@@ -37,9 +37,16 @@
   }
 
   .button-component:active {
-    @apply bg-action text-background
+    @apply bg-action text-background;
+  }
+  .button-component:active:not(.reverse,.ghost) {
+    box-shadow:none; 
+    transform:translate(3px,3px);
   }
   .button-component.disabled {
     opacity: .75;
+  }
+  .button-component.caution:active {
+    @apply text-background
   }
 }

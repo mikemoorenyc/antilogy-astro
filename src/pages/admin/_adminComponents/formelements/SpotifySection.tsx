@@ -1,6 +1,6 @@
 
 
-import type { SpotifyData } from "@/pages/api/settings/types"
+import type { SpotifyData } from "@/pages/api/settings/_types"
 import ReactButton from "../../../../components/Button/ReactButton"
 import { spotifyDisconnect } from "../../../api/spotify/disconnect"
 

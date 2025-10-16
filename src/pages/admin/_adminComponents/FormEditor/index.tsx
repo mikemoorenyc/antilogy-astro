@@ -1,6 +1,6 @@
 import { useState } from "react"
 import ReactButton from "../../../../components/Button/ReactButton"
-import type { ContactFormSection } from "@/pages/api/contact/types"
+import type { ContactFormSection } from "@/pages/api/contact/_types"
 import { formComponents } from "./settings"
 import SelectInput from "./SelectInput"
 import EditPanel from "./EditPanel"

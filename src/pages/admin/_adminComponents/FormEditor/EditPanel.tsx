@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import type{ ContactFormSection } from "@/pages/api/contact/types";
+import type{ ContactFormSection } from "@/pages/api/contact/_types";
 import type { ReactNode } from "react";
 import {commonSettings,formComponents} from "./settings"
 import TextInput from "./TextInput";

@@ -1,5 +1,5 @@
 import React, { useEffect, useState, type SyntheticEvent } from "react";
-import type { FaqSection } from "@/pages/api/faqs/types";
+import type { FaqSection } from "@/pages/api/faqs/_types";
 import { DragDropContext, Droppable, Draggable, type DragUpdate } from '@hello-pangea/dnd';
 import ReactButton from "../../../../components/Button/ReactButton";
 import FaqSectionHeader from "./FaqSectionHeader";
@@ -14,6 +14,7 @@ export default function FaqForm({faqs}:{faqs:FaqSection[]}){
   const [items,setItems] = useState<FaqSection[]>(faqs);
   const [formUpdated,updateFormUpdated] = useState(false);
   const [isPending,updateIsPending] = useState(false);
+  const [questionEditing,updateQuestionEditing] = useState<boolean>(false)
 
   const beforeUnload = (e:BeforeUnloadEvent) => {
     e.preventDefault();
@@ -112,7 +113,16 @@ export default function FaqForm({faqs}:{faqs:FaqSection[]}){
       method:"POST",
       body: JSON.stringify({faqs:items})
     })
+    if(sendUpdatedFaqs.ok) {
+      alert("Faqs updated");
+      location.reload();
+      
+    } else {
+      alert("couldn't update Faqs");
+     
+    }
     updateIsPending(false); 
+    return false; 
 
   }
  
@@ -137,7 +147,8 @@ export default function FaqForm({faqs}:{faqs:FaqSection[]}){
                     <div  {...provided.dragHandleProps}>
                       <EllipsisVerticalIcon className="w-5 h-5"/>
                     </div>
-                    <FaqSectionHeader changeSectionTitle={(newTitle:string) => {
+                    <FaqSectionHeader {...{questionEditing}}changeSectionTitle={(newTitle:string) => {
+                      console.log("gettiung called");
                       changeSectionTitle(i.id,newTitle)
                     }} section={i} deleteItem={()=>{deleteFaqSection(i)}} />
                   </div>
@@ -161,7 +172,7 @@ export default function FaqForm({faqs}:{faqs:FaqSection[]}){
                                     <EllipsisSm className="w-4 h-4"/>
                                   </div>
                                   <div className="flex-1">
-                                    <FaqQuestion updater={updateQuestion} question={q}/>
+                                    <FaqQuestion {...{updateQuestionEditing}} updater={updateQuestion} question={q}/>
                                   </div>
                                 </div>
                                 

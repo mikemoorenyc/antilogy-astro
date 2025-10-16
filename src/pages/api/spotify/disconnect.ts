@@ -1,13 +1,13 @@
-import type { Settings } from "../settings/types";
+import type { Settings } from "../settings/_types";
 import { badResponse } from "../_lib";
-import { updateSettings,getSettings } from "../settings";
+import { newUpdate,getSettings } from "../settings";
 import { getSession } from "auth-astro/server";
 
 export async function spotifyDisconnect() : Promise<boolean> {
   const settings = await getSettings()
   if(!settings) return false ; 
   const newPayload :Settings = {...settings, ...{spotifyRefreshToken:""}} 
-  const removedConnection = await updateSettings(newPayload );
+  const removedConnection = await newUpdate(newPayload );
   if (!removedConnection){console.log("error updating"); return false}; 
   return true; 
 }

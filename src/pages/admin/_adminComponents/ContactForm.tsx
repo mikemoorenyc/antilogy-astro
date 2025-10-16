@@ -1,5 +1,5 @@
 import { useState ,useEffect, type SyntheticEvent} from "react";
-import type { Contact,ContactFormSection } from "@/pages/api/contact/types";
+import type { Contact,ContactFormSection } from "@/pages/api/contact/_types";
 import FormContainer from "./formelements/FormContainer";
 import FormInput from "./formelements/FormInput";
 import RTEditor from "./formelements/RTEditor";
@@ -37,7 +37,7 @@ export default function ContactForm({contactSettings}:{contactSettings:Contact})
     e.preventDefault(); 
     updateIsPending(true);
 
-    const sendUpdatedSettings = await fetch("/api/dynamodb/settings",{
+    const sendUpdatedSettings = await fetch("/api/contact/form",{
       method:"POST",
       body: JSON.stringify(formData)
     })

@@ -1,6 +1,6 @@
 
 import { CheckIcon, PencilIcon, TrashIcon } from "@heroicons/react/20/solid"
-import type { FaqSection } from "@/pages/api/faqs/types"
+import type { FaqSection } from "@/pages/api/faqs/_types"
 
 import { useRef,useState,useEffect, useMemo, useCallback, } from "react"
 
@@ -10,9 +10,11 @@ type Props = {
  
   section: FaqSection,
   deleteItem: ()=>void,
-  changeSectionTitle:(title:string)=>void
+  changeSectionTitle:(title:string)=>void,
+  questionEditing:boolean
 }
-export default function FaqSection ({section,deleteItem,changeSectionTitle}:Props) {
+export default function FaqSectionHeader({section,deleteItem,changeSectionTitle,questionEditing}:Props) {
+  console.log(section.title);
   const inputRef = useRef<null|HTMLInputElement>(null)
   const [tempTitle,updateTempTitle] = useState(section.title || "");
   const [editingTitle,updateEditingTitle] = useState(false);
@@ -21,7 +23,6 @@ export default function FaqSection ({section,deleteItem,changeSectionTitle}:Prop
       inputRef.current?.focus()
     }
   },[editingTitle])
-
 
 
   useEffect(()=> {
@@ -53,7 +54,7 @@ export default function FaqSection ({section,deleteItem,changeSectionTitle}:Prop
   e.preventDefault(); 
   updateTempTitle(e.target.value);
 }}/>}
-<div className="flex">
+<div className="flex" style={{visibility:questionEditing?"hidden":undefined}}>
   {!editingTitle && <button className="block"> 
     <PencilIcon className="w-5 h-5" onClick={((e)=>{e.preventDefault(); 
     
@@ -63,12 +64,13 @@ export default function FaqSection ({section,deleteItem,changeSectionTitle}:Prop
     })}/>
   
   </button>}
-  {editingTitle && <button onClick={(e) => {
-    e.preventDefault(); 
+  {editingTitle && <button type="button" onMouseDown={(e) => {
+    
     changeSectionTitle(tempTitle);
-    updateEditingTitle(false)
+    return false;
+    //updateEditingTitle(false)
   }}>
-    <CheckIcon className="w-5 h-5"/> 
+    <CheckIcon  className="w-5 h-5"/> 
   </button>}
   <button className="block">
     <TrashIcon className="w-5 h-5 ml-2 text-caution" onClick={(e)=> {

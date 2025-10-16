@@ -2,7 +2,7 @@ import FormContainer from "./formelements/FormContainer"
 import { useState,useEffect, type SyntheticEvent } from "react"
 import ReactButton from "../../../components/Button/ReactButton"
 import FormInput from "./formelements/FormInput"
-import type { Settings,SpotifyData } from "@/pages/api/settings/types"
+import type { Settings,SpotifyData } from "@/pages/api/settings/_types"
 import { createPortal } from "react-dom"
 import UploadImage from "./formelements/UploadImage"
 
@@ -72,8 +72,8 @@ export default function SettingsForm({settingsData,spotifyData}:TProps) {
       if(settingsData[file.id as keyof Settings]) {
         let deletePath = settingsData[file.id as keyof Settings]?.split("/settings_files/")[1];
         deletePath = "settings_files/"+deletePath
-        const deleteOld = await fetch("/api/GC/deleteFile",{
-          method:"POST",
+        const deleteOld = await fetch("/api/GC/",{
+          method:"DELETE",
           body:JSON.stringify({path:deletePath})
           
         });
@@ -92,7 +92,7 @@ export default function SettingsForm({settingsData,spotifyData}:TProps) {
     console.log(settingsPayload);
   
 
-    const sendUpdatedSettings = await fetch("/api/dynamodb/settings",{
+    const sendUpdatedSettings = await fetch("/api/settings",{
       method:"POST",
       body: JSON.stringify(settingsPayload)
     })

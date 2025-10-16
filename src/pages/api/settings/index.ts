@@ -1,8 +1,9 @@
-import { type Settings } from "./types";
+import { type Settings } from "./_types";
 import { ddbDocClient } from "../dynamodb/_lib/ddbDocClient";
 import { GetCommand,UpdateCommand,DeleteCommand } from "@aws-sdk/lib-dynamodb";
 import { getSession, } from 'auth-astro/server';
-import { sessionCheck,badResponse } from "../_lib";
+import { sessionCheck,badResponse, goodResponse } from "../_lib";
+
 
 export const prerender = false
 const SETTINGS_TABLE = import.meta.env.SETTINGS_TABLE 
@@ -42,54 +43,42 @@ const settingsValues : SettingsValues  = {
     "email"]
 }
 
-export const updateSettings = async (updatePackage :any ) =>{
-  const updateKey: string = updatePackage?.section;
-  if(!updateKey) {
-    return false; 
-  } 
-  const updateArray: string[] = settingsValues[updateKey as keyof SettingsValues]; 
-  const expressAttr:any = {};
-  let atts = updateArray.filter(a => updatePackage[a ]).map(a => {
-    const value = updatePackage[a ];
-    expressAttr[`:${a}`] = value 
-    return `${a} = :${a}`
-  }).join(" , ");
-  atts = "set "+atts
-  atts = atts+`,lastUpdated = :lastUpdated`
-  expressAttr[`:lastUpdated`] = new Date().toLocaleString();
 
-
+export const newUpdate = async(updatePackage:Settings) :Promise<Settings> => {
+  if(!SETTINGS_TABLE) throw new Error("no settings table defined"); 
+  let UpdateExpression = "set ";
+  let ExpressionAttributeValues :{[key:string]:string} = {}; 
+  Object.entries(updatePackage).forEach(([key, value]) => {
+    if(key == "section"|| key == "lastUpdated") return; 
+    UpdateExpression += ` ${key}=:${key},`
+    ExpressionAttributeValues[`:${key}`] = value;
+  });
+  UpdateExpression  += "lastUpdated=:lastUpdated"
+  ExpressionAttributeValues[":lastUpdated"] = new Date().toLocaleString();
   const command = {
-      TableName:SETTINGS_TABLE,
-      Key : {
-        section: updateKey
-      },
-      UpdateExpression: atts,
-      ExpressionAttributeValues: expressAttr,
-      ReturnValue: "ALL_NEW"
+    TableName:SETTINGS_TABLE,
+    Key :{
+      section: "main",
+    },
+    UpdateExpression,
+    ExpressionAttributeValues,
+    ReturnValues: "ALL_NEW" as const
+  }
+  try {
+    const update = await ddbDocClient.send(new UpdateCommand(command));
+    const deployHook = import.meta.env.DEPLOY_HOOK 
+    if(deployHook) {
+      const rebuild = await fetch(deployHook);
     }
-    try {
-      const update = await ddbDocClient.send(new UpdateCommand(command));
-      //REDEPLOY
-      const deployHook = import.meta.env.DEPLOY_HOOK 
-      if(deployHook) {
-        const rebuild = await fetch(deployHook);
-      }
-      return true ; 
-      /*
-      return new Response(JSON.stringify(await getSettings()),{
-        status: 200,
-        headers: {
-          "Content-Type": "application/json"
-        }
-      })
-      */
-    } catch(err) {
-      
-      console.log("Error",err)
-      return false; 
-    }
+    return update.Attributes as Settings; 
+  } catch(err) {
+    if (err instanceof Error) {
+      throw new Error(err.message);
+    } 
+     throw new Error(String(err));
+  }
 }
+
 
 export async function POST({request}:{request:Request}) {
   const session = await getSession(request)
@@ -99,13 +88,9 @@ export async function POST({request}:{request:Request}) {
 
   const updatePackage = await request.json();
   try {
-    const updatedSettings = await updateSettings(updatePackage);
-    return new Response(JSON.stringify(await getSettings()),{
-        status: 200,
-        headers: {
-          "Content-Type": "application/json"
-        }
-      })
+    const updatedSettings = await newUpdate(updatePackage);
+    return goodResponse({settings:updatedSettings})
+    
   } catch (err) {
     console.log(err);
     return badResponse("Couldn't update episode")

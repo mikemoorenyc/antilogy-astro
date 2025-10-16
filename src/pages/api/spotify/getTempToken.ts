@@ -1,12 +1,12 @@
 import { getSettings } from "../settings";
 
 
-export  async function getTempToken() : string {
+export  async function getTempToken() : Promise<string|false> {
   const spotifyAppId = import.meta.env.SPOTIFY_APP_ID || process.env.SPOTIFY_APP_ID,
         spotifyAppSecret = import.meta.env.SPOTIFY_APP_SECRET || process.env.SPOTIFY_APP_SECRET
-  if(!spotifyAppId || !spotifyAppSecret) return false; 
+  if(!spotifyAppId || !spotifyAppSecret) throw new Error("env variables not defined"); 
   const settings = await getSettings();
-  if(!settings) return false;
+  if(!settings) throw new Error("couldn't get settings");
   if(!settings?.spotifyRefreshToken) return false; 
   try {
     const refreshData = await fetch("https://accounts.spotify.com/api/token", {
@@ -20,12 +20,12 @@ export  async function getTempToken() : string {
         "refresh_token": settings?.spotifyRefreshToken
     })
   })
-  if(!refreshData.ok) {console.log("refresh error",refreshData); return false; }; 
+  if(!refreshData.ok) {throw new Error("failed getting refresh") }; 
   const dataJson = await refreshData.json();
   
   return dataJson.access_token
   } catch(err) {
-    console.log("refresh error",err);
+    throw new Error("failed getting refresh")
 
   }
   

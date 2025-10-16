@@ -6,6 +6,16 @@ export const badResponse = (status : string , code:number=500 ) => {
       statusText: status
     })
 }
+export const goodResponse = (data: Record<string,any>):Response => {
+  return new Response(JSON.stringify({data}),
+    {
+      status:200,
+      headers: {
+        "Content-Type": "application/json"
+      }
+    }
+  )
+}
 
 export const sessionCheck = async (request:Request) => {
   const session = await getSession(request)

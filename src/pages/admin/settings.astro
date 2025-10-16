@@ -3,8 +3,8 @@ import { getSession } from 'auth-astro/server';
 import AdminLayout from '../../layouts/AdminLayout.astro';
 import PageHeader from './_adminComponents/PageHeader.astro';
 import SettingsForm from "./_adminComponents/SettingsForm"
-import type { Settings ,SpotifyData} from '../api/settings/types';
-import {getSettings,updateSettings} from "../api/settings"
+import type { Settings ,SpotifyData} from '../api/settings/_types';
+import {getSettings,newUpdate} from "../api/settings"
 import {getTempToken} from "../api/spotify/getTempToken"
 
 
@@ -56,7 +56,7 @@ if(spotifyCodeCallback && !spotifyRefreshToken && !import.meta.env.DEV) {
   })
   if(authorizationToken.ok) {
     const data=await authorizationToken.json();
-    const savedRefreshToken = await updateSettings({...settings, ...{spotifyRefreshToken: data?.refresh_token}})
+    const savedRefreshToken = await newUpdate({...settings, ...{spotifyRefreshToken: data?.refresh_token}})
   }
   console.log(authorizationToken.ok);
  // console.log(await authorizationToken.json());

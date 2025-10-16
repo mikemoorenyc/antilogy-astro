@@ -1,38 +1,51 @@
 
 
+
 export  async function uploader(file:File, path:string) :Promise<string>{
-  
-  const fetchURL = await fetch("/api/GC/generateSignedUrl",{
+
+  try {
+    const fetchURL = await fetch("/api/GC/generateSignedUrl",{
     method:"POST",
     body: JSON.stringify({
       path: path
-    })
-  })
-
-  if(!fetchURL.ok) {
-    console.log("bad fetch of URL")
-    return false; 
-  }
- 
-  const {url,fields} = await fetchURL.json();
-  const formData = new FormData();
+    })})
+    if(!fetchURL.ok) {
+      throw new Error(`Response: ${fetchURL.status}`)
+    }
+    const {url,fields} = await fetchURL.json();
+    const formData = new FormData();
     Object.entries({ ...fields, file }).forEach(([key, value]) => {
       formData.append(key, value as string | Blob);
     });
-
-  try {
-    const upload = await fetch(url, {
+    try {
+      const upload = await fetch(url, {
       method: "POST",
       body: formData,
     });
     if(upload.ok) {
       return upload.url + path; 
     } else {
-      throw new Error(`Response status: ${response.status}`);
+      throw new Error(`Response status: ${upload.status}`);
+    }
+
+    } catch(err) {
+      if (err instanceof Error) {
+      throw new Error(err.message);
+      } else {
+      throw new Error(String(err));
+      }
+
     }
     
+
   } catch(err) {
-    throw new Error(`${err.message}`)
+    if (err instanceof Error) {
+      throw new Error(err.message);
+    } else {
+      throw new Error(String(err));
+    }
   }
-    
+  
+  
+  
 }

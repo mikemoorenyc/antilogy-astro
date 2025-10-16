@@ -4,8 +4,7 @@ import AdminLayout from '../../../layouts/AdminLayout.astro';
 import PageHeader from '../_adminComponents/PageHeader.astro';
 import { getSettings } from '../../api/settings';
 import type { Settings } from '@/pages/api/settings/_types';
-import { getFaqs } from '../../api/faqs';
-import FaqForm from "./_faqsComponents/FaqForm"
+
 
 export const prerender = false;
 const session = await getSession(Astro.request);
@@ -16,18 +15,15 @@ if(!session) {
 const settings : Settings = await getSettings() 
 if(!settings) return Astro.redirect("/404");
 
-const faqs = await getFaqs() ;
-
-if(!faqs) return Astro.redirect("/404");
 
 
 
 
 ---
 
-<AdminLayout pageTitle={`FAQs - Admin - ${settings.siteTitle}`} settingsData={settings}>
-<PageHeader pageTitle='FAQs' />
-<FaqForm faqs={faqs} client:only="react"/>
+<AdminLayout pageTitle={`FAQs - About - ${settings.siteTitle}`} settingsData={settings}>
+<PageHeader pageTitle='About page' />
+
  
 
 </AdminLayout>
