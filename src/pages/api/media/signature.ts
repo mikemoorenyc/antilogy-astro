@@ -8,7 +8,6 @@ const cloud_name = import.meta.env.PUBLIC_CLOUDINARY_CLOUD_NAME,
 
 
 type SignatureValues = {
-  folder?: string, 
   public_id?: string,
   resource_type?:"raw"|"image"
 }
@@ -18,7 +17,7 @@ const generateSignature = (values?:SignatureValues) : SignatureValues & {signatu
   cloudinary.config({cloud_name,api_key,api_secret});
   const timestamp = Math.floor(Date.now() / 1000);
   const signParams=values? {...values,...{timestamp}}:{timestamp};
-  if(values.folder||values.public_id) signParams.overwrite = true;
+  if(values.public_id) signParams.overwrite = true;
   
   try {
     const signature = cloudinary.utils.api_sign_request(signParams,api_key);
@@ -32,7 +31,6 @@ const generateSignature = (values?:SignatureValues) : SignatureValues & {signatu
 }
 export async function GET({params,request}:{request:Request}) {
   const values : SignatureValues = {}
-  if(params.folder)values.folder = params.folder;
   if(params.public_id)values.public_id = params.public_id;
   if(["raw","image"].includes(params.resource_type)values.resource_type = params.resource_type; 
   try {
