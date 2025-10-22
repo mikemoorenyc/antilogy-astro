@@ -21,7 +21,7 @@ const generateSignature = (values?:SignatureValues) : SignatureValues & {signatu
   if(values.folder||values.public_id) signParams.overwrite = true;
   
   try {
-    const signature = cloudinary.utils.api_sign_request({...signParams,...{timestamp}}, process.env.CLOUDINARY_API_SECRET);
+    const signature = cloudinary.utils.api_sign_request(signParams,api_key);
     return {
       ...signParams,
       ...{cloud_name,api_key,signature}
