@@ -17,7 +17,8 @@ const generateSignature = (values?:SignatureValues) : SignatureValues & {signatu
   if(!cloud_name||!api_key||!api_secret) throw new Error("env variables undefined"); 
   cloudinary.config({cloud_name,api_key,api_secret});
   const timestamp = Math.floor(Date.now() / 1000);
-  const signParams=values? {...values,...{timestamp,overwrite:true}}:{timestamp}
+  const signParams=values? {...values,...{timestamp}}:{timestamp};
+  if(values.folder||values.public_id) signParams.overwrite = true;
   
   try {
     const signature = cloudinary.utils.api_sign_request({...signParams,...{timestamp}}, process.env.CLOUDINARY_API_SECRET);
