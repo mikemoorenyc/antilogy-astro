@@ -7,11 +7,11 @@ const cloud_name = import.meta.env.PUBLIC_CLOUDINARY_CLOUD_NAME,
   api_key = import.meta.env.PUBLIC_CLOUDINARY_API_KEY,
   api_secret = import.meta.env.CLOUDINARY_API_SECRET
 
-export const deleteMedia = async (publicId:string):true => {
+export const deleteMedia = async (public_id:string):true => {
   if(!cloud_name||!api_key||!api_secret) throw new Error("env variables undefined"); 
   cloudinary.config({cloud_name,api_key,api_secret});
   try {
-    const result = await cloudinary.uploader.destroy(publicId);
+    const result = await cloudinary.uploader.destroy(public_id);
     return true; 
 
   }catch() {
@@ -24,7 +24,7 @@ export async function DELETE({params,request}) : Response {
   if(!session) {
     return badResponse("Not logged in",401)
   }
-   const {publicId} = await request.json();
+   const {public_id} = await request.json();
   if(!publicId) return badResponse("no publicid",401); 
   try {
     const deleted = await deleteMedia(publicId); 
