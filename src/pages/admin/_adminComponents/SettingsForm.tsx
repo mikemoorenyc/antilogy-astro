@@ -194,7 +194,7 @@ export default function SettingsForm({settingsData,spotifyData}:TProps) {
 
 
 /*
-const sig = await fetch(`/api/media/signature?public_id=${file.id}&folder=${`settings_images`}`);
+const sig = await fetch(`/api/media/signature?public_id=${encodeURIComponent("antilogy/settings_images/"+file.id)}`);
       if(!sig.ok) {
         alert("Couldn't get cloudinary signature signature "+file.id);
         console.log(sig.status);
