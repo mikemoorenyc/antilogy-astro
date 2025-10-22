@@ -191,3 +191,30 @@ export default function SettingsForm({settingsData,spotifyData}:TProps) {
 
   )
 }
+
+
+/*
+const sig = await fetch(`/api/media/signature?public_id=${file.id}&folder=${`settings_images`}`);
+      if(!sig.ok) {
+        alert("Couldn't get cloudinary signature signature "+file.id);
+        console.log(sig.status);
+        return false; 
+      }
+      const formData = new FormData();
+      const sigValues = await sig.json()
+      Object.keys(sigValues).forEach(key => {
+        const value = sigValues[key];
+         formData.append(key, value);
+      }); 
+      formData.append("file",file);
+      const uploadResponse = await fetch(`https://api.cloudinary.com/v1_1/${sigValues.cloudName}/image/upload`, {
+        method: 'POST',
+        body: formData,
+      });
+      if(!uploadResponse.ok) {
+        const errorData = await uploadResponse.json();
+        alert(`Couldn't upload ${file.id} ${errorData.error.message}`)
+      }
+      const uploadResult = await uploadResponse.json();
+
+*/
