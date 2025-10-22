@@ -25,7 +25,7 @@ export async function DELETE({params,request}) : Response {
     return badResponse("Not logged in",401)
   }
    const {public_id} = await request.json();
-  if(!publicId) return badResponse("no publicid",401); 
+  if(!public_id) return badResponse("no publicid",401); 
   try {
     const deleted = await deleteMedia(publicId); 
     return goodResponse({deleted:true}); 
