@@ -4,6 +4,8 @@ import AdminLayout from '../../../layouts/AdminLayout.astro';
 import PageHeader from '../_adminComponents/PageHeader.astro';
 import { getSettings } from '../../api/settings';
 import type { Settings } from '@/pages/api/settings/_types';
+import AboutForm from './_aboutComponents/AboutForm';
+import type { only } from 'node:test';
 
 
 export const prerender = false;
@@ -15,14 +17,19 @@ if(!session) {
 const settings : Settings = await getSettings() 
 if(!settings) return Astro.redirect("/404");
 
+const aboutText = settings?.aboutText || []
+
 
 
 
 
 ---
 
-<AdminLayout pageTitle={`FAQs - About - ${settings.siteTitle}`} settingsData={settings}>
-<PageHeader pageTitle='About page' />
+<AdminLayout pageTitle={`About - ${settings.siteTitle}`} settingsData={settings}>
+  <PageHeader pageTitle='About page' /> 
+  <AboutForm client:only="react" aboutText={aboutText}/>
+
+
 
  
 

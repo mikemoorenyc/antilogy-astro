@@ -1,3 +1,5 @@
+import type { Block } from "@blocknote/core";
+
 export type Settings = {
   siteTitle: string, 
   siteDescription?: string, 
@@ -7,7 +9,8 @@ export type Settings = {
   siteLogo?: string ,
   siteBg?: string,
   spotifyRefreshToken?:string,
-  section?:string
+  section?:string,
+  aboutText?:Block[]
 }
 export type SpotifyImage = {
     url: string;

@@ -1,5 +1,6 @@
 import { v2 as cloudinary } from "cloudinary";
 import { sessionCheck,badResponse, goodResponse } from "../_lib";
+import type { APIRoute } from "astro";
 export const prerender = false
 
 const cloud_name = import.meta.env.PUBLIC_CLOUDINARY_CLOUD_NAME,
@@ -9,15 +10,16 @@ const cloud_name = import.meta.env.PUBLIC_CLOUDINARY_CLOUD_NAME,
 
 type SignatureValues = {
   public_id?: string,
-  resource_type?:"raw"|"image"
+  resource_type?:"raw"|"image",
+  overwrite?:true
 }
 
-const generateSignature = (values?:SignatureValues) : SignatureValues & {signature:string,timestamp:number,api_key:string,cloud_name:string} => {
+const generateSignature = (values?:SignatureValues) : SignatureValues & {overwrite?:true,signature:string,timestamp:number,api_key:string,cloud_name:string} => {
   if(!cloud_name||!api_key||!api_secret) throw new Error("env variables undefined"); 
   cloudinary.config({cloud_name,api_key,api_secret});
   const timestamp = Math.floor(Date.now() / 1000);
   const signParams=values? {...values,...{timestamp}}:{timestamp};
-  if(values.public_id) signParams.overwrite = true;
+  if(values?.public_id) signParams.overwrite = true;
   
   try {
     const signature = cloudinary.utils.api_sign_request(signParams,api_key);
@@ -29,10 +31,14 @@ const generateSignature = (values?:SignatureValues) : SignatureValues & {signatu
     throw new Error("couldn't generate signature")
   }
 }
-export async function GET({params,request}:{request:Request}) {
+export const GET : APIRoute = ({params}) => {
   const values : SignatureValues = {}
-  if(params.public_id)values.public_id = params.public_id;
-  if(["raw","image"].includes(params.resource_type)values.resource_type = params.resource_type; 
+  if(params.public_id){
+    values.public_id = params.public_id
+  }
+  if(params.resource_type && ["raw","image"].includes(params.resource_type)) {
+    values.resource_type = params.resource_type as "raw"|"image"
+  }; 
   try {
     const sig = (Object.entries(values).length === 0) ? generateSignature():generateSignature(values); 
     return goodResponse(sig);

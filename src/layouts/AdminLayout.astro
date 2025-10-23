@@ -78,8 +78,8 @@ const {siteTitle} = settingsData
 
 
 (function () {
-  const menuBtn = document.querySelectorAll(".menu-opener");
-  const navContainer = document.getElementById("nav-container");
+  const menuBtn : NodeListOf<HTMLButtonElement> = document.querySelectorAll(".menu-opener");
+  const navContainer : HTMLElement|null = document.getElementById("nav-container");
 
   if(!menuBtn.length || !navContainer) return false; 
 let menuOpen = false;

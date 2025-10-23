@@ -1,0 +1,19 @@
+.bn-default-styles {
+  font-family: var(--font-mono);
+}
+  .bn-container {
+    --bn-font-family: var(--font-mono);
+    --bn-border-radius:0;
+    --bn-colors-editor-background: var(--bg);
+    --bn-colors-side-menu: var(--action);
+    --bn-colors-editor-text:var(--for);
+  }
+  .bn-editor {
+    border:1px solid var(--for);
+    border-radius:0;
+    padding-top: 16px;
+    padding-bottom:16px;
+    min-height:250px;
+  }
+
+
