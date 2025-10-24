@@ -9,6 +9,7 @@ import UploadImage from "./formelements/UploadImage"
 import { uploader } from "../../../_lib/uploader"
 import SpotifySection from "./formelements/SpotifySection"
 import SaveFooter from "./formelements/SaveFooter"
+import type { UploadApiOptions } from "cloudinary"
 
 type TProps = {
   settingsData: Settings,
@@ -68,25 +69,39 @@ export default function SettingsForm({settingsData,spotifyData}:TProps) {
     console.log(settingsPayload,filesToUpload);
     
     for (const file of filesToUpload) {
-      //DELETE OLD FILE
-      if(settingsData[file.id as keyof Settings]) {
-        let deletePath = settingsData[file.id as keyof Settings]?.split("/settings_files/")[1];
-        deletePath = "settings_files/"+deletePath
-        const deleteOld = await fetch("/api/GC/",{
-          method:"DELETE",
-          body:JSON.stringify({path:deletePath})
-          
-        });
-        if(!deleteOld) {
-          alert("Couldn't delete old one");
-        }
+      const params : UploadApiOptions = {
+        public_id: `antilogy/settings_images/${file.id}`
       }
-      const upload = await uploader(file.file,`settings_files/${file.id}-${Date.now()}.${file.file.name.split(".")[1]}`);
-      if(!upload) {
-        console.log("couldn't upload",file);
+      const sig = await fetch(`/api/media/signature`, {
+        method:"POST",
+        body: JSON.stringify(params)
+      });
+      if(!sig.ok) {
+        alert("Couldn't get cloudinary signature signature "+file.id);
+        console.log(sig.status);
         return false; 
       }
-      settingsPayload[file.id as keyof Settings] = upload
+      const formData = new FormData();
+      const {data}= await sig.json()
+      console.log(data);
+      
+      Object.keys(data).forEach(key => {
+        const value = data[key];
+         formData.append(key, value);
+      }); 
+      formData.append("file",file.file);
+      //formData.append("public_id","antilogy/settings_images/"+file.id);
+      const uploadResponse = await fetch(`https://api.cloudinary.com/v1_1/${data.cloud_name}/image/upload`, {
+        method: 'POST',
+        body: formData,
+      });
+      if(!uploadResponse.ok) {
+        const errorData = await uploadResponse.json();
+        alert(`Couldn't upload ${file.id} ${errorData.error.message}`)
+      }
+      const uploadResult = await uploadResponse.json();
+      settingsPayload[file.id as keyof Settings] = uploadResult.url; 
+   
     }
 
     console.log(settingsPayload);
@@ -194,27 +209,6 @@ export default function SettingsForm({settingsData,spotifyData}:TProps) {
 
 
 /*
-const sig = await fetch(`/api/media/signature?public_id=${encodeURIComponent("antilogy/settings_images/"+file.id)}`);
-      if(!sig.ok) {
-        alert("Couldn't get cloudinary signature signature "+file.id);
-        console.log(sig.status);
-        return false; 
-      }
-      const formData = new FormData();
-      const sigValues = await sig.json()
-      Object.keys(sigValues).forEach(key => {
-        const value = sigValues[key];
-         formData.append(key, value);
-      }); 
-      formData.append("file",file);
-      const uploadResponse = await fetch(`https://api.cloudinary.com/v1_1/${sigValues.cloudName}/image/upload`, {
-        method: 'POST',
-        body: formData,
-      });
-      if(!uploadResponse.ok) {
-        const errorData = await uploadResponse.json();
-        alert(`Couldn't upload ${file.id} ${errorData.error.message}`)
-      }
-      const uploadResult = await uploadResponse.json();
+
 
 */

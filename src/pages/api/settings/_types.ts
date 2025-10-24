@@ -10,7 +10,6 @@ export type Settings = {
   siteBg?: string,
   spotifyRefreshToken?:string,
   section?:string,
-  aboutText?:Block[]
 }
 export type SpotifyImage = {
     url: string;
