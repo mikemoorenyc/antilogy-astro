@@ -5,8 +5,22 @@ import BlockUploadContext from "./BlockUploadContext";
 
 
 const UploadBlock = (props) => {
+  const {updateImageFile} = BlockUploadContext; 
+
+  const fileUpdate = (file:File) => {
+    updateImageFile(
+      file, props.block.id
+    )
+
+  }
   return <div >
-    <UploadImage />
+    <UploadImage
+      uploadedImage={props.block.props.imageUrl}
+      
+      
+      />
+
+    <div className="image-caption " ref={props.contentRef}/>
   
   
   </div>
