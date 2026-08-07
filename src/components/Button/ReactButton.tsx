@@ -16,7 +16,7 @@ export default function ReactButton (props:ReactButton) {
   
   const modString = modClasses.join(" ")
   
-  const classString = `button-component hover:no-underline ${classes||""} ${modString}`
+  const classString = `button-component no-underline hover:no-underline ${classes||""} ${modString}`
   
   const iconComp = icon? cloneElement(icon as ReactElement<any>, {width:14,height:14}) : null
 

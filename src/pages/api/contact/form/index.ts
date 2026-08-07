@@ -1,7 +1,7 @@
 import { ddbDocClient } from "../../dynamodb/_lib/ddbDocClient";
 import type { Contact, ContactFormSection } from "../_types";
 import { GetCommand,UpdateCommand } from "@aws-sdk/lib-dynamodb";
-import { getSession } from "auth-astro/server";
+import { auth } from "@/utils/auth";
 import { badResponse } from "../../_lib";
 export const prerender = false
 
@@ -73,10 +73,13 @@ export const updateContactForm= async(updatePackage:Contact) :Promise<Contact> =
 }
 
 export async function POST({request}:{request:Request}) {
-  const session = await getSession(request)
+  const session = await auth.api.getSession({
+    headers:request.headers
+  })
   if(!session) {
     return badResponse("Must be logged in",401);
   }
+  
 
   const updatePackage = await request.json();
   try {

@@ -1,8 +1,8 @@
 import type { Settings } from "../settings/_types";
 import { badResponse } from "../_lib";
 import { newUpdate,getSettings } from "../settings";
-import { getSession } from "auth-astro/server";
-
+import { auth } from "@/utils/auth";
+export const prerender = false
 export async function spotifyDisconnect() : Promise<boolean> {
   const settings = await getSettings()
   if(!settings) return false ; 
@@ -13,7 +13,9 @@ export async function spotifyDisconnect() : Promise<boolean> {
 }
 
 export async function POST({ params,request }:{params:{path:string},request:Request}) {
-  const session = await getSession(request);
+  const session = await auth.api.getSession({
+    headers:request.headers
+  })
   if(!session) {
     return badResponse("Not logged in",401);
   }

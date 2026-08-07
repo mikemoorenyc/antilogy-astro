@@ -1,8 +1,8 @@
 import { ddbDocClient } from "../dynamodb/_lib/ddbDocClient";
 import { GetCommand,UpdateCommand,DeleteCommand,ScanCommand } from "@aws-sdk/lib-dynamodb";
-import { getSession, } from 'auth-astro/server';
+
 import { sessionCheck,badResponse, goodResponse } from "../_lib";
-import { getSettings } from "../settings";
+import { auth } from "@/utils/auth";
 import type { Faq,FaqSection } from "./_types";
 import type { UpdateCommandInput } from "@aws-sdk/lib-dynamodb";
 
@@ -76,7 +76,9 @@ const updateFaqs = async (faqs: Faq[]) : Promise<Faq[]> => {
 
 }
 export async function POST({request}:{request:Request}) {
-  const session = getSession(request); 
+  const session = await auth.api.getSession({
+      headers:request.headers
+    })
   if(!session) {
     return badResponse("Not logged in",401)
   }

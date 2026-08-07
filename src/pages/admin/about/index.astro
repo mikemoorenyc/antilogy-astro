@@ -1,5 +1,5 @@
 ---
-import { getSession } from 'auth-astro/server';
+import { sessionCheck } from '@/pages/api/_lib';
 import AdminLayout from '../../../layouts/AdminLayout.astro';
 import PageHeader from '../_adminComponents/PageHeader.astro';
 import { getSettings } from '../../api/settings';
@@ -9,11 +9,7 @@ import type { only } from 'node:test';
 
 
 export const prerender = false;
-const session = await getSession(Astro.request);
 
-if(!session) {
-  return Astro.redirect('/login');
-}
 const settings : Settings = await getSettings() 
 if(!settings) return Astro.redirect("/404");
 

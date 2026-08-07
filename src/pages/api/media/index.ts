@@ -1,6 +1,6 @@
 import { v2 as cloudinary } from "cloudinary";
 import { sessionCheck,badResponse, goodResponse } from "../_lib";
-import { getSession, } from 'auth-astro/server';
+import { auth } from "@/utils/auth";
 import type { APIRoute } from "astro";
 export const prerender = false
 
@@ -21,7 +21,9 @@ export const deleteMedia = async (public_id:string):Promise<true> => {
 }
 
 export const DELETE:APIRoute= async ({request}:{request:Request}) => {
-  const session = getSession(request); 
+  const session = await auth.api.getSession({
+    headers:request.headers
+  })
   if(!session) {
     return badResponse("Not logged in",401)
   }

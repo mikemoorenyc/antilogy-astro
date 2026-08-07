@@ -6,7 +6,11 @@ import { getSettings } from '../api/settings';
 import PageHeader from './_adminComponents/PageHeader.astro';
 import ContactForm from './_adminComponents/ContactForm';
 import { getContactForm } from '../api/contact/form';
+import { sessionCheck } from '../api/_lib';
 export const prerender = false
+
+
+
 const settings = await getSettings() ; 
 if(!settings) return Astro.redirect("/404");
 const contactSettings : Contact = await getContactForm(); 

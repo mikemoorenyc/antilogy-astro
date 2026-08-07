@@ -1,14 +1,17 @@
 import { type Settings } from "./_types";
 import { ddbDocClient } from "../dynamodb/_lib/ddbDocClient";
 import { GetCommand,UpdateCommand,DeleteCommand } from "@aws-sdk/lib-dynamodb";
-import { getSession, } from 'auth-astro/server';
+import { auth } from "@/utils/auth";
+
 import { sessionCheck,badResponse, goodResponse } from "../_lib";
+import { getEnv } from "@/_lib/env";
 
 
 export const prerender = false
-const SETTINGS_TABLE = import.meta.env.SETTINGS_TABLE 
+const SETTINGS_TABLE = import.meta.env.SETTINGS_TABLE;
 
 export const getSettings = async (id:string="main") : Promise<Settings> => {
+
 
   if(!SETTINGS_TABLE) {
     console.log("SETTINGS_TABLE not defined")
@@ -81,7 +84,9 @@ export const newUpdate = async(updatePackage:Settings) :Promise<Settings> => {
 
 
 export async function POST({request}:{request:Request}) {
-  const session = await getSession(request)
+  const session = await auth.api.getSession({
+    headers:request.headers
+  })
   if(!session) {
     return badResponse("Must be logged in",401);
   }

@@ -1,5 +1,5 @@
 ---
-import {  SignOut } from 'auth-astro/components'
+
 import LayoutSkeleton from './LayoutSkeleton.astro'
 import Button from '@/components/Button/Button.astro'
 import type { Settings } from '@/pages/api/settings/_types'
@@ -24,7 +24,7 @@ const {siteTitle} = settingsData
 <div class="hidden md:flex bg-foreground text-background text-sm justify-between py-1 px-2 h-8 items-center font-bold">
   <a href="/" class="uppercase ">{siteTitle}</a>
   <div>
-    <SignOut >Sign out</SignOut>
+    <button class="signout-button" >Sign out</button>
   </div>
 </div>
 
@@ -51,7 +51,7 @@ const {siteTitle} = settingsData
 
     <ul class="mt-8">
     <li><a href="/" class="no-underline text-sm">Site homepage</a></li>
-    <li><SignOut class="no-underline text-sm text-action">Sign out</SignOut></li>
+    <li><button class="signout-button no-underline text-sm text-action">Sign out</button></li>
     </ul>
     
     </div>
@@ -75,7 +75,7 @@ const {siteTitle} = settingsData
 
 
 <script>
-
+import { authClient } from "@/_lib/authClient";
 
 (function () {
   const menuBtn : NodeListOf<HTMLButtonElement> = document.querySelectorAll(".menu-opener");
@@ -98,5 +98,21 @@ menuBtn.forEach(m => {
   })
 })
 })();
+
+document.querySelectorAll(".signout-button").forEach(b => {
+  b.addEventListener("click",async e => {
+    e.preventDefault(); 
+    
+    await authClient.signOut({
+      fetchOptions: {
+        onSuccess: () => {
+          window.location.replace("/login")
+        },
+      },
+    });
+    
+  })
+})
+
 
 </script>

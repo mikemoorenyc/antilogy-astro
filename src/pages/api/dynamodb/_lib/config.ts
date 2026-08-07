@@ -1,5 +1,6 @@
 // Create service client module using ES6 syntax.
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
+import { getEnv } from "@/_lib/env";
 
 // Set the AWS Region.
 const REGION = "us-west-2"; //e.g. "us-east-1"
@@ -8,8 +9,8 @@ const REGION = "us-west-2"; //e.g. "us-east-1"
 const ddbClient = new DynamoDBClient({
 region: REGION,
 credentials: {
-  accessKeyId: import.meta.env.AWS_ACCESS_KEY_ID ||  "",
-  secretAccessKey: import.meta.env.AWS_SECRET_ACCESS_KEY|| "",
+  accessKeyId: import.meta.env.AWS_ACCESS_KEY_ID,
+  secretAccessKey: import.meta.env.AWS_SECRET_ACCESS_KEY
 }
 });
 

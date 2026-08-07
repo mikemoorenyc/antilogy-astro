@@ -1,5 +1,5 @@
 ---
-import { type TSettings } from "../../types"
+import { type Settings as TSettings } from "@api/settings/_types"
 
 import "../globalCSS/index.css"
 import { getSettings } from "../pages/api/settings"
@@ -26,9 +26,10 @@ const desc = metaDescription || settings.siteDescription;
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
     {desc && <meta name="description" content={desc} itemprop="description"> }
-<link rel="icon" href={settings.siteFavicon || "/favicon.ico"} sizes="any" />
-
 <link rel="icon" href={settings.siteFaviconSVG|| "/favicon.svg"} type="image/svg+xml" />
+
+
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bakbak+One&family=Source+Code+Pro:ital,wght@0,200..900;1,200..900&family=Source+Sans+3:ital,wght@0,200..900;1,200..900&display=swap" rel="stylesheet">

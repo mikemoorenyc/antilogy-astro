@@ -60,7 +60,7 @@ export default function UploadImage({accept,uploadedImage,requirements,fileCallb
     
     {localFileUrl&& <img className="" src={localFileUrl} onLoad={()=>{console.log("loaded")}} />}
     {uploadedImage && <img src={uploadedImage} />}
-    {(localFileUrl || uploadedImage) && <ReactButton type="action" label="Change image" onClick={()=> {
+    {(localFileUrl || uploadedImage) && <ReactButton classes="mt-2" type="action" label="Change image" onClick={()=> {
       if(inputRef?.current) {
               inputRef.current?.click()
             }

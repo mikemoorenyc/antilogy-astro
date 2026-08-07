@@ -1,31 +1,75 @@
 ---
 import Layout from "../layouts/Layout.astro";
-import { SignIn, SignOut } from 'auth-astro/components'
-import RemixSVG from "../components/RemixSVG.astro";
-import { getSession } from 'auth-astro/server';
 import { getSettings } from "./api/settings";
+export const prerender = false;
 
-const session = await getSession(Astro.request);
+let sesh = false;
+
+if(Astro.locals.session) {
+  sesh = true 
+}
+if(sesh) {
+  return Astro.redirect("/admin")
+}
+
+const name = Astro.locals.user?.email
 const settings = await getSettings();
 
 if(!settings) return Astro.redirect('/404');
-
-if(session) {
-  return Astro.redirect('/admin/settings');
-}
-export const prerender = false;
-
 ---
 
 <Layout settingsData={settings} pageTitle={`${settings.siteTitle} - Login`}>
 <div class="flex items-center justify-center h-lvh w-lvw">
 
-<SignIn provider="google" class="button-component">
+<button id="signin-button" class="button-component">
 
   <span>Sign in with Gmail account </span>
 
-</SignIn>
+</button>
 
 </div>
 
 </Layout>
+
+
+
+<script>
+  import {authClient} from "@/_lib/authClient"
+
+  const signInClick = async () => {
+    console.log("signed")
+      await authClient.signIn.social({
+      /**
+       * The social provider ID
+       * @example "github", "google", "apple"
+       */
+      provider: "google",
+      /**
+       * A URL to redirect after the user authenticates with the provider
+       * @default "/"
+       */
+      callbackURL: "/admin/settings", 
+      /**
+       * A URL to redirect if an error occurs during the sign in process
+       */
+      errorCallbackURL: "/loginerror",
+      /**
+       * A URL to redirect if the user is newly registered
+
+      /**
+       * disable the automatic redirect to the provider. 
+       * @default false
+       */
+
+    });
+    console.log("asdfasdf")
+    
+  }
+  const btn = document.getElementById("signin-button");
+  btn?.addEventListener("click",(e)=> {
+    e.preventDefault(); 
+    signInClick(); 
+  })
+
+
+</script>

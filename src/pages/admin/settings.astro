@@ -1,14 +1,14 @@
 ---
-import { getSession } from 'auth-astro/server';
+
 import AdminLayout from '../../layouts/AdminLayout.astro';
 import PageHeader from './_adminComponents/PageHeader.astro';
 import SettingsForm from "./_adminComponents/SettingsForm"
 import type { Settings ,SpotifyData} from '../api/settings/_types';
 import {getSettings,newUpdate} from "../api/settings"
 import {getTempToken} from "../api/spotify/getTempToken"
-
-
-const session = await getSession(Astro.request);
+import { sessionCheck } from '../api/_lib';
+export const prerender = false;
+//const session = await sessionCheck(Astro.request);
 
 const defaultSettings : Settings = {
   siteTitle: "Site Title",
@@ -16,10 +16,10 @@ const defaultSettings : Settings = {
   section:"main"
 }
 
-if(!session) {
-  return Astro.redirect('/login');
-}
-export const prerender = false;
+//if(!session) {
+//  return Astro.redirect('/login');
+//}
+
 
 const settings = await getSettings() ;
 
@@ -41,7 +41,7 @@ if(spotifyAppId && spotifyAppSecret) {
  
 }
 //GET THE authorization
-if(spotifyCodeCallback && !spotifyRefreshToken && !import.meta.env.DEV) {
+if(spotifyCodeCallback && !spotifyRefreshToken ) {
   const authorizationToken = await fetch("https://accounts.spotify.com/api/token", {
     method: "POST",
     headers: {
@@ -62,7 +62,7 @@ if(spotifyCodeCallback && !spotifyRefreshToken && !import.meta.env.DEV) {
  // console.log(await authorizationToken.json());
 }
 
-if(spotifyRefreshToken && !import.meta.env.DEV) {
+if(spotifyRefreshToken ) {
 
   const tempToken = await getTempToken();
   if(tempToken) {
@@ -79,9 +79,9 @@ if(spotifyRefreshToken && !import.meta.env.DEV) {
   }
 }
 if(import.meta.env.DEV) {
-  const fakeJson = await import("../../../public/dev/testUserProfile.json");
+  //const fakeJson = await import("../../../public/dev/testUserProfile.json");
  
-  spotifyData.profileData = fakeJson ;
+ // spotifyData.profileData = fakeJson ;
 }
 
 const settingsData = !settings?.siteTitle ?   defaultSettings :settings
@@ -92,6 +92,7 @@ const settingsData = !settings?.siteTitle ?   defaultSettings :settings
 <AdminLayout pageTitle={`Settings - Admin - ${settings.siteTitle}`} settingsData={settingsData}>
 <PageHeader pageTitle='Settings' />
   <SettingsForm client:only="react" settingsData={settingsData} spotifyData={spotifyData?spotifyData:undefined}/>
+
  
 
 </AdminLayout>
