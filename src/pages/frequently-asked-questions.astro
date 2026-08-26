@@ -1,0 +1,20 @@
+---
+import { getSettings } from "./api/settings";
+import Layout from "../layouts/Layout.astro";
+import logoImg from "../assets/homepage-logo.webp";
+import Image from "astro/components/Image.astro";
+import mainMenu from "@/assets/mainMenu";
+
+const settingsData = await getSettings();
+if (!settingsData) return Astro.redirect("/404");
+---
+
+<Layout
+    settingsData={settingsData}
+    pageTitle="Frequently Asked Questions"
+    slug="faqs"
+>
+    fgdsdgf
+</Layout>
+
+<style></style>

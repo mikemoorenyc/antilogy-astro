@@ -1,65 +1,184 @@
 ---
-import type { Settings } from "@/pages/api/settings/_types"
-
-
+import type { Settings } from "@/pages/api/settings/_types";
+import PageTitle from "@/components/PageTitle.astro";
+import CloseSVG from "./CloseSVG.astro";
+import MenuSVG from "./MenuSVG.astro";
 interface Props {
-	pageTitle: string, 
-	meta?: string,
-	children: any,
-	settingsData: Settings
+    pageTitle?: string;
+    meta?: string;
+    children: any;
+    settingsData: Settings;
+    slug?: string;
 }
-import LayoutSkeleton from "./LayoutSkeleton.astro"
-import { Image } from "astro:assets"
+import LayoutSkeleton from "./LayoutSkeleton.astro";
+import { Image } from "astro:assets";
 
-import testImage from "../../public/dev/test-img.jpg"
+const { pageTitle, settingsData, slug } = Astro.props;
+const social = ["instagram", "tiktok", "snapchat"];
 
-import LiveData from "../components/LiveData"
-const {pageTitle,settingsData} = Astro.props
-const social = ["instagram","tiktok","snapchat"]
+//Get Image
+const fileNames = Object.keys(
+    import.meta.glob("../../public/bgs/*", { eager: true }),
+).map((path) => path.split("/").at(-1)!);
 ---
-<LayoutSkeleton pageTitle={pageTitle} settingsData={settingsData} bodyCSS="flex min-h-screen flex-col">
 
-	
+<LayoutSkeleton
+    pageTitle={pageTitle}
+    settingsData={settingsData}
+    bodyCSS="flex min-h-screen flex-col"
+>
+    <div
+        class="fixed inset-0 bg-cover bg-center"
+        id="background-image"
+        data-images={fileNames}
+    >
+    </div>
+    {
+        slug !== "home" && (
+            <header id="header">
+                <div class="header-inner">
+                    <a class="header-logo" href="/">
+                        <Image
+                            width={847}
+                            height={164}
+                            src={"/as-interior-logo.png"}
+                            alt="Antilogy Design & Screenprinting"
+                        />
+                    </a>
+                    <div class="header-dt-button-wrap">
+                        <button
+                            class="menu-opener"
+                            data-open-text="Menu"
+                            data-close-text="Close"
+                        >
+                            <span class="button-base menu-opener-inner">
+                                <span role="none" class="menu-opener-icon menu-opener-button" aria-hidden=true>
+                                    <span class=" close-icon" style="display:none">
+                                        <CloseSVG />
+                                    </span>
+                                    <span class="menu-icon" style="">
+                                        <MenuSVG />
+                                    </span>
+                                </span>
+                                <span class="menu-opener-text">Menu</span>
+                            </span>
+                        </button>
+                    </div>
+                </div>
+            </header>
+        )
+    }
+    <main
+        class="relative flex-1 pb-12"
+        id="main-container"
+        data-current={slug || "default"}
+    >
+        {pageTitle && slug !== "home" && <PageTitle pageTitle={pageTitle} />}
+        <slot />
+    </main>
 
-		<div class="fixed inset-0">
-		<Image widths={[400,800,1600,testImage.width]} class="fixed h-full w-full object-cover" src={testImage} alt="Image of screen printing press" quality={"high"} width={2016} height={905} sizes={`(max-width: 400px) 400px, (max-width: 800px) 800px, (max-width: 1600px) 1600px, 2016px`} />
-		</div>
-	<main class="relative flex-1 mb-12">
-		<slot />
-	</main>
-	<LiveData client:only="react" />
-	<footer class="bg-background relative">
-		<ul class="flex justify-center">
-			{social.map((e,i) => {
-				
-				const classes ="block flex-1 text-center relative p-2 text-smDisplay text-foreground uppercase"
-				return <li class="flex-1 flex-center">
-					{i!== 0 && <span class=" w-[1px] h-[calc(100%-18px)] bg-foreground"></span>}
-					<a class={classes} href="" >{e}</a>
-				</li>
-			})}
-		</ul>
-	</footer>
-
+    <!-- <footer class="bg-background relative">
+        <ul class="flex justify-center">
+            {
+                social.map((e, i) => {
+                    const classes =
+                        "block flex-1 text-center relative p-2 text-smDisplay text-foreground uppercase";
+                    return (
+                        <li class="flex-1 flex-center">
+                            {i !== 0 && (
+                                <span class=" w-[1px] h-[calc(100%-18px)] bg-foreground" />
+                            )}
+                            <a class={classes} href="">
+                                {e}
+                            </a>
+                        </li>
+                    );
+                })
+            }
+        </ul>
+    </footer>-->
 </LayoutSkeleton>
 
-<!doctype html>
-<html lang="en">
-	<head>
-		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,700;1,400;1,700&family=IBM+Plex+Serif:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
-		<meta name="generator" content={Astro.generator} />
-		<title>{pageTitle || `Antilogy Design & Screenprinting - Quality screenprinting in Kingston, NY`}</title>
-	</head>
-	<body class="flex min-h-screen flex-col">
-	
-		<div id="modal-container"></div>
-	</body>
-</html>
-
 <style>
+    #main-container:not([data-current="home"]) {
+        background: var(--bg);
+    }
+    #header {
+        position: relative;
+        background: var(--bg);
+        padding: calc(var(--gutter) * 1.5) var(--gutter);
+        padding-bottom: calc(var(--gutter) * 2);
+        z-index: 4;
+    }
 
+    .header-logo {
+        display: block;
+        width: 125px;
+    }
+    .menu-opener {
+        position: fixed;
+          right: 0;
+          top: 0;
+          z-index: 81;
+    }
+    .menu-opener-inner {
+      align-items: center;
+      display: flex;
+      margin: 20px var(--gutter) 0 0;
+      font-weight: 400;
+        padding: 4px 8px;
+        text-transform: none;
+    }
+    .menu-opener-icon {
+      margin-right: 6px;
+    }
+    @media (min-width: 960px) {
+        #header {
+            padding-bottom: calc(var(--gutter) * 1.5);
+        }
+        .header-inner {
+            margin: 0 auto;
+            max-width: calc(1128px + var(--gutter) * 2);
+            width: 100%;
+        }
+        .header-logo {
+            position: relative;
+            z-index: 82;
+            width: 200px;
+        }
+        .header-dt-button-wrap {
+            display: flex;
+            justify-content: flex-end;
+            left: 50%;
+            max-width: calc(1128px + var(--gutter) * 2 + var(--gutter) * 2);
+            padding: calc(var(--gutter) * 1.5) var(--gutter);
+            position: fixed;
+            top: 0;
+            transform: translateX(-50%);
+            width: 100%;
+            z-index: 81;
+        }
+        .menu-opener-inner {
+            font-size: 14px;
+            font-weight: 700;
+            padding: 6px 16px;
+            position: relative;
+            text-decoration: none;
+            text-transform: uppercase;
+            margin: 0
+        }
+        .menu-opener {
+          position: static;
+        }
+    }
 </style>
+
+<script>
+    const bg = document.getElementById("background-image");
+    const files: string[] = (bg?.dataset.images || "").split(",");
+
+    if (files.length > 0 && bg) {
+        const randomIndex = Math.floor(Math.random() * files.length);
+        bg.style.backgroundImage = `url(/bgs/${files[randomIndex]})` || "";
+    }
+</script>

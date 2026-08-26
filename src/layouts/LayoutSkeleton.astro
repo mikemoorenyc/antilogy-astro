@@ -1,44 +1,56 @@
 ---
-import { type Settings as TSettings } from "@api/settings/_types"
-
-import "../globalCSS/index.css"
-import { getSettings } from "../pages/api/settings"
+import { type Settings as TSettings } from "@api/settings/_types";
+import { siteTitle, subTitle } from "@/assets/settings";
+import "../globalCSS/index.css";
+import { getSettings } from "../pages/api/settings";
 interface Props {
-  pageTitle:string,
-  settingsData: TSettings,
-  bodyCSS?: string,
-  metaDescription?: string
+    pageTitle?: string;
+    settingsData: TSettings;
+    bodyCSS?: string;
+    metaDescription?: string;
 }
-const {settingsData,pageTitle,bodyCSS,metaDescription} = Astro.props
+const { settingsData, pageTitle, bodyCSS, metaDescription } = Astro.props;
 
+const settings = await getSettings();
 
+if (!settings) return Astro.redirect("/404");
 
-const settings = await getSettings(); 
-
-if(!settings) return Astro.redirect("/404");
-
-const desc = metaDescription || settings.siteDescription; 
+const desc = metaDescription || settings.siteDescription;
 ---
 
 <!doctype html>
 <html lang="en">
-	<head>
-		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1" />
-    {desc && <meta name="description" content={desc} itemprop="description"> }
-<link rel="icon" href={settings.siteFaviconSVG|| "/favicon.svg"} type="image/svg+xml" />
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        {
+            desc && (
+                <meta
+                    name="description"
+                    content={desc}
+                    itemprop="description"
+                />
+            )
+        }
+        <link
+            rel="icon"
+            href={settings.siteFaviconSVG || "/favicon.svg"}
+            type="image/svg+xml"
+        />
 
-
-
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bakbak+One&family=Source+Code+Pro:ital,wght@0,200..900;1,200..900&family=Source+Sans+3:ital,wght@0,200..900;1,200..900&display=swap" rel="stylesheet">
-		<meta name="generator" content={Astro.generator} />
-		<title>{pageTitle || `Antilogy Design & Screenprinting - Quality screenprinting in Kingston, NY`}</title>
-	</head>
-  <body class={bodyCSS||""}>
-  
-  <slot/>
-  <div id="modal-container"></div>
-  </body>
-  </html>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Bakbak+One&family=Source+Code+Pro:ital,wght@0,200..900;1,200..900&family=Source+Sans+3:ital,wght@0,200..900;1,200..900&display=swap"
+            rel="stylesheet"
+        />
+        <meta name="generator" content={Astro.generator} />
+        <title>
+            {`${pageTitle ? pageTitle + " - " : ""}${siteTitle} - ${subTitle}`}
+        </title>
+    </head>
+    <body class={bodyCSS || ""}>
+        <slot />
+        <div id="modal-container"></div>
+    </body>
+</html>

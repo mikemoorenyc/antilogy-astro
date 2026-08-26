@@ -1,0 +1,27 @@
+---
+interface Props {
+    pageTitle: string;
+}
+const { pageTitle } = Astro.props;
+---
+
+<h1 class="dt-width-container">
+    {pageTitle}
+</h1>
+<style>
+    h1 {
+        font-family: var(--font-heading);
+        font-size: 42px;
+        padding: var(--gutter);
+        padding-top: 0;
+        line-height: 1.1;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+    @media (min-width: 960px) {
+        h1 {
+            font-size: 72px;
+            padding-bottom: calc(var(--gutter) * 1.5);
+        }
+    }
+</style>

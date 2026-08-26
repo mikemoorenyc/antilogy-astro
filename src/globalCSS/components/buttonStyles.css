@@ -1,26 +1,66 @@
 @layer components {
 
+    .button-base {
+        align-items: center;
+        background: var(--bg);
+        border: 2px solid;
+        box-shadow: 1px 1px 0 var(--action),2px 2px 0 var(--action),3px 3px 0 var(--action);
+        color: var(--for);
+        display: inline-flex;
+        font-family: var(--font-mono);
+        font-size: 14px;
+        font-weight: 700;
+        padding: 6px 16px;
+        position: relative;
+        text-decoration: none;
+        text-transform: uppercase;
 
+    }
+
+    .button-base__active {
+        background: var(--for);
+        border: 0;
+        color: var(--bg);
+    }
+    .button-base_x-sm {
+
+    }
+
+    @media not (hover: none) {
+      .button-base:hover::after {
+        background: hsla(0,0%,100%,.05);
+
+        content: "";
+        display: block;
+        height: 100%;
+        left: 0;
+        pointer-events: none;
+        position: absolute;
+        top: 0;
+        width: 100%;
+      }
+    }
   .button-component {
     box-shadow: 1px 1px 0 var(--action), 2px 2px 0 var(--action),3px 3px 0 var(--action);
-    @apply bg-background border-2 border-foreground text-xs uppercase pt-2 pb-2 pl-3 pr-3 
+    @apply bg-background border-2 border-foreground text-xs uppercase pt-2 pb-2 pl-3 pr-3
    text-foreground inline-flex items-center leading-none
   }
   .button-component.caution {
     box-shadow: 1px 1px 0 var(--for), 2px 2px 0 var(--for),3px 3px 0 var(--for);
     @apply text-red-800 border-red-800
   }
-  
+
   .button-component.big {
     line-height: 48px;
     height:48px;
     font-size:22px;
-    @apply  font-bold px-4 py-0 
+    @apply  font-bold px-4 py-0
   }
   .button-component.reverse {
-    box-shadow: none;
+
     @apply bg-foreground text-background
   }
+
   .button-component.reverse.caution {
     @apply bg-red-800
   }
@@ -33,14 +73,14 @@
     margin-right: 6px;
   }
   .button-component.sm .svg-container:not(:last-child), .button-component.sm > svg:not(:last-child) {
-    margin-right: 3px; 
+    margin-right: 3px;
   }
 
   .button-component:active {
     @apply bg-action text-background;
   }
   .button-component:active:not(.reverse,.ghost) {
-    box-shadow:none; 
+    box-shadow:none;
     transform:translate(3px,3px);
   }
   .button-component.disabled {

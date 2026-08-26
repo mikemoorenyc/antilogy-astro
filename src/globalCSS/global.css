@@ -4,31 +4,43 @@
 
 @layer  base, components,utilities;
 
-
+@theme {
+  --breakpoint-md: 960px
+  --text-5xl: 42px
+}
 
 :root {
   --action: #7B5F26;
   --bg: white;
-  --for: #222127; 
+  --for: #222127;
    --font-mono:  "Source Code Pro", serif;
     --font-serif: "Source Sans 3", serif;
     --font-heading:  "Bakbak One", serif;
-	--accent: #4dc3ff
+	--accent: #4dc3ff;
+	--gutter:16px;
+}
+@media(min-width:960px) {
+    :root {
+        --gutter:24px;
+    }
 }
 
 
-	
+
 	a {
 	color: var(--action);
 	text-decoration:underline;
 
 	}
+	a.no-underline {
+	text-decoration: none;
+	}
 	a:hover {
-		text-decoration: none; 
+		text-decoration: none;
 	}
 	body {
 	background: var(--bg);
-	color: var(--for); 
+	color: var(--for);
 	font-family: var(--font-mono)
 	}
 	input {
@@ -39,11 +51,9 @@
 
 
   .button-component {
-    @apply bg-background85 border border-foreground text-xs uppercase pt-2 pb-2 pl-3 pr-3 
+    @apply bg-background85 border border-foreground text-xs uppercase pt-2 pb-2 pl-3 pr-3
     flex items-center
   }
-  .button-component.big {
 
-  }
 
 }
