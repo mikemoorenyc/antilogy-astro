@@ -1,0 +1,56 @@
+---
+import { getSettings } from "./api/settings";
+import { getImage } from "astro:assets";
+import Layout from "../layouts/Layout.astro";
+import type { ImageMetadata } from "astro";
+import SamplesPicker from "./_reactComponents/SamplesPicker";
+import ImageViewer from "./_svelteComponents/ImageViewer.svelte";
+const settingsData = await getSettings();
+import type {TImageUrls} from "@/types"
+import { imageConfig } from "astro:assets";
+if (!settingsData) return Astro.redirect("/404");
+
+const images = import.meta.glob<{ default: ImageMetadata }>(
+    "/src/assets/images/samples/*.{jpeg,jpg,png,gif}",
+);
+if (Object.keys(images).length === 0) {
+    return Astro.redirect("/404");
+}
+
+const imageUrls: TImageUrls[] = [];
+for (let key in images) {
+    if (Object.prototype.hasOwnProperty.call(images, key)) {
+        let i = await images[key]();
+
+        let thumbnail = await getImage({
+            src: images[key](),
+            height: 450,
+            layout: "constrained",
+        });
+        let full = await getImage({
+            src: images[key](),
+            width: 2200,
+            layout: "constrained",
+        });
+        imageUrls.push({
+            thumbnail: {
+                src: thumbnail.src,
+                srcSet: thumbnail.srcSet.attribute,
+            },
+            full: {
+                src: full.src,
+                srcSet: full.srcSet.attribute,
+            },
+        });
+
+        let value = images[key]();
+    }
+}
+---
+
+<Layout settingsData={settingsData} pageTitle="Samples" slug="samples">
+    <div class="dt-width-container copy-section pb-2">
+        Click a picture to make it bigger
+    </div>
+    <ImageViewer client:load urls={imageUrls}/>
+</Layout>

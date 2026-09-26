@@ -1,0 +1,62 @@
+import Styles from "./styles.module.css"
+import InteractionContainer from "./InteractionContainer"
+import { useState } from "react"
+type Ids = "name" | "email"|"questions"|"businessname";
+export default function () {
+  const [activeInput, updateActiveInput] = useState<string[]>([]);
+  const [filesToUpload,updateFilesToUpload] = useState<File[]>([])
+  const [formValues, updateFormValues] = useState({
+    name: "",
+    email: "",
+    questions: "",
+    businessname:""
+  })
+  const updateValues = (id: Ids, payload: any) => {
+    updateFormValues(prev => {
+      const newVal = { ...prev };
+      newVal[id] = payload
+      return newVal
+    })
+  }
+  type TTextInput = {
+    label: string,
+    helperText?: string,
+    id: Ids,
+    full?: boolean,
+    require?:boolean
+  }
+  const topInputs: TTextInput[] = [
+    { id: "name", helperText: "*required", label: "Full name*" }, { id: "email", helperText: "*required", label: "Email address*" },
+    { id: "businessname", label: "Business name",full:true  }
+  ]
+
+
+
+
+  return <form id="main-contact-form" className={Styles.mainContactForm}>
+    {topInputs.map(i => <section key={i.id} className={`${Styles.section} ${i.full?"":Styles.half}`}>
+
+      <InteractionContainer labelFor={i.id} label={i.label}  helperText={i.helperText} isOpen={formValues[i.id].length>0 } isActive={activeInput.includes(i.id)}>
+        <input type="text" required className={`${Styles.formField} ${Styles.textField}`} value={formValues[i.id]} onChange={(e) => {
+          updateValues(i.id,e.target.value)
+        }} onFocus={() => {
+          updateActiveInput([...activeInput,...[i.id]])
+        }} onBlur={()=>{updateActiveInput(activeInput.filter((a)=>a!=i.id))}}></input>
+      </InteractionContainer>
+    </section>)}
+    <section className={`${Styles.section} ${Styles.half}`}>
+      <InteractionContainer labelFor="questions" isOpen={formValues["questions"].length > 0} isActive={activeInput.includes("questions")} label="General questions" helperText="Any questions are ok!">
+        <textarea onChange={(e)=>{updateValues("questions",e.target.value)}} className={`${Styles.formField} ${Styles.bigTextField}`} value={formValues["questions"]} onBlur={(e)=>{updateActiveInput(prev=>prev.filter(i=>i!=="questions"))}} onFocus={(i)=>{updateActiveInput(prev => [...prev,...["questions"]])}} >
+
+        </textarea>
+      </InteractionContainer>
+    </section>
+    <section className={`${Styles.section} ${Styles.half}`}>
+      <InteractionContainer isOpen={filesToUpload.length>0} isActive={false} label={"Upload some files"}>
+
+      </InteractionContainer>
+    </section>
+
+
+  </form>
+}

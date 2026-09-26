@@ -13,6 +13,7 @@ interface Props {
 import LayoutSkeleton from "./LayoutSkeleton.astro";
 import { Image } from "astro:assets";
 
+import mainMenu from "@/assets/mainMenu";
 const { pageTitle, settingsData, slug } = Astro.props;
 const social = ["instagram", "tiktok", "snapchat"];
 
@@ -20,13 +21,17 @@ const social = ["instagram", "tiktok", "snapchat"];
 const fileNames = Object.keys(
     import.meta.glob("../../public/bgs/*", { eager: true }),
 ).map((path) => path.split("/").at(-1)!);
+
+const menu = [...[{url:"/",label:"Home"}],...mainMenu]
 ---
 
 <LayoutSkeleton
     pageTitle={pageTitle}
     settingsData={settingsData}
-    bodyCSS="flex min-h-screen flex-col"
+    bodyCSS="flex min-h-screen flex-col text-[16px] md:text-[18px]"
 >
+
+
     <div
         class="fixed inset-0 bg-cover bg-center"
         id="background-image"
@@ -37,7 +42,7 @@ const fileNames = Object.keys(
         slug !== "home" && (
             <header id="header">
                 <div class="header-inner">
-                    <a class="header-logo" href="/">
+                    <a class="header-logo hide-on-menu-open" href="/">
                         <Image
                             width={847}
                             height={164}
@@ -50,13 +55,14 @@ const fileNames = Object.keys(
                             class="menu-opener"
                             data-open-text="Menu"
                             data-close-text="Close"
+                            id="menu-open-button"
                         >
                             <span class="button-base menu-opener-inner">
                                 <span role="none" class="menu-opener-icon menu-opener-button" aria-hidden=true>
-                                    <span class=" close-icon" style="display:none">
+                                    <span class=" close-icon hide-on-menu-close" >
                                         <CloseSVG />
                                     </span>
-                                    <span class="menu-icon" style="">
+                                    <span class="menu-icon hide-on-menu-open" style="">
                                         <MenuSVG />
                                     </span>
                                 </span>
@@ -65,11 +71,18 @@ const fileNames = Object.keys(
                         </button>
                     </div>
                 </div>
+                <div class="main-menu-nav-container">
+                    <nav class="big-nav-list main-menu-nav homepage-nav-container">
+                        {
+                        menu.map(m=><a data-slug={m.slug} href={m.url} class={`button-base homepage-nav-button ${m.slug && slug == m.slug?"active":""}`}>{m.label}</a>)
+                        }
+                    </nav>
+                </div>
             </header>
         )
     }
     <main
-        class="relative flex-1 pb-12"
+        class="relative flex-1 pb-12 hide-on-menu-open"
         id="main-container"
         data-current={slug || "default"}
     >
@@ -77,31 +90,16 @@ const fileNames = Object.keys(
         <slot />
     </main>
 
-    <!-- <footer class="bg-background relative">
-        <ul class="flex justify-center">
-            {
-                social.map((e, i) => {
-                    const classes =
-                        "block flex-1 text-center relative p-2 text-smDisplay text-foreground uppercase";
-                    return (
-                        <li class="flex-1 flex-center">
-                            {i !== 0 && (
-                                <span class=" w-[1px] h-[calc(100%-18px)] bg-foreground" />
-                            )}
-                            <a class={classes} href="">
-                                {e}
-                            </a>
-                        </li>
-                    );
-                })
-            }
-        </ul>
-    </footer>-->
 </LayoutSkeleton>
 
 <style>
     #main-container:not([data-current="home"]) {
         background: var(--bg);
+    }
+    #main-container[data-current="home"]{
+        align-items: center;
+          display: flex;
+          justify-content: center;
     }
     #header {
         position: relative;
@@ -109,6 +107,9 @@ const fileNames = Object.keys(
         padding: calc(var(--gutter) * 1.5) var(--gutter);
         padding-bottom: calc(var(--gutter) * 2);
         z-index: 4;
+    }
+    body.menu-open #header {
+        background:none ;
     }
 
     .header-logo {
@@ -132,7 +133,29 @@ const fileNames = Object.keys(
     .menu-opener-icon {
       margin-right: 6px;
     }
+    .main-menu-nav-container {
+        display:none;
+        align-items: center;
+
+        height: 100%;
+        justify-content: center;
+        left: 0;
+        position: fixed;
+        text-align: center;
+        top: 0;
+        width: 100%;
+        z-index: 80;
+    }
+    body.menu-open .main-menu-nav-container {
+        display:flex;
+    }
+    .homepage-nav-button.active {
+        text-decoration: underline;
+    }
     @media (min-width: 960px) {
+        #main-container[data-current="home"]{
+            display: block;
+        }
         #header {
             padding-bottom: calc(var(--gutter) * 1.5);
         }
@@ -176,6 +199,27 @@ const fileNames = Object.keys(
 <script>
     const bg = document.getElementById("background-image");
     const files: string[] = (bg?.dataset.images || "").split(",");
+
+    const menuBtn = document.getElementById("menu-open-button");
+    let menuOpen = false
+    const bod = document.body
+    if(menuBtn) {
+      menuBtn.addEventListener("click",function(e) {
+        e.preventDefault()
+        let btnText = !menuOpen?menuBtn.getAttribute("data-close-text"):menuBtn.getAttribute("data-open-text")
+        let textSpan = menuBtn.querySelector(".menu-opener-text")
+
+        if(textSpan) {
+          textSpan.innerHTML = btnText||""
+        }
+        let removeClass = !menuOpen ? "menu-close":"menu-open"
+        let addClass=!menuOpen ? "menu-open":"menu-close"
+        bod.classList.remove(removeClass)
+        bod.classList.add(addClass)
+        menuOpen = !menuOpen
+
+      })
+    }
 
     if (files.length > 0 && bg) {
         const randomIndex = Math.floor(Math.random() * files.length);

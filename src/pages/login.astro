@@ -6,7 +6,7 @@ export const prerender = false;
 let sesh = false;
 
 if(Astro.locals.session) {
-  sesh = true 
+  sesh = true
 }
 if(sesh) {
   return Astro.redirect("/admin")
@@ -19,7 +19,7 @@ if(!settings) return Astro.redirect('/404');
 ---
 
 <Layout settingsData={settings} pageTitle={`${settings.siteTitle} - Login`}>
-<div class="flex items-center justify-center h-lvh w-lvw">
+<div class="flex items-start justify-center h-lvh w-lvw">
 
 <button id="signin-button" class="button-component">
 
@@ -48,7 +48,7 @@ if(!settings) return Astro.redirect('/404');
        * A URL to redirect after the user authenticates with the provider
        * @default "/"
        */
-      callbackURL: "/admin/settings", 
+      callbackURL: "/admin/settings",
       /**
        * A URL to redirect if an error occurs during the sign in process
        */
@@ -57,18 +57,18 @@ if(!settings) return Astro.redirect('/404');
        * A URL to redirect if the user is newly registered
 
       /**
-       * disable the automatic redirect to the provider. 
+       * disable the automatic redirect to the provider.
        * @default false
        */
 
     });
     console.log("asdfasdf")
-    
+
   }
   const btn = document.getElementById("signin-button");
   btn?.addEventListener("click",(e)=> {
-    e.preventDefault(); 
-    signInClick(); 
+    e.preventDefault();
+    signInClick();
   })
 
 

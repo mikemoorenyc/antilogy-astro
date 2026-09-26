@@ -1,3 +1,8 @@
+export default function () {
+  return <div></div>
+}
+
+/*
 import { defaultProps } from "@blocknote/core";
 import { createReactBlockSpec } from "@blocknote/react";
 import UploadImage from "../formelements/UploadImage";
@@ -5,7 +10,7 @@ import BlockUploadContext from "./BlockUploadContext";
 
 
 const UploadBlock = (props) => {
-  const {updateImageFile} = BlockUploadContext; 
+  const {updateImageFile} = BlockUploadContext;
 
   const fileUpdate = (file:File) => {
     updateImageFile(
@@ -16,13 +21,13 @@ const UploadBlock = (props) => {
   return <div >
     <UploadImage
       uploadedImage={props.block.props.imageUrl}
-      
-      
+
+
       />
 
     <div className="image-caption " ref={props.contentRef}/>
-  
-  
+
+
   </div>
 
 
@@ -45,3 +50,4 @@ export default const CustomImageBlock = createReactBlockSpec(
     render: UploadBlock
   }
 )
+*/

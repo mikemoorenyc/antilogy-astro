@@ -1,0 +1,89 @@
+
+.interactionContainer {
+    width:100%;
+    position: relative;
+}
+.interactionContainer:before {
+    display: block;
+    content:"";
+    position: absolute;
+    inset:0;
+    border: 2px solid var(--for);
+    pointer-events: none;
+}
+.interactionContainer.active:before {
+    border-color:var(--action);
+}
+.interactionLabel {
+    cursor: pointer;
+      left: 12px;
+    line-height: 1.4;
+    max-width: calc(100% - 32px);
+    overflow: hidden;
+    padding: 0;
+    pointer-events: none;
+    position: absolute;
+    text-overflow: ellipsis;
+    top: 14px;
+    transform: scale(1);
+    transform-origin: left center;
+    transition: transform .1s;
+    white-space: nowrap;
+    width: auto;
+    will-change: transform;
+    background:var(--bg);
+    padding:0 4px;
+}
+.interactionLabel.active {
+    color:var(--action);
+}
+.interactionLabel.opened {
+    transform: translateY(-26px) scale(.75);
+}
+.helperText {
+    font-size: 12px;
+      line-height: 1.3;
+      padding: 4px 0 0 20px;
+}
+.section {
+    margin-bottom: calc(var(--gutter) * 1.25)
+}
+.formField {
+    border: 0;
+    display: block;
+    font-family: inherit;
+    font-size: inherit;
+    outline: 0;
+    padding: 16px;
+    width: 100%;
+}
+.textField {
+    height: 50px;
+    line-height: 1;
+}
+.bigTextField {
+    line-height: 1.4;
+      min-height: 10em;
+      resize: vertical;
+
+}
+.textField:focus {
+    color:var(--action);
+}
+
+@media(min-width:950px) {
+    .mainContactForm {
+        display: flex;
+        flex-wrap: wrap;
+        position: relative;
+        right: calc(var(--gutter)*.75);
+        width: calc(100% + var(--gutter)*1.5);
+    }
+    .section {
+        padding: 0 calc(var(--gutter)*.75);
+        width: 100%;
+    }
+    .section.half {
+        width:50%
+    }
+}

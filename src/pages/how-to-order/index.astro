@@ -1,0 +1,103 @@
+---
+import { getSettings } from "../api/settings";
+import Layout from "@/layouts/Layout.astro";
+import * as contactIntro from "@/assets/contact-intro.md";
+//import ContactForm from "./_ContactForm/ContactForm.tsx__";
+import  ContactForm  from "./_ContactForm/ContactForm.svelte";
+const settingsData = await getSettings();
+if (!settingsData) return Astro.redirect("/404");
+const compiledIntro = await contactIntro.compiledContent();
+const regularContacts = [
+    {
+        title: "Physical Address",
+        copy: `
+    <address>Antilogy Design &amp; Screenprinting<br><a href="https://maps.app.goo.gl/n9t1TsXukY2ByKG59" target="_blank">658 Ulster Ave, Kingston, NY, 12401</a></address>
+    `,
+    },
+    {
+        title: "Shop Hours",
+        copy: `
+    Monday - Thursday<br>
+   8:00AM EST - 5:30PM EST
+    `,
+    },
+    {
+        title: "Email Address",
+        copy: `<a href="mailto:antilogydesign@gmail.com">antilogydesign@gmail.com</a>`,
+    },
+];
+---
+
+<Layout
+    settingsData={settingsData}
+    pageTitle="How to Order"
+    slug="how-to-order"
+>
+    <div class="dt-width-container how-to-copy contact-wrap dt-width-container dt-grid-layout">
+        <div class="copy-section" set:html={compiledIntro} />
+        <div class="how-to-info">
+            {regularContacts.map((r) => (
+                <div class="how-to-info-section">
+                    <div class="title">{r.title}:</div>
+                    <div class="copy" set:html={r.copy} />
+                </div>
+            ))}
+        </div>
+        <div class="contact-form">
+            <div class="copy-section">
+                <h2>Get started</h2>
+            </div>
+            <div id="contact-form-container">
+                <ContactForm client:load />
+            </div>
+        </div>
+    </div>
+</Layout>
+
+<style>
+    .how-to-info {
+        border: 2px solid;
+        border-width: 2px 0;
+        margin: 0 var(--gutter) calc(var(--gutter) * 1.25);
+        padding: var(--gutter) 0;
+    }
+    .how-to-info-section:not(:first-child) {
+        margin-top: var(--gutter);
+    }
+    .how-to-info .title {
+        font-size: 12px;
+        margin-bottom: 2px;
+        text-transform: uppercase;
+    }
+    .how-to-info .copy {
+        line-height: 1.3;
+    }
+
+    @media (min-width: 950px) {
+        .how-to-copy {
+            grid-template-rows: auto 1fr;
+        }
+        .copy-section {
+            grid-column-end: 9;
+            grid-column-start: 1;
+            grid-row-end: 2;
+            grid-row-start: 1;
+        }
+        .how-to-info {
+            grid-column-end: 12;
+            grid-column-start: 9;
+            grid-row-end: 3;
+            grid-row-start: 1;
+            border: 0;
+            padding: 0;
+            margin: 0;
+        }
+        .contact-form {
+            grid-column-end: 9;
+            grid-column-start: 1;
+            grid-row-end: 3;
+            grid-row-start: 2;
+            margin-top: var(--gutter);
+        }
+    }
+</style>

@@ -1,0 +1,25 @@
+import type { ReactNode } from "react"
+import St from "./styles.module.css"
+
+export type TInteractionContainerProps = {
+  isActive: boolean,
+  label: string,
+  labelFor?:string,
+  helperText?: string,
+  icon?: ReactNode,
+  children: ReactNode,
+  errored?: boolean,
+  isOpen:boolean
+}
+export default function (props: TInteractionContainerProps) {
+  const { children, labelFor, label, helperText, isActive,isOpen } = props
+  const activeClass = isActive?St.active:""
+  return <>
+    <div className={`${St.interactionContainer} ${activeClass}`} >
+      <label className={`${St.interactionLabel} ${activeClass} ${isOpen||isActive?St.opened:""}`} htmlFor={labelFor}>{label}</label>
+
+      {children}
+    </div>
+    {helperText && <div className={St.helperText}>{helperText}</div>}
+  </>
+}

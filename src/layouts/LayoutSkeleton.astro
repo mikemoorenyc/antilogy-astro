@@ -49,7 +49,7 @@ const desc = metaDescription || settings.siteDescription;
             {`${pageTitle ? pageTitle + " - " : ""}${siteTitle} - ${subTitle}`}
         </title>
     </head>
-    <body class={bodyCSS || ""}>
+    <body class={(bodyCSS || "") + " menu-close"}>
         <slot />
         <div id="modal-container"></div>
     </body>

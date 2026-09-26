@@ -22,9 +22,6 @@
         border: 0;
         color: var(--bg);
     }
-    .button-base_x-sm {
-
-    }
 
     @media not (hover: none) {
       .button-base:hover::after {
@@ -88,5 +85,31 @@
   }
   .button-component.caution:active {
     @apply text-background
+  }
+
+  .homepage-nav-button {
+      display: block;
+      font-size: 22px;
+      height: 48px;
+      line-height: 48px;
+      margin-bottom: var(--gutter);
+      padding: 0 16px;
+  }
+  .homepage-nav-container {
+      display: inline-block;
+  }
+  @media(min-width:950px) {
+      .homepage-nav-button {
+          flex: 1;
+          margin: 0;
+          white-space: nowrap;
+      }
+      .homepage-nav-button:not(:last-child) {
+          margin: 0 16px 0 0;
+      }
+      .homepage-nav-container {
+          display: flex;
+          justify-content: center;
+      }
   }
 }

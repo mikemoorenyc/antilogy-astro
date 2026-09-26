@@ -1,12 +1,12 @@
 ---
 import { getSettings } from "./api/settings";
 import Layout from "../layouts/Layout.astro";
-import logoImg from "../assets/homepage-logo.webp";
-import Image from "astro/components/Image.astro";
-import mainMenu from "@/assets/mainMenu";
-
+import * as faqIntro from "@/assets/faqs-intro.md";
+import * as faqs from "@/assets/faqs.md";
 const settingsData = await getSettings();
 if (!settingsData) return Astro.redirect("/404");
+const compiledIntro = await faqIntro.compiledContent();
+const compiledFaqs = await faqs.compiledContent();
 ---
 
 <Layout
@@ -14,7 +14,34 @@ if (!settingsData) return Astro.redirect("/404");
     pageTitle="Frequently Asked Questions"
     slug="faqs"
 >
-    fgdsdgf
+    <div class="dt-width-container faq-wrap dt-width-container dt-grid-layout">
+        <div class="faq-grid-left-col">
+            <div class="copy-section copy-section-faqs">
+                <div class="faq-intro" set:html={compiledIntro} />
+                <div class="faqs" set:html={compiledFaqs} />
+            </div>
+        </div>
+    </div>
 </Layout>
 
-<style></style>
+<style>
+    .copy-section-faqs {
+        margin-bottom: calc(var(--gutter) * 1.5);
+    }
+    .faq-intro {
+        margin-bottom: var(--gutter);
+    }
+    .faqs :global(h2) {
+        font-family: var(--font-mono);
+        margin-top: calc(var(--gutter) * 1.2);
+        line-height: 1.2;
+        margin-bottom: calc(var(--gutter) * 0.25);
+    }
+
+    @media (min-width: 950px) {
+        .faq-grid-left-col {
+            grid-column-end: 8;
+            grid-column-start: 1;
+        }
+    }
+</style>
