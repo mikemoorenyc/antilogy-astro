@@ -5,7 +5,7 @@ import { auth } from "@/utils/auth";
 import { badResponse } from "../../_lib";
 export const prerender = false
 
-const SETTINGS_TABLE = import.meta.env.SETTINGS_TABLE 
+const SETTINGS_TABLE = import.meta.env.SETTINGS_TABLE
 
 
 export const getContactForm =  async ():Promise<Contact>=>  {
@@ -13,21 +13,21 @@ export const getContactForm =  async ():Promise<Contact>=>  {
   if(!SETTINGS_TABLE) {
     console.log("SETTINGS_TABLE not defined")
     throw Error("SETTINGS_TABLE not defined")
-    
+
   }
   const input = {
     TableName : SETTINGS_TABLE,
     Key: {
       section: "contact"
     }
- 
+
   }
   try {
-    const data = await ddbDocClient.send(new GetCommand(input));  
+    const data = await ddbDocClient.send(new GetCommand(input));
     if(!data.Item) {
       throw new Error("no item");
     }
-     
+
     return data.Item as Contact ;
   } catch (err) {
       console.log("Error", err);
@@ -38,11 +38,11 @@ export const getContactForm =  async ():Promise<Contact>=>  {
 }
 
 export const updateContactForm= async(updatePackage:Contact) :Promise<Contact> => {
-  if(!SETTINGS_TABLE) throw new Error("no settings table defined"); 
+  if(!SETTINGS_TABLE) throw new Error("no settings table defined");
   let UpdateExpression = "set ";
-  let ExpressionAttributeValues :{[key:string]:string|ContactFormSection[]} = {}; 
+  let ExpressionAttributeValues :{[key:string]:string|ContactFormSection[]} = {};
   Object.entries(updatePackage).forEach(([key, value]) => {
-    if(key == "section"|| key == "lastUpdated") return; 
+    if(key == "section"|| key == "lastUpdated") return;
     UpdateExpression += ` ${key}=:${key},`
     ExpressionAttributeValues[`:${key}`] = value;
   });
@@ -59,15 +59,15 @@ export const updateContactForm= async(updatePackage:Contact) :Promise<Contact> =
   }
   try {
     const update = await ddbDocClient.send(new UpdateCommand(command));
-    const deployHook = import.meta.env.DEPLOY_HOOK 
+    const deployHook = import.meta.env.DEPLOY_HOOK
     if(deployHook) {
       const rebuild = await fetch(deployHook);
     }
-    return update.Attributes as Contact; 
+    return update.Attributes as Contact;
   } catch(err) {
     if (err instanceof Error) {
       throw new Error(err.message);
-    } 
+    }
      throw new Error(String(err));
   }
 }
@@ -79,7 +79,7 @@ export async function POST({request}:{request:Request}) {
   if(!session) {
     return badResponse("Must be logged in",401);
   }
-  
+
 
   const updatePackage = await request.json();
   try {
@@ -97,5 +97,21 @@ export async function POST({request}:{request:Request}) {
   } catch (err) {
     console.log(err);
     return badResponse("Couldn't update episode")
+  }
+}
+export async function GET() {
+  try {
+    const formStructure = await getContactForm();
+    return new Response(
+      JSON.stringify({ data: { formStructure } }),
+      {
+          status: 200,
+          headers: {
+            "Content-Type": "application/json"
+          }
+        }
+    )
+  } catch (err) {
+    return badResponse("Couldn't get form structure")
   }
 }
