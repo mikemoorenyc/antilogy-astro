@@ -34,6 +34,10 @@ const regularContacts = [
     slug="how-to-order"
 >
     <div class="dt-width-container how-to-copy contact-wrap dt-width-container dt-grid-layout">
+        <script
+	src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit"
+	defer
+        ></script>
         <div class="copy-section" set:html={compiledIntro} />
         <div class="how-to-info">
             {regularContacts.map((r) => (

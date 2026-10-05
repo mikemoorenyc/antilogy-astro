@@ -1,57 +1,145 @@
+
 <script lang="ts">
-    import InteractionContainer from "./InteractionContainer.svelte";
+    import {type UploadApiOptions } from "cloudinary";
     import FileUploader from "./FileUploader.svelte";
-    import {interestOptions,shippingOptions} from "./options";
+    import {interestOptions,shippingOptions, type TFormValues} from "./options";
     import Check from "@/pages/_svelteComponents/icons/Check.svelte";
-    import TextField from "@/pages/_svelteComponents/icons/TextField.svelte";
+    import TextField from "./TextField.svelte";
+    import { onMount } from "svelte";
+    import TurnstileInput from "./TurnstileInput.svelte";
+    import { actions } from 'astro:actions';
+
+    let successfulSubmit = $state(false);
+    let submitState = $state<"Uploading files"|"idle"|"submitting"|"errored"|"sent">("idle")
     type Ids = "name" | "email"|"questions"|"businessname"|"quantity"|"description"|"date"|"shipping"|"hear";
     type TTextInput = {
       label: string,
       helperText?: string,
       id: Ids,
       full?: boolean,
-      require?:boolean,
+      required?:boolean,
       type?:"text"|"date"|"email"|"textarea"
     }
+    let buttonText = $derived.by(()=> {
+      let bt = "Submit"
+      switch( submitState) {
+        case"Uploading files":
+          bt = "Uploading files"
+          break;
+        case "submitting":
+          bt = "Sending message"
+          break;
+      }
+      return bt
+    })
     let activeInput = $state<Ids[]>([])
     const required=["name",'email']
     let errored = $state<Ids[]>([])
-    const formValues = $state<{
-      name:string,
-      email:string,
-      questions:string,
-      businessname:string,
-      quantity:string,
-      interested:string[],
-      description:string,
-      date:string,
-      shipping:string,
-      hear:string
-    }>({
+
+    const formValues = $state<TFormValues>({
       name: "",
       email: "",
       questions: "",
       businessname:"",
-      quantity:"500",
+      quantity:500,
       interested:[],
       description:"",
       date:"",
       shipping:"shipping",
       hear:""
     })
+    let attachments = $state<{url:string,public_id:string}[]>([])
     let files = $state<{
       file: File,
       id:string
       }[]>([])
 
     const topInputs: TTextInput[] = [
-      { id: "name", helperText: "*required", label: "Full name*" ,}, { id: "email", helperText: "*required", label: "Email address*",type:"email" },
+      { id: "name", helperText: "*required", label: "Full name*" ,required:true}, { id: "email", helperText: "*required", label: "Email address*",type:"email",required:true },
       { id: "businessname", label: "Business name",full:true  }
     ]
+    let turnstileToken = $state("");
+    const updateTurnstileToken = (t:string) => {
+      turnstileToken = t;
+    }
+    onMount(() => {
+      if (sessionStorage.getItem("successSubmit") === "true") {
+        successfulSubmit = true
+      }
+	});
+const submitForm = async (e:SubmitEvent) => {
+  e.preventDefault();
+  submitState = "submitting"
+  if(files.length > 0) {
+    submitState = "Uploading files"
+    const {data,error } = await actions.turnstile.validateToken(turnstileToken)
+    if(error) {
+      alert("Couldn't validate captcha");
+      submitState="errored"
+      return false;
+    }
+  }
+  //Start Uploading attachments
+  for(const file of files) {
+    const public_id = `antilogy/tempFiles/${formValues.email}_${Date.now()}/${file.id}`
+    const params : UploadApiOptions & {
+      public:boolean
+    } = {
+      public_id,
+      public:true
+    }
+    const sig = await fetch(`/api/media/signature`, {
+      method:"POST",
+      body: JSON.stringify(params)
+    });
+    if(!sig.ok) {
+      alert("Couldn't get cloudinary signature signature "+file.id);
+      console.log(sig.status);
+      return false;
+    }
+    const formData = new FormData();
+    const {data}= await sig.json()
+    console.log(data);
+    Object.keys(data).forEach(key => {
+      const value = data[key];
+       formData.append(key, value);
+    });
+    formData.append("file",file.file);
+    const uploadResponse = await fetch(`https://api.cloudinary.com/v1_1/${data.cloud_name}/image/upload`, {
+      method: 'POST',
+      body: formData,
+    });
+    if(!uploadResponse.ok) {
+      const errorData = await uploadResponse.json();
+      console.log(errorData)
+      alert(`Couldn't upload ${file.id} ${errorData.error.message}`)
+      return false ;
+    }
+    const uploadResult = await uploadResponse.json();
+    attachments.push({
+      public_id,
+      url:uploadResult.url
+    })
+  }
+  submitState = "submitting"
+  //FINISH UPLOADING ATTACHMENTS
+console.log({...formValues,attachments,turnstileToken})
+  let {data,error} = await actions.resend.sendEmail({
+    ...formValues,
+    attachments,
+    turnstileToken
+  })
+  if(error) {
+    alert("Couldn't send message. Try again later")
+    submitState="errored"
+    return false
+  }
+  submitState="sent"
 
+}
 </script>
-
-<form class="mainContactForm" id="main-contact-form">
+{#if submitState !== "sent"}
+<form class="mainContactForm" id="main-contact-form" onsubmit={submitForm}>
 
     {#each topInputs as input,i (input.id)}
         <section class={`section ${input.full?"":"half"}`}>
@@ -85,7 +173,7 @@
         <label for={"quantity"} class="checkbox-title">Order quantity</label>
                 <div class="range-container" >
                 <input  bind:value={formValues.quantity} class="range-input" type="range" id={"quanity"} name={"quantity"} min={36} max={2000} step="2" />
-                <div  class="range-counter">{formValues.quantity}{(parseInt(formValues.quantity) == 36?" (minimum order)":"")}{parseInt(formValues.quantity)>= 2000?" or more":""}</div>
+                <div  class="range-counter">{formValues.quantity}{(formValues.quantity == 36?" (minimum order)":"")}{formValues.quantity>= 2000?" or more":""}</div>
                 </div>
     </section>
     <section class="section">
@@ -136,11 +224,25 @@
     <section class="section">
         <TextField id="hear" bind:currentValue={formValues.hear} label="How did you hear about Antilogy Design?"></TextField>
     </section>
-    <section class="section">
-        <div id="recaptcha_html_element"></div>
+    <section class="section text-center">
+        <TurnstileInput updateCallback={updateTurnstileToken}/>
     </section>
-</form>
 
+    <section class="section text-center">
+
+
+        <button  disabled={submitState !="idle" || !turnstileToken} type="submit" class="contact-form-submit-button homepage-nav-button button-base button-base__active">
+                        <span>
+                           { buttonText }
+                        </span>
+                    </button>
+    </section>
+
+</form>
+{:else }
+<p>Thank you for sending a message. Someone will get in contact with you soon.</p>
+
+{/if}
 <style>
 
 
@@ -273,6 +375,12 @@
         }
         .section.half {
             width:50%
+        }
+    }
+    .contact-form-submit-button {
+        display:inline-flex;
+        &[disabled] {
+            opacity:.5;
         }
     }
 

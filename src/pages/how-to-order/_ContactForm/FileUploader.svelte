@@ -19,8 +19,12 @@ import InteractionContainer from "./InteractionContainer.svelte";
         fileInput.click();
       }
     }
-    const fileChanges = (files:FileList) => {
-      [...files].forEach(f => {
+    const fileChanges = (filesToUpload:FileList) => {
+      [...filesToUpload].forEach(f => {
+        if(files.length >= 5) {
+          alert("Maximum 5 allowed")
+          return ;
+        }
         const isImage = f.type.includes("image");
         const ext = f.name.split(".").at(-1);
         if(!isImage && !allowedFileTypes.includes("."+ext)) {

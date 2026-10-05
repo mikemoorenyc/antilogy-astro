@@ -38,6 +38,7 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-zoom-pan-pinch": "^4.2.0",
+    "resend": "^6.32.0",
     "svelte": "^5.57.0",
     "svelte-image-viewer": "^8.0.0",
     "svelte-portal": "^2.2.1",

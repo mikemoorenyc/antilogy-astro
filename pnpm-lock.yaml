@@ -101,6 +101,9 @@ importers:
       svelte-image-viewer:
         specifier: ^8.0.0
         version: 8.0.0(svelte@5.57.0)
+      svelte-portal:
+        specifier: ^2.2.1
+        version: 2.2.1
       tailwindcss:
         specifier: ^3.4.17
         version: 3.4.19(yaml@2.9.1)
@@ -3652,6 +3655,9 @@ packages:
     resolution: {integrity: sha512-oEWz1sSraD5rRQxNc3jJ9ZyS1uGnDl6V7amOGv+ONSLqLsd2lh/RJVou5ID97KxktxptfKFQ2jBxj34xuW0gLQ==}
     peerDependencies:
       svelte: ^5.53.12
+
+  svelte-portal@2.2.1:
+    resolution: {integrity: sha512-uF7is5sM4aq5iN7QF/67XLnTUvQCf2iiG/B1BHTqLwYVY1dsVmTeXZ/LeEyU6dLjApOQdbEG9lkqHzxiQtOLEQ==}
 
   svelte2tsx@0.7.61:
     resolution: {integrity: sha512-EpQ/+UHITBULeUojx/LLD3uTYasZXcX1BrqlrzfLUnT9vdUhaOWK59a3ryWcFU8L0sY1SP+gRhJ2Beiis98+qw==}
@@ -8174,6 +8180,8 @@ snapshots:
   svelte-image-viewer@8.0.0(svelte@5.57.0):
     dependencies:
       svelte: 5.57.0
+
+  svelte-portal@2.2.1: {}
 
   svelte2tsx@0.7.61(svelte@5.57.0)(typescript@5.9.3):
     dependencies:

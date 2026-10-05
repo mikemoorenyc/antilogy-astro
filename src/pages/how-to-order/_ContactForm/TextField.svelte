@@ -1,7 +1,7 @@
 <script lang="ts">
     import InteractionContainer from "@/pages/how-to-order/_ContactForm/InteractionContainer.svelte";
     type TProps = {
-      currentValue:string,
+      currentValue:string|number,
       type?:"text"|"date"|"textarea"|"email",
       id:string,
       required?:boolean,
@@ -11,7 +11,7 @@
     let {currentValue=$bindable(),id,required,type,label,helperText}:TProps = $props()
     let isActive = $state(false)
 </script>
-<InteractionContainer labelFor={id} label={label}  helperText={helperText} isOpen={currentValue.length>0 } isActive={isActive}>
+<InteractionContainer labelFor={id} label={label}  helperText={helperText} isOpen={String(currentValue).length>0 } isActive={isActive}>
     {#if type!=="textarea"}
     <input type={type||"text"} required={required} class="formField textField" bind:value={currentValue}
         onfocus={()=>{isActive = true}}
