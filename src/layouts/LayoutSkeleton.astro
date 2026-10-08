@@ -1,8 +1,9 @@
 ---
 import { type Settings as TSettings } from "@api/settings/_types";
+import { actions } from 'astro:actions';
 import { siteTitle, subTitle } from "@/assets/settings";
 import "../globalCSS/index.css";
-import { getSettings } from "../pages/api/settings";
+import type { TMainSettings } from "@/actions/settings/schema";
 interface Props {
     pageTitle?: string;
     settingsData: TSettings;
@@ -10,8 +11,13 @@ interface Props {
     metaDescription?: string;
 }
 const { settingsData, pageTitle, bodyCSS, metaDescription } = Astro.props;
+const {data ,error} = await Astro.callAction(actions.settings.getSettingsSection,"main");
+if(error) {
+  console.log(error.message)
+  return Astro.redirect("/404")
+}
 
-const settings = await getSettings();
+const settings = data as TMainSettings
 
 if (!settings) return Astro.redirect("/404");
 

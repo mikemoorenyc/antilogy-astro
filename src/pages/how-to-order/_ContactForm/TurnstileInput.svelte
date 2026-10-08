@@ -5,6 +5,7 @@
       callback?: (token: string) => void;
       "expired-callback"?: () => void;
       "error-callback"?: () => void;
+      theme?: "light"|"dark";
   };
   type TurnstileAPI = {
     render: ( container: HTMLElement, options: TurnstileOptions ) => string;
@@ -35,7 +36,8 @@
       },
       "expired-callback":() => {
         updateCallback("")
-      }
+      },
+
     })
   }
   onMount(()=> {

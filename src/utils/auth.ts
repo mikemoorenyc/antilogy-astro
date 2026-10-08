@@ -21,3 +21,11 @@ export const auth = betterAuth({
         },
     },
 });
+
+export const isAuthed = async (request:Request): Promise<boolean>  =>{
+  const session = await auth.api.getSession({
+    headers:request.headers
+  })
+  if (!session) return false;
+  return true
+}

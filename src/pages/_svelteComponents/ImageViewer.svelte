@@ -4,11 +4,12 @@
     let currentImage = $state(-1);
     import Portal from "svelte-portal";
     function updateImage(i:number) {
-      let body = document.body
+      let html = document.querySelector("html")
+      if(!html) return ;
       if(i<0) {
-        body.classList.remove("sample-open")
+        html.classList.remove("sample-open")
       } else {
-        body.classList.add("sample-open")
+        html.classList.add("sample-open")
       }
       currentImage = i
     }
@@ -121,9 +122,11 @@
         top:24px;
         color:var(--for)
     }
-    :global(body.sample-open) {
+    :global(html.sample-open) {
         overflow:hidden
+
     }
+
 
     .full-size-image {
         position: absolute;

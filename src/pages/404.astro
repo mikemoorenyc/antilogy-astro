@@ -2,13 +2,14 @@
 import Layout from "../layouts/Layout.astro";
 import { getSettings } from "./api/settings";
 
-const settings = await getSettings(); 
+const settings = await getSettings();
 ---
 
 
 {settings && <Layout settingsData={settings} pageTitle="Page not found">
-<div class="fixed inset-0 bg-background flex-center-center">  
+<div class="fixed inset-0 bg-background flex-center-center">
   <div>Page not found<br/><a href="/">Go back home</a></div>
 </div>
 
 </Layout>}
+{!settings &&<div>Everything is broken</div>}

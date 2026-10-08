@@ -3,6 +3,7 @@ import type { Settings } from "@/pages/api/settings/_types";
 import PageTitle from "@/components/PageTitle.astro";
 import CloseSVG from "./CloseSVG.astro";
 import MenuSVG from "./MenuSVG.astro";
+import navLogo from "@/assets/as-interior-logo.png"
 interface Props {
     pageTitle?: string;
     meta?: string;
@@ -46,7 +47,7 @@ const menu = [...[{url:"/",label:"Home"}],...mainMenu]
                         <Image
                             width={847}
                             height={164}
-                            src={"/as-interior-logo.png"}
+                            src={navLogo}
                             alt="Antilogy Design & Screenprinting"
                         />
                     </a>
@@ -82,7 +83,7 @@ const menu = [...[{url:"/",label:"Home"}],...mainMenu]
         )
     }
     <main
-        class="relative flex-1 pb-12 hide-on-menu-open"
+        class="relative flex-1 pb-12 "
         id="main-container"
         data-current={slug || "default"}
     >
@@ -194,6 +195,13 @@ const menu = [...[{url:"/",label:"Home"}],...mainMenu]
           position: static;
         }
     }
+    html.menu-open {
+        overflow:hidden;
+    }
+    html.menu-open #main-container{
+        visibility: hidden;
+        pointer-events:none ;
+    }
 </style>
 
 <script>
@@ -208,9 +216,17 @@ const menu = [...[{url:"/",label:"Home"}],...mainMenu]
         e.preventDefault()
         let btnText = !menuOpen?menuBtn.getAttribute("data-close-text"):menuBtn.getAttribute("data-open-text")
         let textSpan = menuBtn.querySelector(".menu-opener-text")
+        let html = document.querySelector("html");
 
         if(textSpan) {
           textSpan.innerHTML = btnText||""
+        }
+        if(html) {
+          if(!menuOpen) {
+            html.classList.add("menu-open")
+          } else {
+            html.classList.remove("menu-open")
+          }
         }
         let removeClass = !menuOpen ? "menu-close":"menu-open"
         let addClass=!menuOpen ? "menu-open":"menu-close"
