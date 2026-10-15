@@ -250,9 +250,17 @@ const menu = [...[{url:"/",label:"Home"}],...mainMenu]
 
       })
     }
+    const prevIndex = parseInt(sessionStorage.getItem("last-img")||"0");
+
+
 
     if (files.length > 0 && bg) {
-        const randomIndex = Math.floor(Math.random() * files.length);
-        bg.style.backgroundImage = `url(/bgs/${files[randomIndex]})` || "";
+        let newNum = prevIndex + 1;
+        if (newNum >files.length-1) {
+          newNum = 0;
+        }
+
+        bg.style.backgroundImage = `url(/bgs/${files[newNum]})` || "";
+        sessionStorage.setItem("last-img",String(newNum))
     }
 </script>
