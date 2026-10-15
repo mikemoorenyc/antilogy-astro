@@ -7,18 +7,43 @@ const settingsData = await getSettings();
 if (!settingsData) return Astro.redirect("/404");
 const compiledIntro = await faqIntro.compiledContent();
 const compiledFaqs = await faqs.compiledContent();
+import { actions } from 'astro:actions';
+
+const {data,error} = await Astro.callAction(actions.settings.getFaqSettings,"");
+if(error) {
+  console.log(error);
+  return Astro.redirect("/404")
+}
+const {pageTitle,pageIntro,faqSection} = data;
 ---
 
 <Layout
     settingsData={settingsData}
-    pageTitle="Frequently Asked Questions"
+    pageTitle={pageTitle}
     slug="faqs"
 >
     <div class="dt-width-container faq-wrap dt-width-container dt-grid-layout">
         <div class="faq-grid-left-col">
             <div class="copy-section copy-section-faqs">
-                <div class="faq-intro" set:html={compiledIntro} />
-                <div class="faqs" set:html={compiledFaqs} />
+                {pageIntro&& <div class="faq-intro" set:html={pageIntro} />}
+                <div class="faqs">
+
+                    {faqSection.map(f => {
+                      const items:HTMLElement[] = [];
+                      let header;
+                      if(f.questions.length<1) {
+                        return ""
+                      }
+                      if(f.title.length > 1) {
+                      header = <h2 class="faq-section-header">{f.title}</h2>
+                      }
+                      f.questions.forEach(q => {
+                      items.push(<div class="faq-question"><h3 class="faq-question-header">{q.question}</h3><div set:html={q.answer} class="faq-answer" /></div>)
+                      })
+                      return<div class="faq-section">{header}{items}</div>
+
+                    })}
+                </div>
             </div>
         </div>
     </div>
@@ -31,9 +56,22 @@ const compiledFaqs = await faqs.compiledContent();
     .faq-intro {
         margin-bottom: var(--gutter);
     }
-    .faqs :global(h2) {
+    .faq-section-header {
+        margin-bottom:calc(var(--gutter) * .5);
+        font-size:32px;
+        font-weight:bold;
+        text-transform:uppercase;
+    }
+    .faq-section {
+        margin-bottom: calc(var(--gutter) * 1.2);
+    }
+    .faq-question {
+        margin-bottom:calc(var(--gutter)*.75);
+    }
+    .faq-question-header {
+        font-size:28px;
+        font-weight:700;
         font-family: var(--font-mono);
-        margin-top: calc(var(--gutter) * 1.2);
         line-height: 1.2;
         margin-bottom: calc(var(--gutter) * 0.25);
     }

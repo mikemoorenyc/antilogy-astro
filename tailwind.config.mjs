@@ -8,7 +8,10 @@ export default {
 		extend: {
 			width: {
 				"aBreak": 960
-			},
+      },
+      spacing: {
+        "gutter": "var(--gutter)"
+      },
 			colors: {
 				"foreground": "var(--for)",
 				"background": "var(--bg)",

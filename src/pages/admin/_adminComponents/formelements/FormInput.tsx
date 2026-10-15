@@ -1,35 +1,37 @@
 type TInput = {
-  forValue: string, 
-  value: string | number | undefined, 
+  forValue: string,
+  value: string | number | undefined,
   onChange: (v:string)=>void,
   type?:"text"|"textarea"|"email",
   required?: boolean
   rows?: number,
-  errored?: boolean
+  errored?: boolean,
+  pattern?:string
 }
 
 
-export default function FormInput({rows=4,required=true,forValue, value, onChange,type="text",errored=false}:TInput) {
+export default function FormInput({pattern,rows=4,required=true,forValue, value, onChange,type="text",errored=false}:TInput) {
   const classString = ` focus:border-action focus:outline-none text-black bg-white block w-full border-2 py-1 px-2 resize-none text-sm ${errored ? "border-alarm":"border-foreground"}`
   const params = {
     required,
-    value, 
-    type, 
+    value,
+    type,
+    pattern,
     name: forValue,
     id: forValue,
     onChange: (e: any)=>{
-      e.preventDefault(); 
+      e.preventDefault();
       const target  = e.target as HTMLInputElement | HTMLTextAreaElement
-      const value : string = target.value; 
+      const value : string = target.value;
       onChange(value);
     } ,
-    
-     
+
+
   }
   if(type=="textarea") {
     return <textarea className={classString} {...params} rows={rows}/>
   }
   return <input className={classString} {...params}/>
-  
-  
+
+
 }

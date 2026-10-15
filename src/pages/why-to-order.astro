@@ -1,0 +1,92 @@
+---
+import  Layout  from '@/layouts/Layout.astro';
+import  Image from 'astro/components/Image.astro';
+import { actions } from 'astro:actions';
+const {data ,error} = await Astro.callAction(actions.settings.getMainSettings,"");
+if(error) {
+  console.log("error")
+  return Astro.redirect("/404");
+}
+import herotop from "@/assets/images/about-imgs/hero-top.jpg"
+import heroteam from "@/assets/images/about-imgs/sewing.jpg"
+import stovetop from "@/assets/images/about-imgs/stovetop.jpg"
+import smiles from "@/assets/images/about-imgs/smiles.jpg"
+import lookingatshirt from "@/assets/images/about-imgs/lookingatshirt.jpg"
+/*
+
+Antilogy was started in 2006 with a goal of providing retail ready, high quality apparel for clothing brands.  We started with one manual press and have always focused on the quality of our work and nothing else.  We don't have sales people, we don't advertise, we have zero marketing budget, we don't answer the phone.  We have grown into a 6,000 square foot production space with three automatic presses and the capability to produce thousands of shirts a day.  That growth was possible with our commitment to the product we produce and the word of mouth from satisfied customers.  The other key component is the people that are making that product.  There are decades of experience between the people that work here.  Everyone is paid well above industry standard.  We only work a 36 hour week with plenty of paid time off.  The screen printing industry usually has high turnover.  This is due to low pay and poor working conditions, we believe that supporting our employees is key to a quality product.  In short, the people that work here care about what they are making.
+
+In our two decades of business we have worked with all sorts of customers.  From high end retail brands to local plumbers we have done almost everything.  We have packed and shipped all over the world to all sorts of end retailers.  We know what we're doing and won't take on anything that we can't do well.
+
+*/
+---
+<Layout settingsData={data} pageTitle='Why to order'slug="why-to-order">
+    <article class="copy-section about-content dt-width-container ">
+        <Image src={herotop} alt="2 people looking at a shirt" densities={[1.5, 2]} class="top-hero md:object-top"/>
+        <h2>Antilogy is a screenprinting shop based in Kingston, NY</h2>
+        <section class="dt-grid-layout">
+            <p class="md:col-start-1 md:col-end-7">Antilogy was started in 2006 with a goal of providing retail ready, high quality apparel for clothing brands.  We started with one manual press and have always focused on the quality of our work and nothing else.  We don't have sales people, we don't advertise, we have zero marketing budget, we don't answer the phone. </p><p class="md:col-start-7 md:col-end-13"> We have grown into a 6,000 square foot production space with three automatic presses and the capability to produce thousands of shirts a day.  That growth was possible with our commitment to the product we produce and the word of mouth from satisfied customers. </p>
+
+        </section>
+        <Image src={heroteam} alt="2 people looking at a shirt"densities={[1.5, 2]} class="top-hero md:object-bottom"/>
+        <section>
+            <div class="people-section dt-grid-layout">
+                <p class="left-col top-text">The other key component is the people that are making that product.  There are decades of experience between the people that work here.  Everyone is paid well above industry standard.  We only work a 36 hour week with plenty of paid time off.  The screen printing industry usually has high turnover.  This is due to low pay and poor working conditions, we believe that supporting our employees is key to a quality product.  </p>
+<Image densities={[1.5, 2]}  alt="Someone holding up a shirt smiling" src={smiles} class="right-col smiling-pic"/>
+                <h2 class="left-col headline">In short, the people that work here care about what they are making.</h2>
+                <Image src={stovetop} densities={[1.5, 2]}  class="right-col stovetop" alt="A person looking at a screen print" />
+            </div>
+        </section>
+
+        <section class="dt-grid-layout" >
+            <p class="md:col-start-1 md:col-span-8 md:mt-8">In our two decades of business we have worked with all sorts of customers.  From high end retail brands to local plumbers we have done almost everything.  We have packed and shipped all over the world to all sorts of end retailers.  We know what we're doing and won't take on anything that we can't do well.</p>
+            <hr class="m-7 col-start-1 col-end-13"/>
+        </section>
+
+        <Image src={lookingatshirt} alt="A person looking at a screen print" densities={[1.5, 2]} />
+    </article>
+
+</Layout>
+
+<style>
+.about-content {
+    img {
+        margin: var(--gutter) 0;
+    }
+}
+@media(min-width:960px) {
+    .top-hero {
+        height:380px;
+        object-fit: cover;
+
+    }
+    .left-col {
+        /*grid-column:1/10*/
+    }
+    .right-col {
+       /* grid-column:10/13*/
+    }
+    .people-section {
+        grid-template-rows: auto 1fr;
+        .top-text {
+            grid-row:1/2;
+            grid-column:1/8;
+            align-self:center
+        }
+        .smiling-pic {
+            grid-column:8/13;
+            grid-row:1/2
+        }
+        .headline {
+            grid-row:2/3;
+            grid-column : 6/13;
+            align-self:center;
+        }
+        .stovetop {
+            grid-row:2/3;
+            grid-column: 1/6;
+        }
+    }
+
+}
+</style>

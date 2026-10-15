@@ -1,14 +1,15 @@
 import type { Block } from "@blocknote/core";
 
 export type Settings = {
-  siteTitle: string, 
-  siteDescription?: string, 
-  siteFavicon?: string, 
-  siteFaviconSVG?: string, 
-  homepageLogo?: string, 
+  siteTitle: string,
+  siteDescription?: string,
+  siteFavicon?: string,
+  siteFaviconSVG?: string,
+  homepageLogo?: string,
   siteLogo?: string ,
   siteBg?: string,
-  spotifyRefreshToken?:string,
+  spotifyRefreshToken?: string,
+  socialLinks?:string,
   section?:string,
 }
 export type SpotifyImage = {
@@ -26,7 +27,7 @@ export type  SpotifyUserProfile = {
     uri: string;
 }
 export type SpotifyData = {
-  appId : string, 
-  requestUrl?: string, 
+  appId : string,
+  requestUrl?: string,
   profileData?: SpotifyUserProfile
 }

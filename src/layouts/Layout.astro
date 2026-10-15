@@ -16,7 +16,7 @@ import { Image } from "astro:assets";
 
 import mainMenu from "@/assets/mainMenu";
 const { pageTitle, settingsData, slug } = Astro.props;
-const social = ["instagram", "tiktok", "snapchat"];
+const {socialLinks} = settingsData;
 
 //Get Image
 const fileNames = Object.keys(
@@ -90,6 +90,20 @@ const menu = [...[{url:"/",label:"Home"}],...mainMenu]
         {pageTitle && slug !== "home" && <PageTitle pageTitle={pageTitle} />}
         <slot />
     </main>
+    <footer class="bg-background relative">
+		{socialLinks && <ul class="flex justify-center md:fixed right-gutter bottom-gutter md:bg-background md:border border-current">
+			{socialLinks.split(";").map((e,i) => {
+			  const d = e.split(",");
+				const classes ="block flex-1 text-center relative p-2 text-smDisplay text-foreground uppercase"
+
+				return <li class="flex-1 flex-center">
+					{i!== 0 && <span class=" w-[1px] h-[calc(100%-18px)] bg-foreground"></span>}
+					<a class={classes} href={d[1]} >{d[0]}</a>
+				</li>
+			})}
+		</ul>
+		}
+	</footer>
 
 </LayoutSkeleton>
 
@@ -98,7 +112,7 @@ const menu = [...[{url:"/",label:"Home"}],...mainMenu]
         background: var(--bg);
     }
     #main-container[data-current="home"]{
-        align-items: center;
+        align-items: flex-end;
           display: flex;
           justify-content: center;
     }

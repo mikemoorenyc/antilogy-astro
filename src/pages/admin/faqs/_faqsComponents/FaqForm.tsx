@@ -3,27 +3,32 @@ import type { FaqSection } from "@/pages/api/faqs/_types";
 import { DragDropContext, Droppable, Draggable, type DragUpdate } from '@hello-pangea/dnd';
 import ReactButton from "../../../../components/Button/ReactButton";
 import FaqSectionHeader from "./FaqSectionHeader";
-
 import { EllipsisVerticalIcon } from "@heroicons/react/20/solid";
 import { EllipsisVerticalIcon as EllipsisSm } from "@heroicons/react/16/solid";
-
+import { actions } from 'astro:actions';
 import FaqQuestion from "./FaqQuestion";
 import SaveFooter from "../../_adminComponents/formelements/SaveFooter";
+import { type TFAQSettings } from "@/actions/settings/schema";
+import FormContainer from "../../_adminComponents/formelements/FormContainer";
+import FormInput from "../../_adminComponents/formelements/FormInput";
+import RTEditor from "../../_adminComponents/formelements/RTEditor";
 
-export default function FaqForm({faqs}:{faqs:FaqSection[]}){
-  const [items,setItems] = useState<FaqSection[]>(faqs);
-  const [formUpdated,updateFormUpdated] = useState(false);
-  const [isPending,updateIsPending] = useState(false);
-  const [questionEditing,updateQuestionEditing] = useState<boolean>(false)
+export default function FaqForm({ faqData }: { faqData: TFAQSettings }) {
+  const [items, setItems] = useState<FaqSection[]>(faqData.faqSection);
+  const [formUpdated, updateFormUpdated] = useState(false);
+  const [isPending, updateIsPending] = useState(false);
+  const [questionEditing, updateQuestionEditing] = useState<boolean>(false)
+  const [pageTitle, updatePageTitle] = useState(faqData.pageTitle);
+  const [pageIntro, updatePageIntro] = useState<string>(faqData.pageIntro ||"")
 
   const beforeUnload = (e:BeforeUnloadEvent) => {
     e.preventDefault();
   }
   useEffect(()=> {
-    if(import.meta.env.DEV) return ; 
+    if(import.meta.env.DEV) return ;
     if(!formUpdated) {
       window.removeEventListener('beforeunload', beforeUnload);
-      return; 
+      return;
     }
     window.addEventListener('beforeunload', beforeUnload);
       return ()=> {
@@ -32,9 +37,19 @@ export default function FaqForm({faqs}:{faqs:FaqSection[]}){
   },[formUpdated])
 
 
-  useEffect(()=> {
-    updateFormUpdated(JSON.stringify(items) == JSON.stringify(faqs))
-  },[items])
+  useEffect(() => {
+    let isUpdated = true;
+    if (JSON.stringify({
+      pageTitle,pageIntro, faqSection:items
+    }) !== JSON.stringify({
+      pageTitle: faqData.pageTitle,
+      pageIntro: faqData.pageIntro||"",
+      faqSection: faqData.faqSection
+    })) {
+      isUpdated = false
+    }
+    updateFormUpdated(isUpdated)
+  },[items,pageIntro,pageTitle])
 
   const handleDragEnd = (result:DragUpdate) => {
     const { source, destination, draggableId, type } = result;
@@ -48,11 +63,11 @@ export default function FaqForm({faqs}:{faqs:FaqSection[]}){
       const newParentItems = Array.from(items);
       const [removed] = newParentItems.splice(source.index, 1);
       newParentItems.splice(destination.index, 0, removed);
-      setItems(newParentItems);    
+      setItems(newParentItems);
     }
 
     if (type === 'child') {
-      
+
       const sourceParentIndex = items.findIndex((parent) => parent.id === parseInt(source.droppableId));
       const destinationParentIndex = items.findIndex((parent) => parent.id === parseInt(destination.droppableId));
 
@@ -65,7 +80,7 @@ export default function FaqForm({faqs}:{faqs:FaqSection[]}){
         sourceParent.questions.splice(destination.index, 0, removed);
 
         setItems(newParentItems);
-    
+
       } else {
         const newParentItems = Array.from(items);
         const sourceParent = newParentItems[sourceParentIndex];
@@ -87,7 +102,7 @@ export default function FaqForm({faqs}:{faqs:FaqSection[]}){
           if(id === section.id) {
             return {...section, ...{title:newTitle}}
           }
-          return section; 
+          return section;
         })
       })
   }
@@ -95,11 +110,11 @@ export default function FaqForm({faqs}:{faqs:FaqSection[]}){
     setItems(prev => {
        return prev.map(s => {
         const item = s.questions.find(q=>q.id == id);
-        if(!item) return s; 
+        if(!item) return s;
         const newQuestions = s.questions.map(q => {
           if(q.id !== id) return q;
           return {...q, ...payload}
-          
+
         })
         return {...s,...{questions:newQuestions}}
        })
@@ -107,8 +122,26 @@ export default function FaqForm({faqs}:{faqs:FaqSection[]}){
   }
 
   const submitForm = async (e:SyntheticEvent) => {
-    e.preventDefault(); 
+    e.preventDefault();
     updateIsPending(true);
+
+    const {data,error}= await actions.settings.updateFaqSettings({
+      pageIntro,
+      pageTitle,
+      faqSection: items,
+      section:"faqs"
+    })
+    if (error) {
+      alert("couldn't update Faqs");
+      console.log(error);
+    } else {
+      alert("Updated Faqs")
+      location.reload();
+    }
+    updateIsPending(false);
+    return false;
+
+    /*
     const sendUpdatedFaqs = await fetch("/api/faqs",{
       method:"POST",
       body: JSON.stringify({faqs:items})
@@ -116,16 +149,17 @@ export default function FaqForm({faqs}:{faqs:FaqSection[]}){
     if(sendUpdatedFaqs.ok) {
       alert("Faqs updated");
       location.reload();
-      
+
     } else {
       alert("couldn't update Faqs");
-     
+
     }
-    updateIsPending(false); 
-    return false; 
+    updateIsPending(false);
+    return false;
+    */
 
   }
- 
+
 
 
   return <form onSubmit={submitForm} className="max-w-screen-lg"><div className="border border-foreground p-4 mb-4">
@@ -136,9 +170,9 @@ export default function FaqForm({faqs}:{faqs:FaqSection[]}){
           {items.map( (i,parentIndex) => (
             <Draggable draggableId={i.id.toString()} index={parentIndex} key={i.id}>
               {(provided,snapshot) =>{
-                  
+
                     return (
-                      <div 
+                      <div
                     {...provided.draggableProps}
                     className={`bg-shadow-sm border border-foreground mb-4 p-2 bg-background ${snapshot.isDragging?"border":"border-dashed"}`}
                     ref={provided.innerRef}
@@ -152,8 +186,8 @@ export default function FaqForm({faqs}:{faqs:FaqSection[]}){
                       changeSectionTitle(i.id,newTitle)
                     }} section={i} deleteItem={()=>{deleteFaqSection(i)}} />
                   </div>
-              
-                  
+
+
                     <Droppable droppableId={i.id.toString()} type="child">
                     {(provided) => (
                       <div ref={provided.innerRef} {...provided.droppableProps}>
@@ -162,10 +196,10 @@ export default function FaqForm({faqs}:{faqs:FaqSection[]}){
                         return <Draggable draggableId={q.id.toString()} index={index} key={q.id}>
                           {(provided, snapshot) => (
                             <div
-                                 className={`border border-foreground border-dotted ml-5 bg-background ${index!==0?"mt-2":""}`} 
+                                 className={`border border-foreground border-dotted ml-5 bg-background ${index!==0?"mt-2":""}`}
                                   ref={provided.innerRef}
                                   {...provided.draggableProps}
-                                  
+
                                 >
                                 <div className="flex p-1">
                                   <div {...provided.dragHandleProps} className="pt-1">
@@ -175,7 +209,7 @@ export default function FaqForm({faqs}:{faqs:FaqSection[]}){
                                     <FaqQuestion {...{updateQuestionEditing}} updater={updateQuestion} question={q}/>
                                   </div>
                                 </div>
-                                
+
                             </div>
 
                           )}
@@ -186,8 +220,8 @@ export default function FaqForm({faqs}:{faqs:FaqSection[]}){
 
                     )}
                   </Droppable>
-                  
-                
+
+
                   <div className="pl-5 py-3">
                     <ReactButton modClasses={["sm"]} label={"Add FAQ"} onClick={() => {
                       setItems(prev => {
@@ -206,40 +240,49 @@ export default function FaqForm({faqs}:{faqs:FaqSection[]}){
 
                   }}/>
                   </div>
-                  
+
                   </div>
                     )
-              } 
-                
+              }
+
               }
             </Draggable>
           ))}
           {provided.placeholder}
         </div>
       )}
-    
+
     </Droppable>
-  
-  
+
+
   </DragDropContext>
 
-  
+
   </div>
-  <ReactButton modClasses={[] } label="Add a FAQ section" onClick={
-    () => {
-      setItems(prev => {
-      return [...prev, ...[{
-        title: "New Section",
-        id: Date.now(),
-        questions:[]
-      }]]
-    })
-    }
-  }/>
-  <SaveFooter 
+    <div className="mb-8">
+      <ReactButton modClasses={[] }  label="Add a FAQ section" onClick={
+        () => {
+          setItems(prev => {
+          return [...prev, ...[{
+            title: "New Section",
+            id: Date.now(),
+            questions:[]
+          }]]
+        })
+        }
+      } />
+  </div>
+    <FormContainer formId="pageTitle" label="Page title">
+      <FormInput forValue="pageTitle" type="text" required={true} value={pageTitle} onChange={updatePageTitle}/>
+    </FormContainer>
+    <FormContainer formId="pageIntro" label="Page intro">
+      <RTEditor content={pageIntro} updateCallback={updatePageIntro} />
+
+    </FormContainer>
+  <SaveFooter
     {...{isPending,beforeUnload}}
     saveText="Save FAQs"
   />
-  
+
   </form>
 }

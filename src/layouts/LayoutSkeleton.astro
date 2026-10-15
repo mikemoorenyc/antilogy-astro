@@ -1,9 +1,9 @@
 ---
 import { type Settings as TSettings } from "@api/settings/_types";
 import { actions } from 'astro:actions';
-import { siteTitle, subTitle } from "@/assets/settings";
+//import { siteTitle, subTitle } from "@/assets/settings";
 import "../globalCSS/index.css";
-import type { TMainSettings } from "@/actions/settings/schema";
+
 interface Props {
     pageTitle?: string;
     settingsData: TSettings;
@@ -11,13 +11,13 @@ interface Props {
     metaDescription?: string;
 }
 const { settingsData, pageTitle, bodyCSS, metaDescription } = Astro.props;
-const {data ,error} = await Astro.callAction(actions.settings.getSettingsSection,"main");
+const {data ,error} = await Astro.callAction(actions.settings.getMainSettings,"");
 if(error) {
   console.log(error.message)
   return Astro.redirect("/404")
 }
 
-const settings = data as TMainSettings
+const settings = data
 
 if (!settings) return Astro.redirect("/404");
 
@@ -52,7 +52,7 @@ const desc = metaDescription || settings.siteDescription;
         />
         <meta name="generator" content={Astro.generator} />
         <title>
-            {`${pageTitle ? pageTitle + " - " : ""}${siteTitle} - ${subTitle}`}
+            {`${pageTitle ? pageTitle + " - " : ""}${settings.siteTitle}${settings.siteTagline? ` - ${settings.siteTagline}`:""}`}
         </title>
     </head>
     <body class={(bodyCSS || "") + " menu-close"}>

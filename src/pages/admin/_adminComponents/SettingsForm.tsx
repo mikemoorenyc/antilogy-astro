@@ -30,20 +30,20 @@ export default function SettingsForm({settingsData,spotifyData}:TProps) {
   const [modalContainer,updateModalContainer] = useState<HTMLElement|null>(null);
   const [errors,updateErrors] = useState<[string,boolean][]>([])
   const [filesToUpload,updateFilesToUpload] = useState<{id:string,file:File}[]>([])
-  
-  
+
+
 
   const beforeUnload = (e:BeforeUnloadEvent) => {
     e.preventDefault();
   }
   useEffect(()=> {
-    if(!window) return ; 
+    if(!window) return ;
     updateModalContainer(document.getElementById("modal-container"));
   },[])
 
   useEffect(()=> {
-    if(!edited ||import.meta.env.DEV) return ; 
-    
+    if(!edited ||import.meta.env.DEV) return ;
+
 
   window.addEventListener('beforeunload', beforeUnload);
     return ()=> {
@@ -55,7 +55,7 @@ export default function SettingsForm({settingsData,spotifyData}:TProps) {
   const updateFormValue = (value:string,key:string) => {
     updateEdited(true);
     const payLoad :Settings  = {...formData};
-    payLoad[key as keyof Settings] = value;  
+    payLoad[key as keyof Settings] = value;
     updateFormData(prev => {
       return {...formData,...payLoad}
     })
@@ -67,7 +67,7 @@ export default function SettingsForm({settingsData,spotifyData}:TProps) {
     const settingsPayload = {...formData}
 
     console.log(settingsPayload,filesToUpload);
-    
+
     for (const file of filesToUpload) {
       const params : UploadApiOptions = {
         public_id: `antilogy/settings_images/${file.id}`
@@ -79,16 +79,16 @@ export default function SettingsForm({settingsData,spotifyData}:TProps) {
       if(!sig.ok) {
         alert("Couldn't get cloudinary signature signature "+file.id);
         console.log(sig.status);
-        return false; 
+        return false;
       }
       const formData = new FormData();
       const {data}= await sig.json()
       console.log(data);
-      
+
       Object.keys(data).forEach(key => {
         const value = data[key];
          formData.append(key, value);
-      }); 
+      });
       formData.append("file",file.file);
       //formData.append("public_id","antilogy/settings_images/"+file.id);
       const uploadResponse = await fetch(`https://api.cloudinary.com/v1_1/${data.cloud_name}/image/upload`, {
@@ -100,12 +100,12 @@ export default function SettingsForm({settingsData,spotifyData}:TProps) {
         alert(`Couldn't upload ${file.id} ${errorData.error.message}`)
       }
       const uploadResult = await uploadResponse.json();
-      settingsPayload[file.id as keyof Settings] = uploadResult.url; 
-   
+      settingsPayload[file.id as keyof Settings] = uploadResult.url;
+
     }
 
     console.log(settingsPayload);
-  
+
 
     const sendUpdatedSettings = await fetch("/api/settings",{
       method:"POST",
@@ -114,10 +114,10 @@ export default function SettingsForm({settingsData,spotifyData}:TProps) {
     if(sendUpdatedSettings) {
       alert("Settings updated");
       location.reload();
-      return false; 
+      return false;
     }
   }
-  
+
   return (
 <form onSubmit={submitContent} className="max-w-screen-lg">
     <FormContainer label="Site Name" formId={"siteTitle"}>
@@ -138,7 +138,7 @@ export default function SettingsForm({settingsData,spotifyData}:TProps) {
           return [...[{id:"siteBg",file:f}],...p]
         })
       }}
-      
+
       />
     </FormContainer>
     <FormContainer label="Site Favicon (.ico)">
@@ -149,7 +149,7 @@ export default function SettingsForm({settingsData,spotifyData}:TProps) {
           return [...[{id:"siteFavicon",file:f}],...p]
         })
       }}
-      
+
       />
     </FormContainer>
     <FormContainer label="Site Favicon (.svg)">
@@ -160,11 +160,11 @@ export default function SettingsForm({settingsData,spotifyData}:TProps) {
           return [...[{id:"siteFaviconSVG",file:f}],...p]
         })
       }}
-      
+
       />
     </FormContainer>
     <FormContainer label="Homepage Logo">
-      <UploadImage 
+      <UploadImage
       accept={["image/png", "image/jpeg"]}
       fileCallback={(f:File)=> {
         updateFormValue("","homepageLogo");
@@ -177,7 +177,7 @@ export default function SettingsForm({settingsData,spotifyData}:TProps) {
           const old = prev.filter((file) => file[0] !== "homepageLogo");
 
          old.push(["homepageLogo",tf])
-         return old; 
+         return old;
 
         })
       }}
@@ -187,21 +187,26 @@ export default function SettingsForm({settingsData,spotifyData}:TProps) {
         maxWidth:[1000,"Maximum width is 1000px"]
       }}
       />
-    
+
+      </FormContainer>
+      <FormContainer label="Social Links" formId="socialLinks" helperText="Enter entries in the format name,url;name,url;" >
+        <FormInput forValue="socialLinks" pattern="([^,;]+,[^,;]+;?)+" value={formData.socialLinks} onChange={(value:string)=> {
+          updateFormValue(value,"socialLinks")
+        }}></FormInput>
     </FormContainer>
     <FormContainer label="Spotify Integration">
       <SpotifySection spotifyData={spotifyData}/>
-    
+
     </FormContainer>
 
     <SaveFooter
       saveText="Update Settings"
       {...{isPending,beforeUnload}}
-    
+
      />
 
 
-    
+
 </form>
 
   )

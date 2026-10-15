@@ -21,7 +21,7 @@
       font-family: var(--font-serif);
       line-height: 1.5;
   }
-  .copy-section p, .copy-section ul {
+  .copy-section p:not(:last-child), .copy-section ul {
       margin-bottom: calc(var(--gutter) * .4);
       list-style:circle;
 

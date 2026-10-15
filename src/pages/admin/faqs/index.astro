@@ -1,30 +1,30 @@
 ---
-
+import { actions } from 'astro:actions';
 import AdminLayout from '../../../layouts/AdminLayout.astro';
 import PageHeader from '../_adminComponents/PageHeader.astro';
-import { getSettings } from '../../api/settings';
-import type { Settings } from '@/pages/api/settings/_types';
-import { getFaqs } from '../../api/faqs';
 import FaqForm from "./_faqsComponents/FaqForm"
-import { sessionCheck } from '@/pages/api/_lib';
+
 
 export const prerender = false;
 
-const settings : Settings = await getSettings() 
-if(!settings) return Astro.redirect("/404");
-
-const faqs = await getFaqs() ;
-
-if(!faqs) return Astro.redirect("/404");
+const settingsR = await Astro.callAction(actions.settings.getMainSettings,"")
+if(settingsR.error) return Astro.redirect("/404");
 
 
+
+const settings = settingsR.data;
+const faqSection = await Astro.callAction(actions.settings.getFaqSettings,"");
+if(faqSection.error) {
+  console.log("couldn't get faq info");
+  return Astro.redirect("/404");
+}
 
 
 ---
 
-<AdminLayout pageTitle={`FAQs - Admin - ${settings.siteTitle}`} settingsData={settings}>
+<AdminLayout pageTitle={`FAQs - Admin`} settingsData={settings}>
 <PageHeader pageTitle='FAQs' />
-<FaqForm faqs={faqs} client:only="react"/>
- 
+<FaqForm faqData={faqSection.data} client:only="react"/>
+
 
 </AdminLayout>

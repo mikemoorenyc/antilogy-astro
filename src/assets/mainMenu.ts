@@ -4,7 +4,7 @@ export type TMainMenuItem = {
   slug?:string
 }
 const mainMenu: TMainMenuItem[] = [
-    { url: "why-to-order", label: "Why to order" },
+    { url: "why-to-order", slug:"why-to-order", label: "Why to order" },
   { url: "how-to-order", label: "How to order", slug: "how-to-order" },
   { url: "frequently-asked-questions", label: "FAQs" ,slug:"faqs"},
   {url: "samples",label:"Samples",slug:"samples"}

@@ -16,18 +16,18 @@ export const getSettings = async (id:string="main") : Promise<Settings> => {
   if(!SETTINGS_TABLE) {
     console.log("SETTINGS_TABLE not defined")
     throw Error("SETTINGS_TABLE not defined")
-    
+
   }
   const input = {
     TableName : SETTINGS_TABLE,
     Key: {
       section: id
     }
- 
+
   }
   try {
-    const data = await ddbDocClient.send(new GetCommand(input));  
-     
+    const data = await ddbDocClient.send(new GetCommand(input));
+
     return data.Item as Settings;
   } catch (err) {
       console.log("Error", err);
@@ -36,8 +36,8 @@ export const getSettings = async (id:string="main") : Promise<Settings> => {
 }
 type SettingsValues = {main:string[],contact:string[]}
 const settingsValues : SettingsValues  = {
-  main: ["spotifyRefreshToken","siteTitle","siteDescription","siteFavicon","siteFaviconSVG","homepageLogo","siteLogo","siteBg"],
-  contact : ["pageTitle", 
+  main: ["spotifyRefreshToken","siteTitle","siteDescription","siteFavicon","siteFaviconSVG","homepageLogo","siteLogo","siteBg","socialLinks"],
+  contact : ["pageTitle",
     "pageIntro",
     "physicalAddress",
     "contactInfo",
@@ -48,11 +48,11 @@ const settingsValues : SettingsValues  = {
 
 
 export const newUpdate = async(updatePackage:Settings) :Promise<Settings> => {
-  if(!SETTINGS_TABLE) throw new Error("no settings table defined"); 
+  if(!SETTINGS_TABLE) throw new Error("no settings table defined");
   let UpdateExpression = "set ";
-  let ExpressionAttributeValues :{[key:string]:string} = {}; 
+  let ExpressionAttributeValues :{[key:string]:string} = {};
   Object.entries(updatePackage).forEach(([key, value]) => {
-    if(key == "section"|| key == "lastUpdated") return; 
+    if(key == "section"|| key == "lastUpdated") return;
     UpdateExpression += ` ${key}=:${key},`
     ExpressionAttributeValues[`:${key}`] = value;
   });
@@ -69,15 +69,15 @@ export const newUpdate = async(updatePackage:Settings) :Promise<Settings> => {
   }
   try {
     const update = await ddbDocClient.send(new UpdateCommand(command));
-    const deployHook = import.meta.env.DEPLOY_HOOK 
+    const deployHook = import.meta.env.DEPLOY_HOOK
     if(deployHook) {
       const rebuild = await fetch(deployHook);
     }
-    return update.Attributes as Settings; 
+    return update.Attributes as Settings;
   } catch(err) {
     if (err instanceof Error) {
       throw new Error(err.message);
-    } 
+    }
      throw new Error(String(err));
   }
 }
@@ -95,7 +95,7 @@ export async function POST({request}:{request:Request}) {
   try {
     const updatedSettings = await newUpdate(updatePackage);
     return goodResponse({settings:updatedSettings})
-    
+
   } catch (err) {
     console.log(err);
     return badResponse("Couldn't update episode")
@@ -103,24 +103,24 @@ export async function POST({request}:{request:Request}) {
   /*
   const expressAttr:any = {};
   let updateExpress = "set ";
-  
+
   let atts = ["siteTitle","siteDescription","siteIcon","homePageLogo","siteLogo"].filter(a => {
     const value = updatePackage[a as keyof TSettings];
-    if (!value) return false; 
-    expressAttr[`:${a}`] = value 
+    if (!value) return false;
+    expressAttr[`:${a}`] = value
     return `${a} = :${a}`
   }).join(" , ");
   atts = "set "+atts
   atts = atts+`,lastUpdated = :lastUpdated`
-    
+
     atts.forEach((a,i) => {
-      const value = updatePackage[a as keyof TSettings] 
+      const value = updatePackage[a as keyof TSettings]
       updateExpress = updateExpress + `${i !== 0? " , ":""}${a}=:${a}`
-      expressAttr[`:${a}`] = value ? value : ""; 
+      expressAttr[`:${a}`] = value ? value : "";
     })
-    
+
  /// updateExpress = updateExpress + `,lastUpdated = :lastUpdated`
- // expressAttr[`:lastUpdated`] = new Date().toLocaleString(); 
+ // expressAttr[`:lastUpdated`] = new Date().toLocaleString();
   const command = {
       TableName:SETTINGS_TABLE,
       Key : {
@@ -143,7 +143,7 @@ export async function POST({request}:{request:Request}) {
           "Content-Type": "application/json"
         }
       })
-    
+
     } catch(err) {
       console.log("Error",err)
     }

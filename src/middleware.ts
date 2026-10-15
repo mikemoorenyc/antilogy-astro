@@ -5,12 +5,12 @@ export const onRequest = defineMiddleware(async (context, next) => {
     if(context.isPrerendered) {
         return next()
     }
-  
+
     const isAuthed = await auth.api
         .getSession({
             headers: context.request.headers,
         })
-    if(context.url.pathname.includes("admin")&&!isAuthed) {
+    if(context.url.pathname.toLowerCase().includes("admin")&&!isAuthed) {
         return context.redirect('/login')
     }
 

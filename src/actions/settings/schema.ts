@@ -1,3 +1,4 @@
+import { defaultSettings } from '@/assets/settings';
 import { z } from 'astro/zod';
 
 
@@ -27,26 +28,37 @@ export type TContactSettings = z.infer<typeof ContactSettings>
 export const Faq = z.object({
   question: z.string(),
   answer: z.string(),
-  category: z.optional(z.string()),
+  category: z.string().optional(),
   id:z.number()
 })
 export type TFAQ = z.infer<typeof Faq>
-
 export const FAQSection = z.object({
   title: z.string(),
   id: z.number(),
-  questions:z.array(Faq)
+  questions: z.array(Faq).default([])
 })
 export type TFAQSection = z.infer<typeof FAQSection>
 
-export const FAQSettings = FAQSection
+let { pageTitle } = defaultSettings.faqs;
+export const FAQSettings = z.object({
+  pageTitle: z.string().default(pageTitle),
+  pageDescription:z.string().optional(),
+  pageIntro:z.string().optional(),
+  section:z.string(),
+  faqSection: z.array(FAQSection).default([]),
+})
+
+
 export type TFAQSettings = z.infer<typeof FAQSettings>
 
+let { siteDescription, siteFaviconSVG,  siteTitle } = defaultSettings.main;
 export const MainSettings = z.object({
   section: z.string(),
-  siteTitle: z.optional(z.string()),
-  siteDescription: z.optional(z.string()),
-  siteFaviconSVG: z.optional(z.string()),
-  faqSection: FAQSettings
+  siteTitle: z.string().default(siteTitle),
+  siteDescription: z.string().default(siteDescription),
+  siteFaviconSVG: z.string().default(siteFaviconSVG),
+  siteTagline: z.string().optional(),
+  socialLinks: z.string().regex(/^([^,;]+,[^,;]+;)*[^,;]+,[^,;]+;?$/, "Invalid format").optional()
+
 })
 export type TMainSettings = z.infer<typeof MainSettings>
