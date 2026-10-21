@@ -1,0 +1,31 @@
+---
+import { actions } from 'astro:actions';
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+import PageHeader from '../_adminComponents/PageHeader.astro';
+
+
+
+export const prerender = false;
+
+const settingsR = await Astro.callAction(actions.settings.getMainSettings,"")
+if(settingsR.error) return Astro.redirect("/404");
+
+
+
+const settings = settingsR.data;
+
+const {data,error} = await Astro.callAction(actions.settings.getSamplesSettings,"");
+if(error) {
+  console.log(error)
+  return Astro.redirect("/404");
+}
+
+
+---
+
+<AdminLayout pageTitle={`Samples - Admin`} settingsData={settings}>
+<PageHeader pageTitle='Samples' />
+
+
+
+</AdminLayout>

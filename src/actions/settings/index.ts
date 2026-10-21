@@ -4,7 +4,7 @@ import { isAuthed } from "@/utils/auth";
 import { GetCommand,UpdateCommand,DeleteCommand, type UpdateCommandInput } from "@aws-sdk/lib-dynamodb";
 import { ddbDocClient } from "@/utils/dynamoDb/ddbDocClient"
 const SETTINGS_TABLE = import.meta.env.SETTINGS_TABLE;
-import { type TFAQSettings, type TMainSettings, type TContactSettings, type TFAQ, MainSettings, FAQSettings, ContactSettings } from './schema';
+import { type TFAQSettings, type TMainSettings, type TContactSettings, type TFAQ, MainSettings, FAQSettings, ContactSettings, type TSampleSettings, SamplesSettings } from './schema';
 import type { ActionAPIContext } from 'astro/actions/runtime/entrypoints/server.js';
 
 
@@ -30,6 +30,7 @@ export const getSettingsSection = async (key: string) => {
         section:key
       }
     }));
+
     if (!data.Item) {
       throw new ActionError({
         code: "BAD_REQUEST",
@@ -65,6 +66,20 @@ const getFaqSettings = async (): Promise<TFAQSettings> => {
     const data = await getSettingsSection("faqs");
    ;
     return FAQSettings.parse(data);
+  } catch (err) {
+    if (err instanceof ActionError) throw err
+    console.log(err);
+    throw new ActionError({
+      code: "INTERNAL_SERVER_ERROR",
+      message: "Couldn't get faq settings"
+    })
+  }
+}
+const getSamplesSettings = async (): Promise<TSampleSettings> => {
+  try {
+    const data = await getSettingsSection("samples");
+   ;
+    return SamplesSettings.parse(data)
   } catch (err) {
     if (err instanceof ActionError) throw err
     console.log(err);
@@ -177,5 +192,8 @@ export const settings = {
   updateFaqSettings: defineAction({
     handler: updateFaqSettings,
     input:FAQSettings
+  }),
+  getSamplesSettings: defineAction({
+    handler: getSamplesSettings
   })
 }

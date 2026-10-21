@@ -51,6 +51,21 @@ export const FAQSettings = z.object({
 
 export type TFAQSettings = z.infer<typeof FAQSettings>
 
+export const SampleImage = z.object({
+  original_width: z.number(),
+  original_height: z.number(),
+  url: z.string(),
+  altText:z.string().optional()
+})
+export type TSampleImage = z.infer<typeof SampleImage>
+
+export const SamplesSettings = z.object({
+  pageTitle: z.string().default("Samples"),
+  pageIntro: z.string().optional(),
+  sampleImages:z.array(SampleImage).default([])
+})
+export type TSampleSettings = z.infer<typeof SamplesSettings>
+
 let { siteDescription, siteFaviconSVG,  siteTitle } = defaultSettings.main;
 export const MainSettings = z.object({
   section: z.string(),
