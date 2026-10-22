@@ -15,14 +15,22 @@ export default function (props: TSampleSettings) {
     },
     {id:566,url:"item 3"}
    ]);
-  return <form className="max-w-screen-lg" onSubmit={(e)=>{e.preventDefault()}}>
+  const updateAltText = (id: number, text: string) => {
+    updateImages(prev => {
+      return prev.map(i => {
+        if (i.id !== id) return i;
+        return {...i, ...{altText:text}}
+      })
+    })
+  }
+  return <form className="max-w-screen-lg" onSubmit={(e) => { e.preventDefault() }}>
     <div className="border border-foreground p-4 mb-4 overflow-hidden">
       <DragDropProvider onDragOver={(event) => {
               updateImages((items) => move(items, event));
             }}>
       <ul>
         {images.map((image, index) => {
-          return <SampleItem  key={image.id} {...{index,image,updateEditingImage,editingImage}} ></SampleItem>
+          return <SampleItem  key={image.id} {...{index,image,updateEditingImage,editingImage,updateAltText}} ></SampleItem>
         })}
         </ul>
       </DragDropProvider>
