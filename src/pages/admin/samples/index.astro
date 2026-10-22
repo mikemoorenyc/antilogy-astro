@@ -2,7 +2,7 @@
 import { actions } from 'astro:actions';
 import AdminLayout from '../../../layouts/AdminLayout.astro';
 import PageHeader from '../_adminComponents/PageHeader.astro';
-
+import SamplesForm from "./_samplesComponents/SamplesForm"
 
 
 export const prerender = false;
@@ -25,7 +25,7 @@ if(error) {
 
 <AdminLayout pageTitle={`Samples - Admin`} settingsData={settings}>
 <PageHeader pageTitle='Samples' />
-
+<SamplesForm  client:load {...data}/>
 
 
 </AdminLayout>

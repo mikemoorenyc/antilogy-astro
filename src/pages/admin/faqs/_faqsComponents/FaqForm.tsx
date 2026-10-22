@@ -1,6 +1,8 @@
-import React, { useEffect, useState, type SyntheticEvent } from "react";
+import React, { useEffect, useState, type SyntheticEvent,useRef, } from "react";
 import type { FaqSection } from "@/pages/api/faqs/_types";
-import { DragDropContext, Droppable, Draggable, type DragUpdate } from '@hello-pangea/dnd';
+import { DragDropProvider, useDroppable } from "@dnd-kit/react";
+import { useSortable, isSortable } from "@dnd-kit/react/sortable";
+import { CollisionPriority } from "@dnd-kit/abstract";
 import ReactButton from "../../../../components/Button/ReactButton";
 import FaqSectionHeader from "./FaqSectionHeader";
 import { EllipsisVerticalIcon } from "@heroicons/react/20/solid";
@@ -13,13 +15,168 @@ import FormContainer from "../../_adminComponents/formelements/FormContainer";
 import FormInput from "../../_adminComponents/formelements/FormInput";
 import RTEditor from "../../_adminComponents/formelements/RTEditor";
 
+const sectionDndId = (id: number) => `section-${id}`;
+const questionDndId = (id: number) => `question-${id}`;
+const emptySectionDndId = (id: number) => `empty-section-${id}`;
+
+type SortableQuestionProps = {
+  question: FaqSection["questions"][number];
+  index: number;
+  sectionId: number;
+  deleteQuestion:(id:number)=>void,
+  updateQuestion: (
+    id: number,
+    payload: { question: string; answer: string }
+  ) => void;
+  updateQuestionEditing: React.Dispatch<React.SetStateAction<boolean>>
+};
+function SortableFaqQuestion({
+  question,
+  index,
+  sectionId,
+  updateQuestion,
+  updateQuestionEditing,
+  deleteQuestion
+}: SortableQuestionProps) {
+  const { ref, handleRef, isDragging } = useSortable({
+    id: questionDndId(question.id),
+    index,
+    group: sectionDndId(sectionId),
+    type: "question",
+    accept: "question",
+  });
+
+  return (
+    <div
+      ref={ref}
+      className={`border border-foreground border-dotted ml-5 bg-background [&:not(:first-child)]:mt-2 ${isDragging ? "opacity-50" : ""}`}
+    >
+      <div className="flex p-1">
+        <div ref={handleRef} className="pt-1 cursor-grab">
+          <EllipsisSm className="w-4 h-4" />
+        </div>
+
+        <div className="flex-1">
+          <FaqQuestion
+            deleteQuestion={deleteQuestion}
+            updateQuestionEditing={updateQuestionEditing}
+            updater={updateQuestion}
+            question={question}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+type SortableSectionProps = {
+  section: FaqSection;
+  index: number;
+  questionEditing: boolean;
+  changeSectionTitle: (id: number, newTitle: string) => void;
+  deleteFaqSection: (section: FaqSection) => void;
+  updateQuestion: (
+    id: number,
+    payload: { question: string; answer: string }
+  ) => void;
+  updateQuestionEditing: React.Dispatch<React.SetStateAction<boolean>>
+  addQuestion: (sectionId: number) => void;
+  deleteQuestion:(id:number)=>void
+};
+function SortableFaqSection({
+  section,
+  index,
+  questionEditing,
+  changeSectionTitle,
+  deleteFaqSection,
+  updateQuestion,
+  updateQuestionEditing,
+  addQuestion,
+  deleteQuestion
+}: SortableSectionProps) {
+  const { ref, handleRef, isDragging } = useSortable({
+    id: sectionDndId(section.id),
+    index,
+    type: "section",
+    accept: "section",
+  });
+
+  const {
+    ref: emptyDropRef,
+    isDropTarget,
+  } = useDroppable({
+    id: emptySectionDndId(section.id),
+    type: "empty-section",
+    accept: "question",
+    collisionPriority: CollisionPriority.Low,
+  });
+
+  return (
+    <div
+      ref={ref}
+      className={`bg-shadow-sm border border-foreground mb-4 p-2 bg-background ${
+        isDragging ? "border" : "border-dashed"
+      }`}
+    >
+      <div className="flex-center mb-2">
+        <div ref={handleRef} className="cursor-grab">
+          <EllipsisVerticalIcon className="w-5 h-5" />
+        </div>
+
+        <FaqSectionHeader
+          questionEditing={questionEditing}
+          changeSectionTitle={(newTitle: string) =>
+            changeSectionTitle(section.id, newTitle)
+          }
+          section={section}
+          deleteItem={() => deleteFaqSection(section)}
+        />
+      </div>
+
+      <div>
+        {section.questions.length === 0 ? (
+          <div
+            ref={emptyDropRef}
+            style={{ height: 32 }}
+            className={`border border-foreground border-dotted ml-5 ${
+              isDropTarget ? "bg-gray-200/30" : ""
+            }`}
+          />
+        ) : (
+          section.questions.map((question, questionIndex) => (
+            <SortableFaqQuestion
+              key={question.id}
+              deleteQuestion={deleteQuestion}
+              question={question}
+              index={questionIndex}
+              sectionId={section.id}
+              updateQuestion={updateQuestion}
+              updateQuestionEditing={updateQuestionEditing}
+            />
+          ))
+        )}
+      </div>
+
+      <div className="pl-5 py-3">
+        <ReactButton
+          modClasses={["sm"]}
+          label="Add FAQ"
+          onClick={() => addQuestion(section.id)}
+        />
+      </div>
+    </div>
+  );
+}
+
+
 export default function FaqForm({ faqData }: { faqData: TFAQSettings }) {
   const [items, setItems] = useState<FaqSection[]>(faqData.faqSection);
   const [formUpdated, updateFormUpdated] = useState(false);
   const [isPending, updateIsPending] = useState(false);
   const [questionEditing, updateQuestionEditing] = useState<boolean>(false)
   const [pageTitle, updatePageTitle] = useState(faqData.pageTitle);
-  const [pageIntro, updatePageIntro] = useState<string>(faqData.pageIntro ||"")
+  const [pageIntro, updatePageIntro] = useState<string>(faqData.pageIntro || "")
+  const dragSnapshot = useRef<FaqSection[]>([]);
+  const currentQuestionSection = useRef<string | null>(null);
 
   const beforeUnload = (e:BeforeUnloadEvent) => {
     e.preventDefault();
@@ -50,47 +207,141 @@ export default function FaqForm({ faqData }: { faqData: TFAQSettings }) {
     }
     updateFormUpdated(isUpdated)
   },[items,pageIntro,pageTitle])
+  const cloneSections = (sections: FaqSection[]) =>
+    sections.map((section) => ({
+      ...section,
+      questions: [...section.questions],
+    }));
 
-  const handleDragEnd = (result:DragUpdate) => {
-    const { source, destination, draggableId, type } = result;
-    console.log(result);
+  const handleDragStart = () => {
+    dragSnapshot.current = cloneSections(items);
+    currentQuestionSection.current = null;
+  };
+  const handleDragOver = (
+    event: Parameters<
+      NonNullable<
+        React.ComponentProps<typeof DragDropProvider>["onDragOver"]
+      >
+    >[0]
+  ) => {
+    const { source, target } = event.operation;
 
-    if (!destination) {
+    if (!isSortable(source) || source.type !== "question") return;
+
+    const questionId = Number(
+      String(source.id).replace(/^question-/, "")
+    );
+
+    const fromGroup = currentQuestionSection.current ??
+      (typeof source.group === "string" ? source.group : null);
+
+    let toGroup = source.group;
+    let destinationIndex = source.index;
+
+    if (
+      typeof target?.id === "string" &&
+      target.id.startsWith("empty-section-")
+    ) {
+      toGroup = sectionDndId(
+        Number(target.id.replace(/^empty-section-/, ""))
+      );
+      destinationIndex = 0;
+    } else if (target && isSortable(target) && target.type === "question") {
+      toGroup = target.group;
+      destinationIndex = target.index;
+    }
+
+    if (
+      typeof fromGroup !== "string" ||
+      typeof toGroup !== "string" ||
+      fromGroup === toGroup
+    ) {
       return;
     }
 
-    if (type === 'parent') {
-      const newParentItems = Array.from(items);
-      const [removed] = newParentItems.splice(source.index, 1);
-      newParentItems.splice(destination.index, 0, removed);
-      setItems(newParentItems);
+    // React will manage this cross-section move, not dnd-kit's
+    // optimistic DOM sorting.
+    event.preventDefault();
+
+    const fromId = Number(fromGroup.replace(/^section-/, ""));
+    const toId = Number(toGroup.replace(/^section-/, ""));
+
+    setItems((previous) => {
+      const next = cloneSections(previous);
+
+      const from = next.find((section) => section.id === fromId);
+      const to = next.find((section) => section.id === toId);
+
+      if (!from || !to) return previous;
+
+      const fromIndex = from.questions.findIndex(
+        (question) => question.id === questionId
+      );
+
+      if (fromIndex < 0) return previous;
+
+      const [question] = from.questions.splice(fromIndex, 1);
+      if (!question) return previous;
+
+      const insertAt = Math.max(
+        0,
+        Math.min(destinationIndex, to.questions.length)
+      );
+
+      to.questions.splice(insertAt, 0, question);
+
+      return next;
+    });
+
+    currentQuestionSection.current = toGroup;
+  };
+
+  const handleDragEnd = (
+    event: Parameters<
+      NonNullable<
+        React.ComponentProps<typeof DragDropProvider>["onDragEnd"]
+      >
+    >[0]
+  ) => {
+    const { source } = event.operation;
+
+    if (event.canceled) {
+      setItems(cloneSections(dragSnapshot.current));
+      currentQuestionSection.current = null;
+      return;
     }
 
-    if (type === 'child') {
+    if (!isSortable(source)) {
+      currentQuestionSection.current = null;
+      return;
+    }
 
-      const sourceParentIndex = items.findIndex((parent) => parent.id === parseInt(source.droppableId));
-      const destinationParentIndex = items.findIndex((parent) => parent.id === parseInt(destination.droppableId));
+    // Reorder FAQ sections.
+    if (source.type === "section") {
+      if (source.initialIndex !== source.index) {
+        setItems((previous) => {
+          const next = [...previous];
+          const [section] = next.splice(source.initialIndex, 1);
 
-      if (sourceParentIndex === destinationParentIndex) {
-        const newParentItems = Array.from(items);
-        console.log(newParentItems);
-        const sourceParent = newParentItems[sourceParentIndex];
-        console.log(sourceParent);
-        const [removed] = sourceParent.questions.splice(source.index, 1);
-        sourceParent.questions.splice(destination.index, 0, removed);
+          if (!section) return previous;
 
-        setItems(newParentItems);
-
-      } else {
-        const newParentItems = Array.from(items);
-        const sourceParent = newParentItems[sourceParentIndex];
-        const destinationParent = newParentItems[destinationParentIndex];
-        const [removed] = sourceParent.questions.splice(source.index, 1);
-        destinationParent.questions.splice(destination.index, 0, removed);
-        setItems(newParentItems);
+          next.splice(source.index, 0, section);
+          return next;
+        });
       }
+
+      currentQuestionSection.current = null;
+      return;
+    }
+
+    // Question moves and reordering are handled during drag-over.
+    // Don't apply them a second time here.
+    if (source.type === "question") {
+      currentQuestionSection.current = null;
     }
   };
+
+
   const deleteFaqSection = (item:FaqSection) => {
     setItems((prev) => {
       return prev.filter(i => i.id !== item.id)
@@ -118,6 +369,22 @@ export default function FaqForm({ faqData }: { faqData: TFAQSettings }) {
         })
         return {...s,...{questions:newQuestions}}
        })
+    })
+  }
+  function deleteQuestion(id: number): void {
+    console.log(id);
+    if (!confirm("Are you ok with deleting this?")) {
+      return;
+    }
+    setItems(prev => {
+      return prev.map(s => {
+        const item = s.questions.find(q => q.id == id)
+        console.log(item);
+        if (!item) return s;
+        const questions = s.questions.filter(q => q.id !== id);
+
+        return {...s,...{questions}}
+      })
     })
   }
 
@@ -162,101 +429,41 @@ export default function FaqForm({ faqData }: { faqData: TFAQSettings }) {
 
 
 
-  return <form onSubmit={submitForm} className="max-w-screen-lg"><div className="border border-foreground p-4 mb-4">
-  <DragDropContext onDragEnd={handleDragEnd}>
-    <Droppable droppableId="parent-list" type="parent" >
-      {provided => (
-        <div ref={provided.innerRef} {...provided.droppableProps} >
-          {items.map( (i,parentIndex) => (
-            <Draggable draggableId={i.id.toString()} index={parentIndex} key={i.id}>
-              {(provided,snapshot) =>{
+  return <form onSubmit={submitForm} className="max-w-screen-lg">
+    <div className="border border-foreground p-4 mb-4">
 
-                    return (
-                      <div
-                    {...provided.draggableProps}
-                    className={`bg-shadow-sm border border-foreground mb-4 p-2 bg-background ${snapshot.isDragging?"border":"border-dashed"}`}
-                    ref={provided.innerRef}
-                  >
-                  <div className="flex-center mb-2">
-                    <div  {...provided.dragHandleProps}>
-                      <EllipsisVerticalIcon className="w-5 h-5"/>
-                    </div>
-                    <FaqSectionHeader {...{questionEditing}}changeSectionTitle={(newTitle:string) => {
-                      console.log("gettiung called");
-                      changeSectionTitle(i.id,newTitle)
-                    }} section={i} deleteItem={()=>{deleteFaqSection(i)}} />
-                  </div>
+      <DragDropProvider onDragEnd={handleDragEnd}onDragStart={handleDragStart}
+        onDragOver={handleDragOver}>
+                {items.map((section, index) => (
+                  <SortableFaqSection
+                    key={section.id}
+                    section={section}
+                    index={index}
+                    questionEditing={questionEditing}
+                    changeSectionTitle={changeSectionTitle}
+                    deleteFaqSection={deleteFaqSection}
+                    updateQuestion={updateQuestion}
+                    updateQuestionEditing={updateQuestionEditing}
+                    deleteQuestion={deleteQuestion}
+                    addQuestion={() => {
+                                          setItems(prev => {
+                                            return prev.map(sectionOld => {
+                                              if(sectionOld.id === section.id) {
+                                                const newList = [...sectionOld.questions, ...[{
+                                                  id:Date.now(),
+                                                  question: "New Question",
+                                                  answer: ""
+                                                }]]
+                                                return {...sectionOld, ...{questions:newList}}
+                                              }
+                                              return sectionOld
+                                            })
+                                          })
 
-
-                    <Droppable droppableId={i.id.toString()} type="child">
-                    {(provided) => (
-                      <div ref={provided.innerRef} {...provided.droppableProps}>
-                      {!i.questions.length && <div style={{height: 32}} className="border border-foreground border-dotted ml-5"/>}
-                      {i.questions.map((q,index)=> {
-                        return <Draggable draggableId={q.id.toString()} index={index} key={q.id}>
-                          {(provided, snapshot) => (
-                            <div
-                                 className={`border border-foreground border-dotted ml-5 bg-background ${index!==0?"mt-2":""}`}
-                                  ref={provided.innerRef}
-                                  {...provided.draggableProps}
-
-                                >
-                                <div className="flex p-1">
-                                  <div {...provided.dragHandleProps} className="pt-1">
-                                    <EllipsisSm className="w-4 h-4"/>
-                                  </div>
-                                  <div className="flex-1">
-                                    <FaqQuestion {...{updateQuestionEditing}} updater={updateQuestion} question={q}/>
-                                  </div>
-                                </div>
-
-                            </div>
-
-                          )}
-                        </Draggable>
-                      })}
-                      {provided.placeholder}
-                      </div>
-
-                    )}
-                  </Droppable>
-
-
-                  <div className="pl-5 py-3">
-                    <ReactButton modClasses={["sm"]} label={"Add FAQ"} onClick={() => {
-                      setItems(prev => {
-                        return prev.map(section => {
-                          if(section.id === i.id) {
-                            const newList = [...section.questions, ...[{
-                              id:Date.now(),
-                              question: "New Question",
-                              answer: ""
-                            }]]
-                            return {...section, ...{questions:newList}}
-                          }
-                          return section
-                        })
-                      })
-
-                  }}/>
-                  </div>
-
-                  </div>
-                    )
-              }
-
-              }
-            </Draggable>
-          ))}
-          {provided.placeholder}
-        </div>
-      )}
-
-    </Droppable>
-
-
-  </DragDropContext>
-
+                                      }}
+                  />
+                ))}
+              </DragDropProvider>
 
   </div>
     <div className="mb-8">

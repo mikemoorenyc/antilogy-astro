@@ -52,10 +52,11 @@ export const FAQSettings = z.object({
 export type TFAQSettings = z.infer<typeof FAQSettings>
 
 export const SampleImage = z.object({
-  original_width: z.number(),
-  original_height: z.number(),
+  original_width: z.number().optional(),
+  original_height: z.number().optional(),
   url: z.string(),
-  altText:z.string().optional()
+  altText: z.string().optional(),
+  id:z.number()
 })
 export type TSampleImage = z.infer<typeof SampleImage>
 

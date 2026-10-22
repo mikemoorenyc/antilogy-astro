@@ -7,33 +7,34 @@ import FormInput from "../../_adminComponents/formelements/FormInput";
 import RTEditor from "../../_adminComponents/formelements/RTEditor";
 import type { ButtonModifiers } from "@/components/Button/types";
 type TProps = {
+  deleteQuestion:(id:number) =>void
   question: Faq,
   updateQuestionEditing: React.Dispatch<React.SetStateAction<boolean>>,
   updater : (id:number,payload:{question:string,answer:string}) => void
 }
 
-export default function FaqQuestion ({question,updater,updateQuestionEditing}:TProps) {
+export default function FaqQuestion ({deleteQuestion,question,updater,updateQuestionEditing}:TProps) {
 
   const title = question.question;
   const {answer} = question
   const [tempAnswer,updateTempAnswer] = useState(answer);
   const [tempTitle,updateTempTitle] = useState(title);
   const [isEditing,updateIsEditing] = useState(false);
-  
+
   const btnClasses :ButtonModifiers[] = ["sm","ghost"];
   const saveClasses : ButtonModifiers[] = ["reverse","sm"]
   if(!tempTitle) {
     saveClasses.push("disabled");
   }
 
-  
+
   return (
   <div>
-    
+
       {!isEditing && <>
         <div className="flex-1">{tempTitle}</div>
         {tempAnswer && <div className="text-sm pt-2" dangerouslySetInnerHTML={{__html:tempAnswer}}></div>}
-        
+
       </>}
       {isEditing && <div className="p-2">
         <FormContainer label={"Question"} formId="question">
@@ -42,15 +43,15 @@ export default function FaqQuestion ({question,updater,updateQuestionEditing}:TP
         </FormContainer>
         <FormContainer label="Answer" formId="answer">
           <RTEditor content={tempAnswer} updateCallback={(v)=>{updateTempAnswer(v)}} />
-        
+
         </FormContainer>
-      
+
       </div>}
 
       <div id="controls" className="pt-4 flex-center">
           {!isEditing && <>
             <ReactButton onClick={()=>{updateIsEditing(true);updateQuestionEditing(true)}} modClasses={btnClasses} label="Edit" icon={<PencilIcon className="w-4 h-4" />} />
-            <ReactButton modClasses={[...btnClasses,...["caution" as ButtonModifiers]]} label="Delete" icon={<TrashIcon className="w-4 h-4 " />} />
+            <ReactButton onClick={()=>{deleteQuestion(question.id)}} modClasses={[...btnClasses,...["caution" as ButtonModifiers]]} label="Delete" icon={<TrashIcon className="w-4 h-4 " />} />
           </>}
           {isEditing && <>
             <ReactButton label="Save" icon={<CheckIcon />} modClasses={saveClasses}
@@ -62,7 +63,7 @@ export default function FaqQuestion ({question,updater,updateQuestionEditing}:TP
                   answer: tempAnswer
                 })
               }}
-            
+
             />
             <ReactButton label="Cancel" icon={<XMarkIcon />} modClasses={["sm","ghost"]}
               onClick={()=> {
@@ -70,16 +71,16 @@ export default function FaqQuestion ({question,updater,updateQuestionEditing}:TP
                 updateTempTitle(title);
                 updateTempAnswer(question.answer);
               }}
-            
-            
+
+
             />
-          
-          
+
+
           </>}
-        
+
         </div>
-      
-    
+
+
   </div>
   )
 }
