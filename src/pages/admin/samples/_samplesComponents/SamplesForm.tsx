@@ -202,7 +202,7 @@ export default function (props: TSampleSettings) {
 
       return;
     }
-
+    window.removeEventListener('beforeunload', beforeUnload);
     alert("Settings saved");
     location.reload()
     return;
