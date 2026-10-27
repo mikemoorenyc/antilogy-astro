@@ -5,8 +5,7 @@ import { useSortable, isSortable } from "@dnd-kit/react/sortable";
 import { CollisionPriority } from "@dnd-kit/abstract";
 import ReactButton from "../../../../components/Button/ReactButton";
 import FaqSectionHeader from "./FaqSectionHeader";
-import { EllipsisVerticalIcon } from "@heroicons/react/20/solid";
-import { EllipsisVerticalIcon as EllipsisSm } from "@heroicons/react/16/solid";
+
 import { actions } from 'astro:actions';
 import FaqQuestion from "./FaqQuestion";
 import SaveFooter from "../../_adminComponents/formelements/SaveFooter";
@@ -14,6 +13,7 @@ import { type TFAQSettings } from "@/actions/settings/schema";
 import FormContainer from "../../_adminComponents/formelements/FormContainer";
 import FormInput from "../../_adminComponents/formelements/FormInput";
 import RTEditor from "../../_adminComponents/formelements/RTEditor";
+
 
 const sectionDndId = (id: number) => `section-${id}`;
 const questionDndId = (id: number) => `question-${id}`;
@@ -53,7 +53,7 @@ function SortableFaqQuestion({
     >
       <div className="flex p-1">
         <div ref={handleRef} className="pt-1 cursor-grab">
-          <EllipsisSm className="w-4 h-4" />
+          <span className="icon-[carbon--draggable] size-4"></span>
         </div>
 
         <div className="flex-1">
@@ -119,7 +119,7 @@ function SortableFaqSection({
     >
       <div className="flex-center mb-2">
         <div ref={handleRef} className="cursor-grab">
-          <EllipsisVerticalIcon className="w-5 h-5" />
+          <span className="icon-[carbon--draggable] size-5"></span>
         </div>
 
         <FaqSectionHeader

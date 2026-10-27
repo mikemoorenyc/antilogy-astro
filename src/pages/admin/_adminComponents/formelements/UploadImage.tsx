@@ -1,7 +1,7 @@
 import { useState ,useRef} from "react"
 
 import ReactButton from "../../../../components/Button/ReactButton"
-import { PhotoIcon } from "@heroicons/react/24/outline"
+
 
 
 
@@ -11,7 +11,7 @@ type TRequirements = {
   minWidth?: TRequirement,
   maxFilesize?: TRequirement,
   maxWidth?: TRequirement,
-  maxHeight?: TRequirement, 
+  maxHeight?: TRequirement,
   square?: TRequirement
 }
 type TUploadImageProps ={
@@ -29,10 +29,10 @@ export default function UploadImage({accept,uploadedImage,requirements,fileCallb
   const [localFileUrl,updateLocalFileUrl] = useState<string|null>(null)
   const inputRef = useRef<null|HTMLInputElement>(null);
   const changeImage = async (imageFile:File) => {
-    
-    const reader = new FileReader(); 
+
+    const reader = new FileReader();
     reader.onloadend = (e) => {
-  
+
       if(e.target?.result) {
         if(e.target.result !== localFileUrl) {
           updateLocalFileUrl(e.target.result as string);
@@ -47,8 +47,8 @@ export default function UploadImage({accept,uploadedImage,requirements,fileCallb
     <div className={`-1/2 md:w-1/3 p-1   `}>
     {(!localFileUrl&&!uploadedImage) && (
       <div className="w-full border-foreground aspect-square flex-center-center border-2 border-dashed">
-        <div className="flex-center-center flex-col"> 
-          <PhotoIcon className="size-16"/>
+        <div className="flex-center-center flex-col">
+          <span className="icon-[carbon--image] size-16"/>
           <ReactButton label="Upload an image" type="action" onClick={()=> {
             if(inputRef?.current) {
               inputRef.current?.click()
@@ -57,7 +57,7 @@ export default function UploadImage({accept,uploadedImage,requirements,fileCallb
         </div>
       </div>
     )}
-    
+
     {localFileUrl&& <img className="" src={localFileUrl} onLoad={()=>{console.log("loaded")}} />}
     {uploadedImage && <img src={uploadedImage} />}
     {(localFileUrl || uploadedImage) && <ReactButton classes="mt-2" type="action" label="Change image" onClick={()=> {
@@ -65,11 +65,11 @@ export default function UploadImage({accept,uploadedImage,requirements,fileCallb
               inputRef.current?.click()
             }
     }}/>}
-    
-    
-    
+
+
+
     </div>
-    
+
 
   <input type="file" className="hidden" ref={inputRef} accept={accept.join(",")} onChange={(e)=> {
     const t = (e.target as HTMLInputElement)

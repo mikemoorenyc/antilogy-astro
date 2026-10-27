@@ -1,13 +1,19 @@
 /** @type {import('tailwindcss').Config} */
+const { addDynamicIconSelectors } = require("@iconify/tailwind");
 export default {
-	content: ['./src/**/*.{astro,html,js,jsx,md,mdx,svelte,ts,tsx,vue}'],
+
+  content: ["./src/**/*.{astro,html,js,jsx,md,mdx,svelte,ts,tsx,vue}"],
+  plugins: [
+    addDynamicIconSelectors(),
+  ],
   theme: {
-    screens: {
-      "md":"960px"
-    },
+
 		extend: {
 			width: {
 				"aBreak": 960
+      },
+      screens: {
+        "md": "960px",
       },
       spacing: {
         "gutter": "var(--gutter)"
@@ -30,5 +36,6 @@ export default {
 			}
 		},
 	},
-	plugins: [],
+
+
 }

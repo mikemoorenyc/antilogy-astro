@@ -42,7 +42,7 @@ const generateSignature = async (values: TSignatureInput,context:ActionAPIContex
     }
   }catch(err) {
     console.log(err);
-    throw new Error("couldn't generate signature")
+    throw new ActionError({code:"BAD_REQUEST",message:"Couldn generate sig"})
   }
 }
 

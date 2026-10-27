@@ -19,6 +19,9 @@ if(error) {
   console.log(error)
   return Astro.redirect("/404");
 }
+data.sampleImages = data.sampleImages.map(s => {
+  return {...s,...{loaded:true}}
+})
 
 
 ---

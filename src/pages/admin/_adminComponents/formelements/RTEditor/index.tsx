@@ -2,7 +2,7 @@ import { useEditor, EditorContent, BubbleMenu } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import Link from '@tiptap/extension-link'
 import { useEffect, useState, type ReactNode } from 'react'
-import { ItalicIcon, BoldIcon, ListBulletIcon,NumberedListIcon,LinkIcon,LinkSlashIcon } from '@heroicons/react/16/solid'
+
 import setLink from './setLink'
 import { createPortal } from 'react-dom'
 import LinkModal from './LinkModal'
@@ -16,7 +16,7 @@ const extensions = [StarterKit.configure({
       keepMarks: true,
       keepAttributes: false, // TODO : Making this as `false` becase marks are not preserved when I try to preserve attrs, awaiting a bit of help
     },
-    
+
   }),
   Link.configure({
     linkOnPaste: false,
@@ -27,7 +27,7 @@ const extensions = [StarterKit.configure({
 
 type TEditorOption = ("bold"|"italic"|"addLink"|"removeLink"|"bulletList"|"orderedList");
 type TTypeOption = [ReactNode,Function,TEditorOption];
-export type TEditorOptions = TEditorOption[]; 
+export type TEditorOptions = TEditorOption[];
 const availableOptions : TEditorOptions = ["bold","italic","addLink","removeLink","bulletList","orderedList"]
 
 
@@ -39,7 +39,7 @@ export default function RTEditor({content,updateCallback,options=availableOption
   useEffect(()=> {
     if(window) {
       const div = document.getElementById("modal-container");
-      if(div) updateModalContainer(div); 
+      if(div) updateModalContainer(div);
     }
   },[])
   const editor = useEditor({
@@ -47,7 +47,7 @@ export default function RTEditor({content,updateCallback,options=availableOption
     content,
     immediatelyRender:false,
     onUpdate: ({ editor }) => {
-  
+
             updateCallback(editor.getHTML());
     },
 
@@ -57,28 +57,25 @@ export default function RTEditor({content,updateCallback,options=availableOption
     },
   }
   })
-  const iconSize = {
-    width: 16,
-    height: 16
-  }
+  const iconSize = `size-4`
 
 
   const typeOptions : TTypeOption[]  = editor ? [
-    [<ItalicIcon style={iconSize}/>,()=>{editor.chain().focus().toggleItalic().run()},"italic"],
-    [<BoldIcon style={iconSize} />, ()=>{editor.chain().focus().toggleBold().run()},"bold"],
-    [<ListBulletIcon style={iconSize} />, ()=>{editor.chain().focus().toggleBulletList().run()},"bulletList"],
-    [<NumberedListIcon style={iconSize} />, ()=>{editor.chain().focus().toggleOrderedList().run()},"orderedList"],
-    [<LinkIcon style={iconSize}/>, () => {updateLinkUrl(editor.getAttributes("link").href);updateAddLinkOpen(true)},"addLink"],
-    [<LinkSlashIcon style={iconSize} />, () => setLink(editor,true),"removeLink"]
+    [<span className={ `icon-[carbon--text-italic] ${iconSize}`} />,()=>{editor.chain().focus().toggleItalic().run()},"italic"],
+    [<span className={ `icon-[carbon--text-bold] ${iconSize}`} />, ()=>{editor.chain().focus().toggleBold().run()},"bold"],
+    [<span className={ `icon-[carbon--list-bulleted] ${iconSize}`} />, ()=>{editor.chain().focus().toggleBulletList().run()},"bulletList"],
+    [<span className={ `icon-[carbon--list-numbered] ${iconSize}`} />, ()=>{editor.chain().focus().toggleOrderedList().run()},"orderedList"],
+    [<span className={ `icon-[carbon--link] ${iconSize}`} />, () => {updateLinkUrl(editor.getAttributes("link").href);updateAddLinkOpen(true)},"addLink"],
+    [<span className={ `icon-[carbon--unlink] ${iconSize}`} />, () => setLink(editor,true),"removeLink"]
 
   ] : []
 
 const activeTest = (type:string) => {
-    if(!editor) return false; 
+    if(!editor) return false;
     if(type == "removeLink") {
       return editor.getAttributes('link').href
     }
-    
+
     return editor?.isActive(type)
   }
 
@@ -88,7 +85,7 @@ const activeTest = (type:string) => {
   {typeOptions.filter(o => {
     return options.includes(o[2])
   }).map(o => {
-    let isHidden; 
+    let isHidden;
     if(o[2]=="removeLink" && !editor?.getAttributes('link').href) {
       isHidden="none";
     }
@@ -96,11 +93,11 @@ const activeTest = (type:string) => {
       isHidden="none"
     }
     return (
-<button 
+<button
     style={{display:isHidden}}
     className={`w-8 h-8 border flex-center-center border-foreground flex mr-2 ${activeTest(o[2])?"border-2":""} hover:border-action`}
-  
-    key={o[2]} 
+
+    key={o[2]}
     onClick={(e)=>{e.preventDefault();o[1]()}}
     >
     {o[0]}
@@ -111,7 +108,7 @@ const activeTest = (type:string) => {
     )
 
   })}
-  
+
   </div>
 <EditorContent editor={editor} />
 

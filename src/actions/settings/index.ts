@@ -182,6 +182,56 @@ const updateFaqSettings = async (data:TFAQSettings,context:ActionAPIContext): Pr
 
 }
 
+const updateSampleSettings = async (data:TSampleSettings,context:ActionAPIContext): Promise<TSampleSettings> => {
+
+  const { success, error } = await checkUpdateReady(context);
+  if (error) {
+    throw error;
+  }
+  const dbTable = {TableName: SETTINGS_TABLE,
+      Key :{
+        section: "samples"
+      }
+  }
+  const { sampleImages, pageTitle, pageIntro } = data;
+  const ExpressionAttributeValues = {
+    ":sampleImages": sampleImages,
+    ":pageTitle": pageTitle,
+    ":pageIntro":pageIntro
+  }
+  if (!pageIntro) {
+    delete ExpressionAttributeValues[":pageIntro"];
+  }
+  const command: UpdateCommandInput = {
+    ...dbTable, ...{
+      UpdateExpression: `set sampleImages=:sampleImages,pageTitle=:pageTitle${pageIntro ? ",pageIntro=:pageIntro" : ""}`,
+      ExpressionAttributeValues,
+      ReturnValues: "ALL_NEW"
+    }
+  }
+  try {
+    const update = await ddbDocClient.send(new UpdateCommand(command));
+    if(!update.Attributes) {
+      throw new ActionError({
+        code: "INTERNAL_SERVER_ERROR",
+        message:"No attributes returned "
+      });
+    }
+    const { success, error } = await rebuilder();
+    if (error) {
+      throw error;
+    }
+    return SamplesSettings.parse(update.Attributes);
+  } catch (err) {
+    throw new ActionError({
+      code: "INTERNAL_SERVER_ERROR",
+      message:"Couldn't update:"+String(err)
+    })
+  }
+
+
+}
+
 export const settings = {
   getMainSettings: defineAction({
     handler: getMainSettings
@@ -195,5 +245,9 @@ export const settings = {
   }),
   getSamplesSettings: defineAction({
     handler: getSamplesSettings
+  }),
+  updateSampleSettings: defineAction({
+    handler: updateSampleSettings,
+    input:SamplesSettings
   })
 }

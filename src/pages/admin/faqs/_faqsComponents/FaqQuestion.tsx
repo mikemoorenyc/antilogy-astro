@@ -1,6 +1,5 @@
 import { useState } from "react";
 import type { Faq } from "@/pages/api/faqs/_types";
-import { CheckIcon, PencilIcon, TrashIcon, XMarkIcon } from "@heroicons/react/16/solid"
 import ReactButton from "../../../../components/Button/ReactButton";
 import FormContainer from "../../_adminComponents/formelements/FormContainer";
 import FormInput from "../../_adminComponents/formelements/FormInput";
@@ -50,11 +49,11 @@ export default function FaqQuestion ({deleteQuestion,question,updater,updateQues
 
       <div id="controls" className="pt-4 flex-center">
           {!isEditing && <>
-            <ReactButton onClick={()=>{updateIsEditing(true);updateQuestionEditing(true)}} modClasses={btnClasses} label="Edit" icon={<PencilIcon className="w-4 h-4" />} />
-            <ReactButton onClick={()=>{deleteQuestion(question.id)}} modClasses={[...btnClasses,...["caution" as ButtonModifiers]]} label="Delete" icon={<TrashIcon className="w-4 h-4 " />} />
+            <ReactButton onClick={()=>{updateIsEditing(true);updateQuestionEditing(true)}} modClasses={btnClasses} label="Edit" icon={<span className="w-4 h-4 icon-[carbon--edit]" />} />
+            <ReactButton onClick={()=>{deleteQuestion(question.id)}} modClasses={[...btnClasses,...["caution" as ButtonModifiers]]} label="Delete" icon={<span className="icon-[carbon--trash-can] w-4 h-4 " />} />
           </>}
           {isEditing && <>
-            <ReactButton label="Save" icon={<CheckIcon />} modClasses={saveClasses}
+            <ReactButton label="Save" icon={<span className="icon-[carbon--checkmark]" />} modClasses={saveClasses}
               onClick={()=> {
                 updateIsEditing(false);
                 updateQuestionEditing(false)
@@ -65,7 +64,7 @@ export default function FaqQuestion ({deleteQuestion,question,updater,updateQues
               }}
 
             />
-            <ReactButton label="Cancel" icon={<XMarkIcon />} modClasses={["sm","ghost"]}
+            <ReactButton label="Cancel" icon={<span className="icon-[carbon--close]" />} modClasses={["sm","ghost"]}
               onClick={()=> {
                 updateIsEditing(false);
                 updateTempTitle(title);

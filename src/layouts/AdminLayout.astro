@@ -38,7 +38,7 @@ const {siteTitle} = settingsData
 
     </Button>
   </div>
-  <div id="nav-container" class="navigation hidden inset-0 bg-background md:block w-52 md:pt-3">
+  <div id="nav-container" class="navigation hidden inset-0 bg-background md:block w-52 md:pt-3 z-50">
     <div class="p-2 md:hidden"><Button label='Close' icon="ri-close-fill" type="action" actionId='menu-opener' classes='menu-opener'/></div>
     <div class="p-3 pt-0">
       <div class="font-bold text-lg font-heading uppercase tracking-wider leading-none">{siteTitle}</div>
@@ -46,19 +46,19 @@ const {siteTitle} = settingsData
     <ul>
     {nav.map(n => {
       return <li class="mb-2"><a href={n[2]} class={`md:block ${currentPath.includes(n[0])?"font-bold":""} text-foreground uppercase no-underline text-2xl`}>{n[1]}</a></li>
-    })} 
+    })}
     </ul>
 
     <ul class="mt-8">
     <li><a href="/" class="no-underline text-sm">Site homepage</a></li>
     <li><button class="signout-button no-underline text-sm text-action">Sign out</button></li>
     </ul>
-    
+
     </div>
   </div>
    <div class="p-3 md:p-5 pt-2 md:flex-1 md:border-l border-foreground">
     <slot />
-  
+
   </div>
 </div>
 
@@ -66,7 +66,7 @@ const {siteTitle} = settingsData
 
 
 
- 
+
 
 
 
@@ -81,7 +81,7 @@ import { authClient } from "@/_lib/authClient";
   const menuBtn : NodeListOf<HTMLButtonElement> = document.querySelectorAll(".menu-opener");
   const navContainer : HTMLElement|null = document.getElementById("nav-container");
 
-  if(!menuBtn.length || !navContainer) return false; 
+  if(!menuBtn.length || !navContainer) return false;
 let menuOpen = false;
 menuBtn.forEach(m => {
   m.addEventListener("click",(e)=> {
@@ -93,7 +93,7 @@ menuBtn.forEach(m => {
     } else {
       navContainer.classList.add("hidden");
       navContainer.classList.remove("fixed")
-      menuOpen = false 
+      menuOpen = false
     }
   })
 })
@@ -101,8 +101,8 @@ menuBtn.forEach(m => {
 
 document.querySelectorAll(".signout-button").forEach(b => {
   b.addEventListener("click",async e => {
-    e.preventDefault(); 
-    
+    e.preventDefault();
+
     await authClient.signOut({
       fetchOptions: {
         onSuccess: () => {
@@ -110,7 +110,7 @@ document.querySelectorAll(".signout-button").forEach(b => {
         },
       },
     });
-    
+
   })
 })
 

@@ -1,5 +1,5 @@
 <script lang="ts">
-    import CloseIcon from "@/pages/_svelteComponents/icons/CloseIcon.svelte";
+
 
 
 import InteractionContainer from "./InteractionContainer.svelte";
@@ -77,11 +77,12 @@ import InteractionContainer from "./InteractionContainer.svelte";
                 <div class="file-item button-base button-sm">
                     <div class="file-item-inner">
                         <div class={`file-item-name`}>{f.id}</div>
-                        <button class="remove-file-button" aria-label="Remove file" title="Remove file" onclick={(e)=> {
+                        <button class="remove-file-button flex items-center justify-center" aria-label="Remove file" title="Remove file" onclick={(e)=> {
                           e.preventDefault();
                           updateFiles(f.id,false)
                         }}>
-                            <CloseIcon extraClasses="close-icon"/>
+                            <span class="close-icon icon-[carbon--close-large]"></span>
+
                         </button>
                     </div>
 
@@ -148,10 +149,5 @@ import InteractionContainer from "./InteractionContainer.svelte";
             width: 32px;
 
         }
-        .remove-file-button svg {
-            position:absolute;
-            left: 50%;
-            top: 50%;
-            transform: translate(-50%,-50%);
-        }
+
 </style>

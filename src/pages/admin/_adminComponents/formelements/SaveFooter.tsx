@@ -2,34 +2,35 @@ import { createPortal } from "react-dom";
 import ReactButton from "../../../../components/Button/ReactButton";
 import { useEffect, useState } from "react";
 type TProps = {
-  saveText:string, 
+  saveText:string,
   beforeUnload:(e:BeforeUnloadEvent)=>void,
-  isPending:boolean,
+  isPending: boolean,
+  saveAction?: () => void;
 
 }
 
 export default function SaveFooter(props:TProps){
-  const {saveText,beforeUnload,isPending} = props;
+  const {saveText,beforeUnload,isPending,saveAction} = props;
   const [modalContainer,updateModalContainer] = useState<HTMLElement|null>(null);
 
   useEffect(()=> {
-    if(!window) return ; 
+    if(!window) return ;
     updateModalContainer(document.getElementById("modal-container"));
   },[])
 
 
   return <>
   <div className="flex-col md:flex-row flex-center  mt-12">
-        <ReactButton label={saveText} type="action" classes="mb-3 md:mb-0 md:mr-3"  modClasses={["big","reverse"]}/>
+        <ReactButton onClick={saveAction?()=>{saveAction()}:undefined} label={saveText} type="action" classes="mb-3 md:mb-0 md:mr-3"  modClasses={["big","reverse"]}/>
         <ReactButton classes="" onClick={()=> {
           window.removeEventListener('beforeunload', beforeUnload);
           location.reload();
-          return ; 
+          return ;
         }} label="Cancel" type="action" modClasses={["ghost","big"]}/>
-    
+
     </div>
     <style dangerouslySetInnerHTML={{__html: isPending? `body{overflow:hidden}`:""}}></style>
-  
+
   {modalContainer && isPending &&  createPortal(<>
     <div className="fixed inset-0 flex-center-center">
       <div className="bg-foreground border border-background w-72 h-72 flex-center-center">
@@ -42,11 +43,11 @@ export default function SaveFooter(props:TProps){
         </div>
         </div>
       </div>
-    
+
     </div>
-  
+
   </>,modalContainer)}
-  
+
   </>
 
 }

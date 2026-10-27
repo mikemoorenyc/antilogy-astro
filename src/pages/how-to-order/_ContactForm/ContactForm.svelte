@@ -3,7 +3,7 @@
     import {type UploadApiOptions } from "cloudinary";
     import FileUploader from "./FileUploader.svelte";
     import {interestOptions,shippingOptions, type TFormValues} from "./options";
-    import Check from "@/pages/_svelteComponents/icons/Check.svelte";
+
     import TextField from "./TextField.svelte";
     import { onMount } from "svelte";
     import TurnstileInput from "./TurnstileInput.svelte";
@@ -138,6 +138,7 @@ console.log({...formValues,attachments,turnstileToken})
   submitState="sent"
 
 }
+
 </script>
 {#if submitState !== "sent"}
 <form class="mainContactForm" id="main-contact-form" onsubmit={submitForm}>
@@ -183,15 +184,9 @@ console.log({...formValues,attachments,turnstileToken})
             {#each interestOptions as interest,i (interest.id) }
                <label for={interest.id} class="checkbox-item">
                    <input style="display:none"id={interest.id} type="checkbox" bind:group={formValues.interested} name="interested" value={interest.id} />
-                   <span class={`checkbox-check-container ${formValues.interested.includes(interest.id)?"isChecked":""}`}>
-                       <Check size={12} extraStyles={`"width: 12px;
-                       height: 12px;
-                       position:absolute;
-                       left: 50%;
-                       top: 50%;
-                       transform: translate(-50%,-50%);
-                       opacity: ${formValues.interested.includes(interest.id)?"1":"0"};"`}/>
-                   </span>
+                  <span class={
+                      `mr-2 size-4  ${formValues.interested.includes(interest.id)?"icon-[carbon--checkbox-checked-filled]":"icon-[carbon--checkbox]"}`
+                      }></span>
                    <span class="checkbox-label">{interest.label}</span>
                </label>
             {/each}
@@ -213,9 +208,10 @@ console.log({...formValues,attachments,turnstileToken})
              {#each shippingOptions as s, i (s.id) }
                  <label for={s.id} class="checkbox-item">
                      <input style="display:none"id={s.id} type="radio" bind:group={formValues.shipping} name="shipping" value={s.id} />
-                     <span class={`checkbox-check-container ${formValues.shipping.includes(s.id)?"isChecked":""} radio`}>
 
-                     </span>
+                     <span class={`
+                       mr-2 size-4 ${formValues.shipping.includes(s.id)?"icon-[carbon--radio-button-checked]":"icon-[carbon--radio-button]"}
+                       `}></span>
                      <span class="checkbox-label">{s.label}</span>
                  </label>
              {/each}
@@ -344,21 +340,11 @@ console.log({...formValues,attachments,turnstileToken})
         &.radio {
             border-radius:9999px;
         }
-        & svg {
-            width: 12px;
-            height: 12px;
-            position:absolute;
-            left: 50%;
-            top: 50%;
-            transform: translate(-50%,-50%);
-            opacity: 0;
-        }
+
         &.isChecked {
             background:var(--for);
             color: var(--bg);
-            & svg {
-                opacity: 1;
-            }
+
         }
     }
 

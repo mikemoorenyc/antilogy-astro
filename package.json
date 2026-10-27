@@ -23,7 +23,6 @@
     "@blocknote/react": "^0.22.0",
     "@dnd-kit/helpers": "^0.5.1",
     "@dnd-kit/react": "^0.5.1",
-    "@heroicons/react": "^2.2.0",
     "@tiptap/extension-link": "^2.11.2",
     "@tiptap/pm": "^2.11.2",
     "@tiptap/react": "^2.11.2",
@@ -46,6 +45,8 @@
     "tailwindcss": "^3.4.17"
   },
   "devDependencies": {
+    "@iconify-json/carbon": "^1.2.29",
+    "@iconify/tailwind": "^1.2.0",
     "@types/node": "^22.10.5",
     "postcss-import": "^16.1.0",
     "typescript": "^5.9.3"

@@ -55,7 +55,8 @@ export const SampleImage = z.object({
   original_width: z.number().optional(),
   original_height: z.number().optional(),
   url: z.string(),
-  altText: z.string().optional(),
+  cloud_id: z.string(),
+  altText: z.string().default("An image of a screenprinted graphic"),
   id:z.number()
 })
 export type TSampleImage = z.infer<typeof SampleImage>
