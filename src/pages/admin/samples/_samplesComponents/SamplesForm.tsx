@@ -94,7 +94,7 @@ export default function (props: TSampleSettings) {
     const f = t.files[0];
     let size = (f.size / (1024 * 1024))
     if(size > 8) {
-      alert(`${f.name} is too big. Can't upload`)
+      alert(`${f.name} is too big. Must be less than 10mb`)
       return ;
     }
     console.log(f);
