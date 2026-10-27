@@ -41,7 +41,7 @@ const sendEmail = async (formData: TUploadPackage) => {
 
   ['name', "email", "businessname", "questions", "quantity", "interested", "description", "date", "shipping", "hear"].forEach(s => {
     const data = formData[s as keyof TFormValues];
-    console.log(data)
+
     if (!data) {
       return
     }
@@ -58,11 +58,7 @@ const sendEmail = async (formData: TUploadPackage) => {
 
   })
 
-  if (formData.attachments) {
-    formData.attachments.forEach(a => {
-      console.log(a.url)
-    })
-  }
+
   const { data, error } = await resend.emails.send({
       from: import.meta.env.SENDER_EMAIL||'Acme <onboarding@resend.dev>',
       to:(import.meta.env.FORM_RECIPIENTS||"").split(","),
