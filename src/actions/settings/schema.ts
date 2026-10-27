@@ -73,7 +73,7 @@ export const MainSettings = z.object({
   section: z.string(),
   siteTitle: z.string().default(siteTitle),
   siteDescription: z.string().default(siteDescription),
-  siteFaviconSVG: z.string().default(siteFaviconSVG),
+  siteFaviconSVG: z.string().optional(),
   siteTagline: z.string().optional(),
   socialLinks: z.string().regex(/^([^,;]+,[^,;]+;)*[^,;]+,[^,;]+;?$/, "Invalid format").optional()
 
