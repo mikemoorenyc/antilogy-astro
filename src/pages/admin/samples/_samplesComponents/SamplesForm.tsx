@@ -92,6 +92,11 @@ export default function (props: TSampleSettings) {
       return;
     }
     const f = t.files[0];
+    let size = (f.size / (1024 * 1024))
+    if(size > 8) {
+      alert(`${f.name} is too big. Can't upload`)
+      return ;
+    }
     console.log(f);
     const reader = new FileReader();
     reader.onloadend = (e) => {
@@ -104,7 +109,7 @@ export default function (props: TSampleSettings) {
       const newImg = {
         id,
         url: e.target.result,
-        altText: "A graphic of a shirt",
+        altText: "A graphic on a shirt",
         loaded: false,
         cloud_id
       }
@@ -124,76 +129,69 @@ export default function (props: TSampleSettings) {
       alert("You need to fill in all alt text");
       return;
     }
-    if (deleteQueue.length || uploadQueue.length) {
-      updateSaveState("uploading");
-      const uploadPromises = uploadQueue.map(u => {
+    let updatedImages = [...images];
 
-        return async () => {
-          const { data, error } = await actions.media.generateSignature({ public_id: u.cloud_id });
-          if (error) {
-            throw new Error("Couldn't generate sig " + String(error));
-          }
-          const uploadForm = new FormData();
-          Object.keys(data).forEach(key => {
-            const value = data[key];
-             uploadForm.append(key, value);
-          });
-          uploadForm.append("file", u.file);
-          try {
-            const uploadResponse = await fetch(`https://api.cloudinary.com/v1_1/${data.cloud_name}/image/upload`, {
-              method: 'POST',
-              body: uploadForm,
-            });
-            const {url} = await uploadResponse.json();
-            updateImages((prev) => {
-              return prev.map(i => {
-                if (i.id !== u.id) return i
-                return {...i, ...{url}}
-              })
-            })
-            updateUploadQueue(prev => {
-              return prev.map(up => {
-                if (up.id !== u.id) return up;
-                return {...up,...{finished:true}}
-              })
-            })
-            return `uploaded__${u.cloud_id}`
-
-          } catch (err) {
-            throw new Error("Couldn't upload image: "+String(err))
-          }
-
+    if (uploadQueue.length) {
+      updateSaveState("uploading")
+      for (const u of uploadQueue) {
+        const { data, error } = await actions.media.generateSignature({ public_id: u.cloud_id });
+        if (error) {
+          throw new Error("Couldn't generate sig " + String(error));
         }
-      })
-      const deletePromises = deleteQueue.map(d => {
-        return async () => {
-          const { data, error } = await actions.media.deleteMedia({ items: d.cloud_id });
-          if (error) {
-            throw new Error(`Couldn't delete item: ${d.cloud_id} ::${String(error)}`)
-          }
-          updateDeleteQueue(prev => {
-            return prev.map(del => {
-              if (del.id !== d.id) return del;
-              return {...del,...{deleted:true}}
-            })
+        const uploadForm = new FormData();
+        Object.keys(data).forEach(key => {
+          const value = data[key];
+           uploadForm.append(key, value);
+        });
+        uploadForm.append("file", u.file);
+        try {
+          const uploadResponse = await fetch(`https://api.cloudinary.com/v1_1/${data.cloud_name}/image/upload`, {
+            method: 'POST',
+            body: uploadForm,
           });
-          return `deleted__${d.cloud_id}`
+          const { url } = await uploadResponse.json();
+
+          updatedImages = updatedImages.map(i => {
+
+            if (i.id !== u.id) return i
+            console.log({ ...i, ...{ url } })
+            const newone = { ...i, ...{ url } }
+            return newone;
+          })
+
+          updateImages(updatedImages);
+
+          updateUploadQueue(prev => {
+            return prev.map(up => {
+              if (up.id !== u.id) return up;
+              return {...up,...{finished:true}}
+            })
+          })
+        } catch (err) {
+          throw new Error("Couldn't upload image: "+String(err))
         }
-      })
-      try {
-        const cloudUpdates = await Promise.all([...deletePromises, ...uploadPromises]);
-      } catch (err) {
-        alert("Couldn't update: " + String(err));
-        updateSaveState("idle");
-        return;
       }
-
+    }
+    if (deleteQueue.length) {
+      updateSaveState("uploading");
+      const { data, error } = await actions.media.deleteMedia({ items: deleteQueue.map(d => d.cloud_id) })
+      updateDeleteQueue(prev => {
+        return prev.map(d => {
+          return {...d,...{deleted:true}}
+        })
+      })
+      if (error) {
+        throw new Error("Couldn't delete: " + String(error));
+      }
     }
 
+
     updateSaveState("pending");
+
+
     const { data, error } = await actions.settings.updateSampleSettings(
       {
-        sampleImages: images,
+        sampleImages: updatedImages,
         pageIntro,
         pageTitle
       }
@@ -244,23 +242,40 @@ export default function (props: TSampleSettings) {
       saveText="Save"
       {...{beforeUnload,saveAction,isPending}}
     />}
-    <div>{itemsToUpload.length}</div>
+
     {saveState === "uploading" && <ModalContainer>
       <div className="p-gutter">
         <h2 className="text-lg mb-3"><strong>Saving images. Don't close this tab!</strong></h2>
-        <h3 className="mb-2">Uploading</h3>
-        <ul className="mb-3">
-          <li className="flex items-center mb-1">
-            <div>
-              <span className="w-4 h-4" />
-            </div>
-            <div className="flex-1 ml-2 font-serif">a24.jpg</div>
-          </li>
+        {uploadQueue.length > 0 && <>
+          <h3 className="mb-2">Uploading</h3>
+          <ul className="mb-3">
+            {uploadQueue.map(u => {
+              return <li key={ u.id} className="flex items-center mb-1">
 
-        </ul>
+                 <span className={`size-4 ${u.finished?"text-action":""} ${u.finished?"icon-[carbon--checkmark-filled]":"icon-[carbon--cloud-upload]"}`} />
+
+               <div className="flex-1 ml-2 font-serif">{u.file.name}</div>
+             </li>
+           })}
+
+          </ul>
+        </>}
+        {deleteQueue.length > 0 && <>
+          <h3 className="mb-2">Deleting</h3>
+          <ul className="mb-3">
+            {deleteQueue.map(u => {
+              return <li key={ u.cloud_id} className="flex items-center mb-1">
+
+                 <span className={`size-4 ${u.deleted?"text-action":""} ${u.deleted?"icon-[carbon--checkmark-filled]":"icon-[carbon--trash-can]"}`} />
+
+               <div className="flex-1 ml-2 font-serif">{u.cloud_id}</div>
+             </li>
+           })}
+
+          </ul>
+        </>}
       </div>
 
-      <button onClick={(e) => { e.preventDefault();updateSaveState("idle") }}>click</button>
     </ModalContainer>}
   </form>
 }

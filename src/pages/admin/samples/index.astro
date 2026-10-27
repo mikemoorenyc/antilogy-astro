@@ -26,8 +26,8 @@ data.sampleImages = data.sampleImages.map(s => {
 
 ---
 
-<AdminLayout pageTitle={`Samples - Admin`} settingsData={settings}>
-<PageHeader pageTitle='Samples' />
+<AdminLayout pageTitle={`${data.pageTitle} - Admin`} settingsData={settings}>
+<PageHeader pageTitle={data.pageTitle} />
 <SamplesForm  client:load {...data}/>
 
 

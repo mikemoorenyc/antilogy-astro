@@ -85,7 +85,7 @@ const getSamplesSettings = async (): Promise<TSampleSettings> => {
     console.log(err);
     throw new ActionError({
       code: "INTERNAL_SERVER_ERROR",
-      message: "Couldn't get faq settings"
+      message: "Couldn't get sample settings"
     })
   }
 }

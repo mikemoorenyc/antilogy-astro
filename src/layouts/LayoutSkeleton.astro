@@ -3,7 +3,7 @@ import { type Settings as TSettings } from "@api/settings/_types";
 import { actions } from 'astro:actions';
 //import { siteTitle, subTitle } from "@/assets/settings";
 import "../globalCSS/index.css";
-
+import { inferRemoteSize ,getImage} from "astro:assets";
 interface Props {
     pageTitle?: string;
     settingsData: TSettings;
@@ -22,6 +22,19 @@ const settings = data
 if (!settings) return Astro.redirect("/404");
 
 const desc = metaDescription || settings.siteDescription;
+let processedSvgUrl:string=""
+if(settingsData.siteFaviconSVG) {
+
+   let {width,height,format} = await inferRemoteSize(settingsData.siteFaviconSVG);
+   if(width&&height&&format=="svg") {
+     let {src} = await getImage({
+         src:settingsData.siteFaviconSVG,
+         height,
+         width
+     });
+     processedSvgUrl = src;
+   }
+}
 ---
 
 <!doctype html>
@@ -40,7 +53,7 @@ const desc = metaDescription || settings.siteDescription;
         }
         <link
             rel="icon"
-            href={settings.siteFaviconSVG || "/favicon.svg"}
+            href={processedSvgUrl || "/favicon.svg"}
             type="image/svg+xml"
         />
 
