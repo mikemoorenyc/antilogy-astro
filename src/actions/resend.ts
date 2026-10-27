@@ -60,7 +60,7 @@ const sendEmail = async (formData: TUploadPackage) => {
 
 
   const { data, error } = await resend.emails.send({
-      from: 'Acme <onboarding@resend.dev>',
+      from: import.meta.env.SENDER_EMAIL||'Acme <onboarding@resend.dev>',
       to:(import.meta.env.FORM_RECIPIENTS||"").split(","),
       subject: 'New contact form submission from website: '+formData.email,
       html: emailHtml,

@@ -238,10 +238,10 @@ export default function (props: TSampleSettings) {
 
     </FormContainer>
 
-    {saveState=="idle"&&<SaveFooter
+   <SaveFooter
       saveText="Save"
       {...{beforeUnload,saveAction,isPending}}
-    />}
+    />
 
     {saveState === "uploading" && <ModalContainer>
       <div className="p-gutter">
