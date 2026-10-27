@@ -58,7 +58,11 @@ const sendEmail = async (formData: TUploadPackage) => {
 
   })
 
-
+  if (formData.attachments) {
+    formData.attachments.forEach(a => {
+      console.log(a.url)
+    })
+  }
   const { data, error } = await resend.emails.send({
       from: import.meta.env.SENDER_EMAIL||'Acme <onboarding@resend.dev>',
       to:(import.meta.env.FORM_RECIPIENTS||"").split(","),
@@ -74,7 +78,7 @@ const sendEmail = async (formData: TUploadPackage) => {
   }
 
   if (formData.attachments) {
-    const deleteAll = await deleteMedia(formData.attachments.map(f=>f.public_id))
+    //const deleteAll = await deleteMedia(formData.attachments.map(f=>f.public_id))
   }
   return {success:true, message:"Email sent"}
 
