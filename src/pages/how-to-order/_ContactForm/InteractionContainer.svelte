@@ -21,7 +21,9 @@
 
 <div class={`interactionContainer ${activeClass}`}>
     <label for={labelFor} class={`interactionLabel ${activeClass} ${isOpen||isActive?"opened":""}`}>{label}</label>
-    {@render children()}
+   <div class="overflow-hidden max-w-[100%]">
+        {@render children()}
+   </div>
 
 </div>
 
@@ -32,6 +34,7 @@
     .interactionContainer {
         width:100%;
         position: relative;
+
     }
     .interactionContainer:before {
         display: block;
