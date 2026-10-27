@@ -33,6 +33,7 @@
     "autoprefixer": "^10.6.1",
     "better-auth": "^1.6.11",
     "cloudinary": "^2.8.0",
+    "compress.js": "^2.1.2",
     "jose": "^6.2.3",
     "preact": "^10.29.8",
     "react": "^19.0.0",
