@@ -1,5 +1,5 @@
 import FormContainer from "./formelements/FormContainer"
-import { useState,useEffect, type SyntheticEvent } from "react"
+import { useState,useEffect, type SyntheticEvent, useMemo } from "react"
 import ReactButton from "../../../components/Button/ReactButton"
 import FormInput from "./formelements/FormInput"
 import type { Settings,SpotifyData } from "@/pages/api/settings/_types"
@@ -10,6 +10,7 @@ import { uploader } from "../../../_lib/uploader"
 import SpotifySection from "./formelements/SpotifySection"
 import SaveFooter from "./formelements/SaveFooter"
 import type { UploadApiOptions } from "cloudinary"
+import useSaveWarning from "./_hooks/useSaveWarning"
 
 type TProps = {
   settingsData: Settings,
@@ -31,25 +32,15 @@ export default function SettingsForm({settingsData,spotifyData}:TProps) {
   const [errors,updateErrors] = useState<[string,boolean][]>([])
   const [filesToUpload,updateFilesToUpload] = useState<{id:string,file:File}[]>([])
 
+  const currentValue = useMemo(()=>JSON.stringify(formData),[formData]);
+  const {removeSaveWarning,beforeunload} = useSaveWarning(JSON.stringify(settingsData),currentValue)
 
-
-  const beforeUnload = (e:BeforeUnloadEvent) => {
-    e.preventDefault();
-  }
   useEffect(()=> {
     if(!window) return ;
     updateModalContainer(document.getElementById("modal-container"));
   },[])
 
-  useEffect(()=> {
-    if(!edited ||import.meta.env.DEV) return ;
 
-
-  window.addEventListener('beforeunload', beforeUnload);
-    return ()=> {
-      window.removeEventListener('beforeunload', beforeUnload);
-    }
-  },[edited])
 
 
   const updateFormValue = (value:string,key:string) => {
@@ -111,9 +102,11 @@ export default function SettingsForm({settingsData,spotifyData}:TProps) {
       method:"POST",
       body: JSON.stringify(settingsPayload)
     })
-    if(sendUpdatedSettings) {
+    if (sendUpdatedSettings) {
+      updateIsPending(false)
       alert("Settings updated");
-      location.reload();
+      removeSaveWarning();
+      window.location.href = window.location.href;
       return false;
     }
   }
@@ -199,11 +192,12 @@ export default function SettingsForm({settingsData,spotifyData}:TProps) {
 
     </FormContainer>
 
-    <SaveFooter
-      saveText="Update Settings"
-      {...{isPending,beforeUnload}}
+      <SaveFooter
+        saveText="Update settings"
+        beforeUnload={beforeunload}
 
-     />
+        isPending={isPending}
+      ></SaveFooter>
 
 
 

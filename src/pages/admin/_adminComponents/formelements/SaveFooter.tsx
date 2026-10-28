@@ -24,7 +24,7 @@ export default function SaveFooter(props:TProps){
         <ReactButton onClick={saveAction?()=>{saveAction()}:undefined} label={saveText} type="action" classes="mb-3 md:mb-0 md:mr-3"  modClasses={["big","reverse"]}/>
         <ReactButton classes="" onClick={()=> {
           window.removeEventListener('beforeunload', beforeUnload);
-          location.reload();
+          window.location.href = window.location.href;
           return ;
         }} label="Cancel" type="action" modClasses={["ghost","big"]}/>
 

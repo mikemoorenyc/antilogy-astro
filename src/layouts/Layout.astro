@@ -1,8 +1,7 @@
 ---
 import type { Settings } from "@/pages/api/settings/_types";
 import PageTitle from "@/components/PageTitle.astro";
-import CloseSVG from "./CloseSVG.astro";
-import MenuSVG from "./MenuSVG.astro";
+
 import navLogo from "@/assets/as-interior-logo.png"
 
 interface Props {
@@ -87,7 +86,7 @@ const menu = [...[{url:"/",label:"Home"}],...mainMenu]
         {pageTitle && slug !== "home" && <PageTitle pageTitle={pageTitle} />}
         <slot />
     </main>
-    <footer class="bg-background relative">
+    <footer class="bg-background relative hide-on-menu-open">
 		{socialLinks && <ul class="flex justify-center md:fixed right-gutter bottom-gutter md:bg-background md:border border-current">
 			{socialLinks.split(";").map((e,i) => {
 			  const d = e.split(",");

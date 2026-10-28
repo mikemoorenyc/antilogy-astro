@@ -7,7 +7,7 @@ import SampleItem from "./SampleItem";
 import {DragDropProvider} from '@dnd-kit/react';
 import {move} from '@dnd-kit/helpers';
 import ReactButton from "@/components/Button/ReactButton";
-
+import useSaveWarning from "../../_adminComponents/_hooks/useSaveWarning";
 import SaveFooter from "../../_adminComponents/formelements/SaveFooter";
 import ModalContainer from "@/components/ModalContainer/ModalContainer";
 
@@ -25,32 +25,11 @@ export default function (props: TSampleSettings) {
   const uploadInput = useRef<null | HTMLInputElement>(null);
   const [formUpdated, updateFormUpdated] = useState(false);
   const [saveState, updateSaveState] = useState<"idle" | "uploading" | "pending">("idle")
-  const isPending = useMemo(()=>saveState === "pending",[saveState])
-  const beforeUnload = (e:BeforeUnloadEvent) => {
-    e.preventDefault();
-  }
-  useEffect(()=> {
-    if(import.meta.env.DEV) return ;
-    if(!formUpdated) {
-      window.removeEventListener('beforeunload', beforeUnload);
-      return;
-    }
-    window.addEventListener('beforeunload', beforeUnload);
-      return ()=> {
-        window.removeEventListener('beforeunload', beforeUnload);
-      }
-  }, [formUpdated])
-  useEffect(() => {
-    let isUpdated = false;
+  const isPending = useMemo(() => saveState === "pending", [saveState])
+  const currentValue = useMemo(() => JSON.stringify({ images, pageIntro, pageTitle }),[images,pageIntro,pageTitle])
+  const { removeSaveWarning, beforeunload } = useSaveWarning(JSON.stringify({ images: props.sampleImages, pageIntro: props.pageIntro || "", pageTitle: props.pageTitle }),currentValue);
 
-    const og = JSON.stringify({ images: props.sampleImages, pageIntro: props.pageIntro || "", pageTitle: props.pageTitle })
-    const newg = JSON.stringify({ images, pageIntro, pageTitle });
-    if (og !== newg) {
-      isUpdated = true
-    }
-    updateFormUpdated(isUpdated)
 
-  },[images,pageIntro,pageTitle])
 
 
 
@@ -202,9 +181,10 @@ export default function (props: TSampleSettings) {
 
       return;
     }
-    window.removeEventListener('beforeunload', beforeUnload);
+    removeSaveWarning();
+    updateSaveState("idle")
     alert("Settings saved");
-    location.reload()
+    window.location.href = window.location.href;
     return;
 
     //updateSaveState("uploading")
@@ -240,7 +220,7 @@ export default function (props: TSampleSettings) {
 
    <SaveFooter
       saveText="Save"
-      {...{beforeUnload,saveAction,isPending}}
+      {...{beforeUnload:beforeunload,saveAction,isPending}}
     />
 
     {saveState === "uploading" && <ModalContainer>

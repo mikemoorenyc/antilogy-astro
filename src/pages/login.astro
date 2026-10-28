@@ -18,7 +18,7 @@ const settings = await getSettings();
 if(!settings) return Astro.redirect('/404');
 ---
 
-<Layout settingsData={settings} pageTitle={`${settings.siteTitle} - Login`}>
+<Layout settingsData={settings} pageTitle={`Login`}>
 <div class="flex items-start justify-center h-lvh w-lvw">
 
 <button id="signin-button" class="button-component">

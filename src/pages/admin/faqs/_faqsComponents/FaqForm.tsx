@@ -1,4 +1,4 @@
-import React, { useEffect, useState, type SyntheticEvent,useRef, } from "react";
+import React, { useEffect, useState, type SyntheticEvent,useRef, useMemo, } from "react";
 import type { FaqSection } from "@/pages/api/faqs/_types";
 import { DragDropProvider, useDroppable } from "@dnd-kit/react";
 import { useSortable, isSortable } from "@dnd-kit/react/sortable";
@@ -13,7 +13,7 @@ import { type TFAQSettings } from "@/actions/settings/schema";
 import FormContainer from "../../_adminComponents/formelements/FormContainer";
 import FormInput from "../../_adminComponents/formelements/FormInput";
 import RTEditor from "../../_adminComponents/formelements/RTEditor";
-
+import useSaveWarning from "../../_adminComponents/_hooks/useSaveWarning";
 
 const sectionDndId = (id: number) => `section-${id}`;
 const questionDndId = (id: number) => `question-${id}`;
@@ -177,36 +177,20 @@ export default function FaqForm({ faqData }: { faqData: TFAQSettings }) {
   const [pageIntro, updatePageIntro] = useState<string>(faqData.pageIntro || "")
   const dragSnapshot = useRef<FaqSection[]>([]);
   const currentQuestionSection = useRef<string | null>(null);
-
-  const beforeUnload = (e:BeforeUnloadEvent) => {
-    e.preventDefault();
-  }
-  useEffect(()=> {
-    if(import.meta.env.DEV) return ;
-    if(!formUpdated) {
-      window.removeEventListener('beforeunload', beforeUnload);
-      return;
-    }
-    window.addEventListener('beforeunload', beforeUnload);
-      return ()=> {
-        window.removeEventListener('beforeunload', beforeUnload);
-      }
-  },[formUpdated])
-
-
-  useEffect(() => {
-    let isUpdated = true;
-    if (JSON.stringify({
-      pageTitle,pageIntro, faqSection:items
-    }) !== JSON.stringify({
+  const currentValues = useMemo(()=>JSON.stringify({
+    pageTitle,pageIntro, faqSection:items
+  }), [items,pageIntro,pageTitle])
+  const { removeSaveWarning, beforeunload } = useSaveWarning(
+    JSON.stringify({
       pageTitle: faqData.pageTitle,
       pageIntro: faqData.pageIntro||"",
       faqSection: faqData.faqSection
-    })) {
-      isUpdated = false
-    }
-    updateFormUpdated(isUpdated)
-  },[items,pageIntro,pageTitle])
+    }),
+    currentValues
+  )
+
+
+
   const cloneSections = (sections: FaqSection[]) =>
     sections.map((section) => ({
       ...section,
@@ -402,8 +386,10 @@ export default function FaqForm({ faqData }: { faqData: TFAQSettings }) {
       alert("couldn't update Faqs");
       console.log(error);
     } else {
+      removeSaveWarning();
+      updateIsPending(false);
       alert("Updated Faqs")
-      location.reload();
+      window.location.href = window.location.href;
     }
     updateIsPending(false);
     return false;
@@ -487,7 +473,7 @@ export default function FaqForm({ faqData }: { faqData: TFAQSettings }) {
 
     </FormContainer>
   <SaveFooter
-    {...{isPending,beforeUnload}}
+    {...{isPending,beforeUnload:beforeunload}}
     saveText="Save FAQs"
   />
 

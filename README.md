@@ -1,1 +1,11 @@
-antilogy design site converted to astro so I don't have to use wordpress 
+## todo
+- ~~hide footer on menu open~~
+- ~~fix beforeunload (turn it into a hook, figure out why it fires sometimes)~~
+- fix faq section
+- custom dialog
+- add userinfo to saves
+- update settings (get rid of stuff that isn't being used)
+- add bg to settings
+- add sitetagline to settings
+- create tempfile delete cron
+-

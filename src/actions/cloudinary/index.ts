@@ -8,6 +8,20 @@ const cloud_name = import.meta.env.PUBLIC_CLOUDINARY_CLOUD_NAME,
   api_secret = import.meta.env.CLOUDINARY_API_SECRET
 const badEnv = !cloud_name || !api_key || !api_secret;
 
+const SearchResult = z.object(
+  {
+    public_id: z.string(),
+    resource_type: z.string(),
+    url:z.string(),
+  }
+)
+type TSearchResult = z.infer<typeof SearchResult>
+
+const SearchOutput = z.object({
+  resources: z.array(SearchResult)
+})
+type TSearchOutput = z.infer<typeof SearchOutput>;
+
 const SignatureInput = z.object({
   public_id: z.string(),
   overwrite: z.boolean(),
@@ -77,6 +91,19 @@ export const deleteMedia = async (input:TDeleteInput,context:ActionAPIContext): 
     throw new ActionError({code:"INTERNAL_SERVER_ERROR",message:"Cloudinary couldn't delete:"+String(err)})
   }
 }
+const getUploads = async (prefix: string):Promise<TSearchOutput["resources"]> => {
+  try {
+    cloudinary.config({cloud_name,api_key,api_secret});
+    const up = await cloudinary.api.resources({ prefix, type: "upload", max_results: 100 })
+    const results = SearchOutput.parse(up)
+    console.log(results);
+    return results.resources;
+  } catch (err) {
+    console.log(err)
+    throw new Error(String(err));
+  }
+
+}
 export const media = {
   generateSignature: defineAction({
     input: SignatureInput,
@@ -85,5 +112,9 @@ export const media = {
   deleteMedia: defineAction({
     input: DeleteInput,
     handler:deleteMedia
+  }),
+  getUploads: defineAction({
+    input: z.string(),
+    handler:getUploads
   })
 }
