@@ -37,7 +37,7 @@ export default function FaqForm({ faqData }: { faqData: TFAQSettings }) {
   }, [items, questions])
   const currentValues = useMemo(()=>JSON.stringify({
     pageTitle,pageIntro, faqSection:itemsFormatted
-  }), [items,pageIntro,pageTitle])
+  }), [itemsFormatted,pageIntro,pageTitle])
   const { removeSaveWarning, beforeunload } = useSaveWarning(
     JSON.stringify({
       pageTitle: faqData.pageTitle,
@@ -238,7 +238,7 @@ export default function FaqForm({ faqData }: { faqData: TFAQSettings }) {
         }
       } />
     </div>
-    <div>{JSON.stringify(itemsFormatted) }</div>
+
     <FormContainer formId="pageTitle" label="Page title">
       <FormInput forValue="pageTitle" type="text" required={true} value={pageTitle} onChange={updatePageTitle}/>
     </FormContainer>

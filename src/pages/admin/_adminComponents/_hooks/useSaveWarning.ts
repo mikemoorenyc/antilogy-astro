@@ -10,7 +10,7 @@ export default function useSaveWarning(initValue: string, currentValue: string) 
     if (!window) return;
 
     if (isEdited) {
-     // window.addEventListener('beforeunload', beforeunload.current);
+      window.addEventListener('beforeunload', beforeunload.current);
     } else {
       window.removeEventListener("beforeunload", beforeunload.current)
     }
