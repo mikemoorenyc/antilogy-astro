@@ -14,7 +14,7 @@ type Props = {
   questionEditing:boolean
 }
 export default function FaqSectionHeader({section,deleteItem,changeSectionTitle,questionEditing}:Props) {
-  console.log(section.title);
+
   const inputRef = useRef<null|HTMLInputElement>(null)
   const [tempTitle,updateTempTitle] = useState(section.title || "");
   const [editingTitle,updateEditingTitle] = useState(false);
@@ -46,7 +46,7 @@ export default function FaqSectionHeader({section,deleteItem,changeSectionTitle,
     }
   },[tempTitle])
   return <>
-{!editingTitle && <div className="flex-1 font-bold text-lg">{section.title || "(No title)"}</div>}
+    {!editingTitle && <div className="flex-1 font-bold text-lg">{section.title || "(No title)"}</div>}
 {editingTitle && <input onBlur={() => {
   updateEditingTitle(false);
   updateTempTitle(section.title);

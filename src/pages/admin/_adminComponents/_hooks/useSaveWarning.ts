@@ -8,9 +8,9 @@ export default function useSaveWarning(initValue: string, currentValue: string) 
   })
   useEffect(() => {
     if (!window) return;
-    console.log(isEdited,initialValue.current,currentValue)
+
     if (isEdited) {
-      window.addEventListener('beforeunload', beforeunload.current);
+     // window.addEventListener('beforeunload', beforeunload.current);
     } else {
       window.removeEventListener("beforeunload", beforeunload.current)
     }
