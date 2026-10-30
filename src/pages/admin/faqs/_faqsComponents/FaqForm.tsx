@@ -16,20 +16,7 @@ import RTEditor from "../../_adminComponents/formelements/RTEditor";
 import useSaveWarning from "../../_adminComponents/_hooks/useSaveWarning";
 import FaqSection from "./FaqSection";
 
-const sectionDndId = (id: number) => `section-${id}`;
-const questionDndId = (id: number) => `question-${id}`;
-const emptySectionDndId = (id: number) => `empty-section-${id}`;
 
-const formatter = (faqs: TFAQSection[]) => {
-  const flattened: {
-    [id:number]: Faq[]
-  } = {}
-  faqs.forEach(i => {
-    flattened[i.id] = i.questions
-  })
-
-  return flattened;
-}
 
 export default function FaqForm({ faqData }: { faqData: TFAQSettings }) {
   const [items, setItems] = useState<TFAQSection[]>(faqData.faqSection);
@@ -37,8 +24,19 @@ export default function FaqForm({ faqData }: { faqData: TFAQSettings }) {
   const [questionEditing, updateQuestionEditing] = useState<boolean>(false)
   const [pageTitle, updatePageTitle] = useState(faqData.pageTitle);
   const [pageIntro, updatePageIntro] = useState<string>(faqData.pageIntro || "")
+
+  const [questions, setQuestions] = useState<Record<number, Faq[]>>(
+    () => Object.fromEntries(
+      faqData.faqSection.map(section => [section.id, section.questions])
+    )
+  );
+  const itemsFormatted = useMemo(() => {
+    return items.map(s => {
+      return {...s,questions:questions[s.id]||[]}
+    })
+  }, [items, questions])
   const currentValues = useMemo(()=>JSON.stringify({
-    pageTitle,pageIntro, faqSection:items
+    pageTitle,pageIntro, faqSection:itemsFormatted
   }), [items,pageIntro,pageTitle])
   const { removeSaveWarning, beforeunload } = useSaveWarning(
     JSON.stringify({
@@ -48,11 +46,6 @@ export default function FaqForm({ faqData }: { faqData: TFAQSettings }) {
     }),
     currentValues
   )
-  const [questions, setQuestions] = useState<Record<number, Faq[]>>(
-    () => Object.fromEntries(
-      faqData.faqSection.map(section => [section.id, section.questions])
-    )
-  );
 
 
   const deleteFaqSection = (item:TFAQSection) => {
@@ -139,11 +132,7 @@ export default function FaqForm({ faqData }: { faqData: TFAQSettings }) {
 
   }
   const snapshot = useRef(structuredClone({ items, questions }));
-  const itemsFormatted = useMemo(() => {
-    return items.map(s => {
-      return {...s,questions:questions[s.id]||[]}
-    })
-  },[items,questions])
+
   const findQuestion = (id: number) => {
     let question
     const section = items.find(s => {
