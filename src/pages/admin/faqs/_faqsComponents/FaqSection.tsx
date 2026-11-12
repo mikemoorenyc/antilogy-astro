@@ -37,7 +37,7 @@ export default function FaqSection({ index,section, children,questionEditing,cha
   return <div ref={ref} className={`bg-shadow-sm border border-foreground mb-4 p-2 bg-background ${isDragging?"border-solid":"border-dashed"}`}>
     <div className="flex-center mb-2">
       <div ref={handleRef} className="cursor-grab flex items-center">
-        <span className="icon-[carbon--draggable] size-5"></span>
+        <span className="icon-[carbon--draggable] size-8"></span>
       </div>
       <FaqSectionHeader
           questionEditing={questionEditing}

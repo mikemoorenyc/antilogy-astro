@@ -1,12 +1,9 @@
 ---
 import  Layout  from '@/layouts/Layout.astro';
 import  Image from 'astro/components/Image.astro';
-import { actions } from 'astro:actions';
-const {data ,error} = await Astro.callAction(actions.settings.getMainSettings,"");
-if(error) {
-  console.log("error")
-  return Astro.redirect("/404");
-}
+
+
+
 import herotop from "@/assets/images/about-imgs/hero-top.jpg"
 import heroteam from "@/assets/images/about-imgs/sewing.jpg"
 import stovetop from "@/assets/images/about-imgs/stovetop.jpg"
@@ -20,7 +17,7 @@ In our two decades of business we have worked with all sorts of customers.  From
 
 */
 ---
-<Layout settingsData={data} pageTitle='Why to order'slug="why-to-order">
+<Layout  pageTitle='Why to order'slug="why-to-order">
     <article class="copy-section about-content dt-width-container ">
         <Image src={herotop} alt="2 people looking at a shirt" densities={[1.5, 2]} class="top-hero md:object-top"/>
         <h2>Antilogy is a screenprinting shop based in Kingston, NY</h2>

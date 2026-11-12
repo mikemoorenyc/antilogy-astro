@@ -1,0 +1,54 @@
+/*
+const spotifyAppId = import.meta.env.SPOTIFY_APP_ID || process.env.SPOTIFY_APP_ID;
+const spotifyAppSecret = import.meta.env.SPOTIFY_APP_SECRET || process.env.SPOTIFY_APP_SECRET;
+const spotifyCodeCallback = Astro.url.searchParams.get("code");
+const spotifyRefreshToken = settings?.spotifyRefreshToken
+const spotifyData : SpotifyData = {appId:spotifyAppId};
+if(spotifyAppId && spotifyAppSecret) {
+  const requestUrl = new URL("https://accounts.spotify.com/authorize")
+  requestUrl.searchParams.append("redirect_uri",Astro.url.href);
+  requestUrl.searchParams.append("client_id",spotifyAppId);
+  requestUrl.searchParams.append("response_type","code");
+  requestUrl.searchParams.append("scope","user-read-email user-read-currently-playing");
+  spotifyData.requestUrl = requestUrl.href
+
+}
+//GET THE authorization
+if(spotifyCodeCallback && !spotifyRefreshToken ) {
+  const authorizationToken = await fetch("https://accounts.spotify.com/api/token", {
+    method: "POST",
+    headers: {
+      'content-type': 'application/x-www-form-urlencoded',
+      'Authorization': 'Basic ' + (Buffer.from(spotifyAppId+":"+spotifyAppSecret).toString('base64'))
+    },
+    body: new URLSearchParams({
+        'grant_type': 'authorization_code',
+        'code': spotifyCodeCallback,
+        'redirect_uri': Astro.url.href.split("?")[0]
+    })
+  })
+  if(authorizationToken.ok) {
+    const data=await authorizationToken.json();
+    const savedRefreshToken = await newUpdate({...settings, ...{spotifyRefreshToken: data?.refresh_token}})
+  }
+  console.log(authorizationToken.ok);
+ // console.log(await authorizationToken.json());
+}
+
+if(spotifyRefreshToken ) {
+
+  const tempToken = await getTempToken();
+  if(tempToken) {
+    const userData = await fetch("https://api.spotify.com/v1/me", {
+      method:"GET",
+      headers: {
+      'content-type': 'application/json',
+      'Authorization': `Bearer ${tempToken}`
+    },
+    })
+    if(userData.ok && spotifyData) {
+      spotifyData.profileData = await userData.json();
+    }
+  }
+}
+*/

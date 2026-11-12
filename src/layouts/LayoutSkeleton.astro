@@ -1,34 +1,30 @@
 ---
-import { type Settings as TSettings } from "@api/settings/_types";
-import { actions } from 'astro:actions';
-//import { siteTitle, subTitle } from "@/assets/settings";
+
 import "../globalCSS/index.css";
 import { inferRemoteSize ,getImage} from "astro:assets";
+import type { TMainSettings } from "@/actions/settings/schema";
 interface Props {
     pageTitle?: string;
-    settingsData: TSettings;
     bodyCSS?: string;
     metaDescription?: string;
+    settingsData:TMainSettings
 }
-const { settingsData, pageTitle, bodyCSS, metaDescription } = Astro.props;
-const {data ,error} = await Astro.callAction(actions.settings.getMainSettings,"");
-if(error) {
-  console.log(error.message)
-  return Astro.redirect("/404")
-}
+const { pageTitle, bodyCSS, metaDescription,settingsData } = Astro.props;
 
-const settings = data
+
+
+const settings = settingsData;
 
 if (!settings) return Astro.redirect("/404");
 
 const desc = metaDescription || settings.siteDescription;
 let processedSvgUrl:string=""
-if(settingsData.siteFaviconSVG) {
+if(settings.siteFaviconSVG) {
 
-   let {width,height,format} = await inferRemoteSize(settingsData.siteFaviconSVG);
+   let {width,height,format} = await inferRemoteSize(settings.siteFaviconSVG);
    if(width&&height&&format=="svg") {
      let {src} = await getImage({
-         src:settingsData.siteFaviconSVG,
+         src:settings.siteFaviconSVG,
          height,
          width
      });

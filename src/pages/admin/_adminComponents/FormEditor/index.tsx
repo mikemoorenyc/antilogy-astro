@@ -1,26 +1,27 @@
 import { useState } from "react"
 import ReactButton from "../../../../components/Button/ReactButton"
-import type { ContactFormSection } from "@/pages/api/contact/_types"
+import { formSectionTypes } from "@/actions/settings/schema"
 import { formComponents } from "./settings"
 import SelectInput from "./SelectInput"
 import EditPanel from "./EditPanel"
-
+import type { TContactFormSection, TFormSectionIds,  } from "@/actions/settings/schema"
+import { DialogProvider ,useDialog} from "@/components/Dialog/Dialog"
 
 
 type TProps = {
-  data:ContactFormSection[],
+  data:TContactFormSection[],
   updateCallback:Function
 }
 
-export default function FormEditor(props:TProps) {
+function FormEditor(props:TProps) {
   const {data,updateCallback} = props
   const [addFieldOpen,updateAddFieldOpen] = useState(false);
-  const [addOption,updateAddOption] = useState("");
-  const [currentlyEditing,updateCurrentlyEditing] = useState<null|ContactFormSection>(null)
-
+  const [addOption,updateAddOption] = useState<TFormSectionIds>(formSectionTypes[0].id);
+  const [currentlyEditing,updateCurrentlyEditing] = useState<null|TContactFormSection>(null)
+  const { alert,confirm } = useDialog();
   const typeOptions = Object.entries(formComponents)
 
-  const formUpdate = (item:ContactFormSection,toDelete:boolean) => {
+  const formUpdate = (item:TContactFormSection,toDelete:boolean) => {
 
     const newData = [...data];
     if(item.id == "new") {
@@ -42,7 +43,7 @@ export default function FormEditor(props:TProps) {
     }))
 
   }
-  const switchOrder = (item:ContactFormSection,goingUp?:boolean) => {
+  const switchOrder = (item:TContactFormSection,goingUp?:boolean) => {
     const currentState = [...data];
     const itemIndex = data.findIndex(i => i.id === item.id);
     if(itemIndex < 0) {console.log("index not found");return};
@@ -54,8 +55,8 @@ export default function FormEditor(props:TProps) {
   return <div className="mb-5 border border-foreground ">
 
   <div className="fields flex flex-wrap w-full py-4 px-2">
-  {data.map((item:ContactFormSection,i) => {
-    const itemType = typeOptions.find(e => e[0] == item.fieldType);
+  {data.map((item:TContactFormSection,i) => {
+    const itemType = formSectionTypes.find(e => e.id == item.fieldType);
     if(!itemType) {
       return null ;
     }
@@ -64,17 +65,21 @@ export default function FormEditor(props:TProps) {
     }
     return (
       <div className={`border border-foreground p-2 border-dashed mx-2 text-sm mb-4 ${item.width == "half"?"w-[calc(50%-1rem)]":"w-full"}`} key={item.id}>
-        <div><b>{item.label}</b> - {itemType[1]?.title}</div>
+        <div><b>{item.label}</b> - {itemType.label}</div>
         <div>Required: {item.required?"Yes":"No"}</div>
         {item.helperText && <div>Helper Text: {item.helperText}</div>}
+        {item.options && <div>
+          <div className="font-bold uppercase text-smDisplay mt-1 leading-none">Options</div>
+          <div>{item.options.map(o=>o.label).join(", ") }</div>
+        </div>}
         <div className="mt-1">
           <ReactButton icon={<span className="icon-[carbon--edit] size-4" />} modClasses={["sm","ghost"]} onClick={()=>{
             updateCurrentlyEditing(item);
           }} label="Edit" classes="px-0 mr-2"/>
           {i!== 0 && <ReactButton icon={<span className="icon-[carbon--arrow-up] size-4"  />} modClasses={["sm","ghost"]}label="Move up" onClick={()=>{switchOrder(item,true)}} classes="px-0 mr-2" />}
           {i!== data.length - 1 && <ReactButton icon={<span className="icon-[carbon--arrow-down] size-4"  />} label="Move down" modClasses={["sm","ghost"]} onClick={()=>{switchOrder(item,false)}} classes="px-0 mr-2" />}
-          <ReactButton icon={<span className="icon-[carbon--trash-can] size-4" />}modClasses={["sm","ghost","caution"]} onClick={()=>{
-            const okToDelete = confirm("Are you sure you want to delete this section? It can't be undone.");
+          <ReactButton icon={<span className="icon-[carbon--trash-can] size-4" />}modClasses={["sm","ghost","caution"]} onClick={async ()=>{
+            const okToDelete = await confirm("It can't be undone.","Are you sure you want to delete this section? ",true);
             if(!okToDelete) return ;
             formUpdate(item,true);
 
@@ -93,22 +98,28 @@ export default function FormEditor(props:TProps) {
   </div>
 
   <div className="my-6 mx-4 mt-0">
-    {(!addFieldOpen && !currentlyEditing) && <ReactButton icon={<span className="icon-[carbon--add] size-4"  />} type="action" modClasses={["ghost"]} label="Add new field" onClick={()=>{updateAddFieldOpen(true);updateAddOption(typeOptions[0][0])}}/>}
+    {(!addFieldOpen && !currentlyEditing) && <ReactButton icon={<span className="icon-[carbon--add] size-4"  />} type="action" modClasses={["ghost"]} label="Add new field" onClick={()=>{updateAddFieldOpen(true);updateAddOption(formSectionTypes[0].id)}}/>}
     {addFieldOpen && <div className="flex">
-      <SelectInput value={addOption} onChange={(value:string)=>{updateAddOption(value);console.log(value)}}>
-      {Object.entries(formComponents).map((e) => <option key={e[0]} value={e[0]}>{e[1].title}</option>)}
+      <SelectInput value={addOption} onChange={(value:TFormSectionIds)=>{updateAddOption(value);console.log(value)}}>
+      {formSectionTypes.map((f) => <option key={f.id} value={f.id}>{f.label}</option>)}
 
       </SelectInput>
-      <ReactButton classes="ml-2 mr-1" modClasses={["sm"]} label={"Add"} onClick={()=>{
+        <ReactButton classes="ml-2 mr-1" modClasses={["sm"]} label={"Add"} onClick={() => {
+          const requiresOptions = formSectionTypes.filter(f => f.requiresOptions).map(f => f.id);
+
         updateAddFieldOpen(false);
         updateCurrentlyEditing({
           id:"new",
           label:"New Section",
           required: false,
           width: "half",
-          fieldType:addOption
+          fieldType: addOption,
+          options: requiresOptions.includes(addOption) ? [{
+            id: "option-" + Date.now(),
+            label:"New Option"
+          }]:undefined
         })
-        updateAddOption("");
+        updateAddOption(formSectionTypes[0].id);
       }} type="action"/>
       <ReactButton modClasses={["sm","ghost","caution"]} label={"Cancel"} type="action" onClick={()=>{updateAddFieldOpen(false);}}/>
 
@@ -117,4 +128,9 @@ export default function FormEditor(props:TProps) {
     </div>}
   </div>
   </div>
+}
+export default function (props: TProps) {
+  return <DialogProvider>
+    <FormEditor {...props} />
+  </DialogProvider>
 }

@@ -1,5 +1,5 @@
 ---
-
+import {actions} from "astro:actions"
 import LayoutSkeleton from './LayoutSkeleton.astro'
 import Button from '@/components/Button/Button.astro'
 import type { Settings } from '@/pages/api/settings/_types'
@@ -9,18 +9,23 @@ const nav = [
 ]
 const pathname = new URL(Astro.request.url).pathname;
 const currentPath = pathname.slice(1);
+const {data,error} = await Astro.callAction(actions.settings.getMainSettings,"");
+if(error) {
+  return Astro.redirect("/404");
+}
+const settingsData = data;
 
 interface Props {
   pageTitle:string,
-  settingsData: Settings
+
 }
-const {settingsData,pageTitle} = Astro.props
+const {pageTitle} = Astro.props
 const {siteTitle} = settingsData
 
 
 ---
 
-<LayoutSkeleton pageTitle={pageTitle} settingsData={settingsData}>
+<LayoutSkeleton pageTitle={pageTitle+" - Admin"} settingsData={settingsData}>
 <div class="hidden md:flex bg-foreground text-background text-sm justify-between py-1 px-2 h-8 items-center font-bold">
   <a href="/" class="uppercase ">{siteTitle}</a>
   <div>

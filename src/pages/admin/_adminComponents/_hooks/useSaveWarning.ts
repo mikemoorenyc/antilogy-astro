@@ -4,7 +4,9 @@ export default function useSaveWarning(initValue: string, currentValue: string) 
   const initialValue = useRef(initValue);
   const isEdited = useMemo(()=>initialValue.current !== currentValue,[initialValue,currentValue])
   const beforeunload = useRef((e: BeforeUnloadEvent) => {
-    e.preventDefault()
+    if (import.meta.env.PROD) {
+      e.preventDefault()
+    }
   })
   useEffect(() => {
     if (!window) return;

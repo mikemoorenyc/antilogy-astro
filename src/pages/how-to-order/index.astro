@@ -1,11 +1,17 @@
 ---
-import { getSettings } from "../api/settings";
+import {actions} from "astro:actions";
 import Layout from "@/layouts/Layout.astro";
 import * as contactIntro from "@/assets/contact-intro.md";
 //import ContactForm from "./_ContactForm/ContactForm.tsx__";
 import  ContactForm  from "./_ContactForm/ContactForm.svelte";
-const settingsData = await getSettings();
-if (!settingsData) return Astro.redirect("/404");
+import type { TContactSettings } from "@/actions/settings/schema";
+
+const {data,error} = await Astro.callAction(actions.settings.getContactSettings,"");
+if(error) {
+  console.log(String(error));
+  return Astro.redirect("/404")
+}
+
 const compiledIntro = await contactIntro.compiledContent();
 const regularContacts = [
     {
@@ -26,11 +32,32 @@ const regularContacts = [
         copy: `<a href="mailto:antilogydesign@gmail.com">antilogydesign@gmail.com</a>`,
     },
 ];
+const infoSection = [
+  {id:"physicalAddress",title:"Physical Address"},
+  {id:"hours",title:"Shop hours"},
+  {id:"email",title:"Email address"}
+  ].filter(s=> {
+    if(!data[s.id as keyof TContactSettings]) return false;
+    return true;
+  }).map(s => {
+    let content = data[s.id as keyof TContactSettings]
+    if((s.id == "physicalAddress") ) {
+      content = `<addr>${content}</addr>`
+    }
+    if(s.id == "email") {
+        content = `<a href="${content}">${content}</a>`
+    }
+
+    return {...s,content}
+  })
+
+
+
 ---
 
 <Layout
-    settingsData={settingsData}
-    pageTitle="How to Order"
+
+    pageTitle={data.pageTitle}
     slug="how-to-order"
 >
     <div class="dt-width-container how-to-copy contact-wrap dt-width-container dt-grid-layout">
@@ -38,12 +65,13 @@ const regularContacts = [
 	src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit"
 	defer
         ></script>
-        <div class="copy-section" set:html={compiledIntro} />
+        {data.pageIntro&&<div class="copy-section" set:html={data.pageIntro} />}
         <div class="how-to-info">
-            {regularContacts.map((r) => (
+
+            {infoSection.map((i) => (
                 <div class="how-to-info-section">
-                    <div class="title">{r.title}:</div>
-                    <div class="copy" set:html={r.copy} />
+                    <div class="title">{i.title}:</div>
+                    <div class="copy" set:html={i.content} />
                 </div>
             ))}
         </div>
@@ -52,7 +80,7 @@ const regularContacts = [
                 <h2>Get started</h2>
             </div>
             <div id="contact-form-container">
-                <ContactForm client:load />
+                <ContactForm client:load formStructure={data.contactForm}/>
             </div>
         </div>
     </div>

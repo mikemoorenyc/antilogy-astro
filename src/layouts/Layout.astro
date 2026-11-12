@@ -1,34 +1,48 @@
 ---
 import type { Settings } from "@/pages/api/settings/_types";
 import PageTitle from "@/components/PageTitle.astro";
-
+import {actions} from "astro:actions"
 import navLogo from "@/assets/as-interior-logo.png"
+import { inferRemoteSize ,getImage} from "astro:assets";
 
 interface Props {
     pageTitle?: string;
     meta?: string;
     children: any;
-    settingsData: Settings;
     slug?: string;
 }
 import LayoutSkeleton from "./LayoutSkeleton.astro";
 import { Image } from "astro:assets";
 
 import mainMenu from "@/assets/mainMenu";
-const { pageTitle, settingsData, slug } = Astro.props;
-const {socialLinks} = settingsData;
+const { pageTitle, slug } = Astro.props;
+const {data,error} = await Astro.callAction(actions.settings.getMainSettings,"");
+
+if(error) {
+  return Astro.redirect("/404");
+}
+const {socialLinks} = data;
+
 
 //Get Image
-const fileNames = Object.keys(
-    import.meta.glob("../../public/bgs/*", { eager: true }),
-).map((path) => path.split("/").at(-1)!);
+const fileNames = await Promise.all(data.backgroundImages.map(async (i)=> {
+  const {width,height}= await inferRemoteSize(i.url)
+  let full = await getImage({
+      src: i.url,
+      width: 2200,
+      height:height * (2200/width),
+      inferSize:true,
+      layout: "constrained",
+  });
+  return full.src
+}))
 
 const menu = [...[{url:"/",label:"Home"}],...mainMenu]
 ---
 
 <LayoutSkeleton
     pageTitle={pageTitle}
-    settingsData={settingsData}
+    settingsData={data}
     bodyCSS="flex min-h-screen flex-col text-[16px] md:text-[18px]"
 >
 
@@ -250,13 +264,15 @@ const menu = [...[{url:"/",label:"Home"}],...mainMenu]
 
 
 
+
+
     if (files.length > 0 && bg) {
         let newNum = prevIndex + 1;
         if (newNum >files.length-1) {
           newNum = 0;
         }
 
-        bg.style.backgroundImage = `url(/bgs/${files[newNum]})` || "";
+        bg.style.backgroundImage = `url(${files[newNum]})` || "";
         sessionStorage.setItem("last-img",String(newNum))
     }
 </script>

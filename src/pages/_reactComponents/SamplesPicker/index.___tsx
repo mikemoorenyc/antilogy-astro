@@ -1,3 +1,4 @@
+/*
 import type { TImageUrls } from "@/types"
 
 import { createPortal } from "react-dom"
@@ -48,3 +49,4 @@ export default function ({ imageUrls }: { imageUrls: TImageUrls[] }) {
     </>,modalContainer)}
   </div>
 }
+*/

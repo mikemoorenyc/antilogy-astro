@@ -18,7 +18,7 @@ export default function SampleItem(props: TProps) {
 
   return <li className='border border-dashed border-foreground p-2 flex items-start bg-background' ref={ref}>
     <div className='cursor-grab' ref={handleRef}style={{visibility:editingImage!==null?"hidden":undefined}}>
-      <span className='icon-[carbon--draggable] w-6 h-6' />
+      <span className='icon-[carbon--draggable] size-8' />
     </div>
     <div className='w-32 ml-2'>
       <img src={image.url } />

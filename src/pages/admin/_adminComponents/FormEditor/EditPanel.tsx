@@ -1,11 +1,13 @@
 import { useEffect, useRef, useState } from "react";
-import type{ ContactFormSection } from "@/pages/api/contact/_types";
+import { formSectionTypes, type TContactFormSection } from "@/actions/settings/schema";
 import type { ReactNode } from "react";
 import {commonSettings,formComponents} from "./settings"
 import TextInput from "./TextInput";
 import CheckBox from "./CheckBox";
 import SelectInput from "./SelectInput";
 import ReactButton from "../../../../components/Button/ReactButton";
+import { useDialog } from "@/components/Dialog/Dialog";
+import OptionEditor from "./OptionEditor";
 
 type TSchema = {
   title: string,
@@ -17,24 +19,35 @@ const FieldWrapper = ({children,className}:{children:ReactNode,className?:string
   </div>
 }
 
-export default function EditPanel({section,closer,saver}:{section:ContactFormSection,closer:Function,saver:Function}) {
-  
-  const [tempData,updateTempData] = useState(section); 
+export default function EditPanel({ section, closer, saver }: { section: TContactFormSection, closer: Function, saver: Function }) {
+  const { alert } = useDialog();
+  const requiresOptions = formSectionTypes.filter(s => s?.requiresOptions).map(s => s.id);
+
+  const [tempData,updateTempData] = useState(section);
   const containerRef=useRef<null|HTMLDivElement>(null)
-console.log(section);
-console.log(tempData);
+
   useEffect(()=> {
-    if(!containerRef)return; 
+    if(!containerRef)return;
     //containerRef.current?.scrollIntoView(true);
 
   },[containerRef])
 
-  const updater = (payload:ContactFormSection) => {
+  const updater = async (payload:TContactFormSection) => {
+
     updateTempData(prev => {
-      return {...prev,...payload}; 
+      return {...prev,...payload};
     })
   }
-  
+  const saveSection = async () => {
+    if (tempData.label.length < 1) {
+      await alert("Label can't be blank")
+      return
+    }
+    saver(tempData);
+    closer();
+  }
+
+
   const sectionSchema:TSchema = formComponents[section.fieldType as keyof {}];
 
   if(!sectionSchema) return <div>No schema found</div>
@@ -43,16 +56,17 @@ console.log(tempData);
     <FieldWrapper>
       <TextInput required={true} onChange={(value:string)=>{
         const payload = {...tempData};
-        payload.label = value; 
-        updater(payload);
-    }} value={tempData.label} id={"title"} label={"Section Name"}/>
-    
+        payload.label = value;
+          updater(payload);
+
+    }} value={tempData.label}  id={"title"} label={"Section Name"}/>
+
     </FieldWrapper>
     <FieldWrapper className="flex-center">
       <CheckBox checked={tempData.required} id={"required"} label="Required" onChange={(value:boolean) => {
-       
+
         const payLoad = {...tempData};
-        payLoad.required = value; 
+        payLoad.required = value;
         updater(payLoad);
       }}/>
       <div className="ml-4">
@@ -65,48 +79,47 @@ console.log(tempData);
       }}>
         <option id="half" value="half">Half Width</option>
         <option id="full" value={"full"}>Full width</option>
-      
+
       </SelectInput>
       </div>
-    
+
     </FieldWrapper>
-    
+
     <FieldWrapper>
       <TextInput value={tempData.helperText||""} id="helperText" label="Helper Text" onChange={(value:string)=> {
         const payLoad = {...tempData};
         payLoad.helperText = value;
         updater(payLoad)
       }}/>
-    
+
     </FieldWrapper>
     {sectionSchema?.otherSettings && Object.entries(sectionSchema?.otherSettings).map((s)=> {
-      
-      const type = s[1]?.type; 
+
+      const type = s[1]?.type;
       return <FieldWrapper key={s[0]}>
       {type == "textField" && <TextInput value={tempData[s[0] as keyof {}]||""} id={s[0]} label={s[1]?.label} onChange={(value:string)=> {
         const payLoad = {...tempData};
 
-        if(s[0] == "options") {
-          payLoad[s[0] ] = value; 
-        }
+
         updater(payLoad);
       }} />}
       {type == "numberField" && <TextInput type={"number"} value={tempData[s[0] as keyof {}]||0} id={s[0]} label={s[1]?.label} onChange={(value:number)=> {
         const payLoad = {...tempData};
 
         if(s[0] == "min"||s[0]=="max") {
-          payLoad[s[0] ] = value; 
+          payLoad[s[0] ] = value;
         }
         updater(payLoad);
       }} />}
       {s[1]?.description && <div className="text-xs">{s[1]?.description}</div>}
       </FieldWrapper>
     })}
+      {requiresOptions.includes(section.fieldType) && <FieldWrapper><OptionEditor {...{section,updater}} /></FieldWrapper>}
     <FieldWrapper>
-      <ReactButton label={"Save"} onClick={()=>{saver(tempData);closer();}} classes="mr-2"/>
+        <ReactButton modClasses={tempData.label.length<1?["disabled"]:undefined} label={"Save"} onClick={() => { saveSection() }} classes="mr-2"/>
       <ReactButton label="Cancel" modClasses={["ghost"]} onClick={()=>{closer()}} />
     </FieldWrapper>
-    </div>  
+    </div>
 
 
   </div>

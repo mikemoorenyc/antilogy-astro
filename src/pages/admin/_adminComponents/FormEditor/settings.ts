@@ -1,9 +1,9 @@
 type TSettingSchema = {
-  title:string, 
+  title:string,
   otherSettings?: {}
 }
 type TOption = {
-    label:string, 
+    label:string,
     type:string,
     description?:string
 }
@@ -14,37 +14,37 @@ const commonSettings = {
         label : "Required"
     },
     width: {
-        
+
         type: "select",
         label: "Width",
         options: ["Full", "Half"],
-        
+
     },
     helperText:{
-       
+
         type: "textField",
         label: "Helper Text",
-      
+
     }
 }
 const formComponents = {
     textField: {
         title: "Text Field",
-     
+
     },
     emailAddress: {
         title: "Email Address",
-        
+
     },
     bigTextField: {
         title :"Big Text Field",
-  
+
     },
-    upload: {
+    fileUploader: {
         title: "File Uploader",
-        
+
     },
-    quantity: {
+    orderQuantity: {
         title: "Order Quantity",
         otherSettings: {
             min: {
@@ -60,27 +60,32 @@ const formComponents = {
     checkBoxes: {
         title: "Check Boxes",
         otherSettings: {
-            options: {
-                type:"textField",
-                description: "Put options in semi-colon seperated list",
-                label: "Options"
-            }
+
         }
     },
-    date: {
+    datePicker: {
         title: "Date Picker",
-       
+
     },
     select: {
         title: "Select",
         otherSettings: {
-            options: {
-                type:"textField",
-                description: "Put options in semi-colon seperated list",
-                label: "Options"
-            }
+
         }
-    }
+  },
+  dropdown: {
+      title: "Dropdown",
+      otherSettings: {
+
+      }
+  },
+  radioButtons: {
+      title: "Radio buttons",
+      otherSettings: {
+
+      }
+  }
+
 
 
 }

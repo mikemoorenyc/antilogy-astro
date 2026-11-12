@@ -6,14 +6,14 @@ import { getSettings } from '../../api/settings';
 import type { Settings } from '@/pages/api/settings/_types';
 import AboutForm from './_aboutComponents/AboutForm';
 import type { only } from 'node:test';
+import type { Block } from '@blocknote/core';
 
 
 export const prerender = false;
 
-const settings : Settings = await getSettings() 
-if(!settings) return Astro.redirect("/404");
 
-const aboutText = settings?.aboutText || []
+
+const aboutText: Block[] =  []
 
 
 
@@ -21,12 +21,12 @@ const aboutText = settings?.aboutText || []
 
 ---
 
-<AdminLayout pageTitle={`About - ${settings.siteTitle}`} settingsData={settings}>
-  <PageHeader pageTitle='About page' /> 
+<AdminLayout pageTitle={`About`} >
+  <PageHeader pageTitle='About page' />
   <AboutForm client:only="react" aboutText={aboutText}/>
 
 
 
- 
+
 
 </AdminLayout>

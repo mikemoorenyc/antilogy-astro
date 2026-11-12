@@ -1,52 +1,49 @@
-import { useState ,useEffect, type SyntheticEvent} from "react";
+import { useState ,useEffect,useMemo, type SyntheticEvent} from "react";
 import type { Contact,ContactFormSection } from "@/pages/api/contact/_types";
 import FormContainer from "./formelements/FormContainer";
 import FormInput from "./formelements/FormInput";
 import RTEditor from "./formelements/RTEditor";
 import FormEditor from "./FormEditor";
 import SaveFooter from "./formelements/SaveFooter";
-export default function ContactForm({contactSettings}:{contactSettings:Contact}) {
-  
+import type { TContactSettings } from "@/actions/settings/schema";
+import { actions } from "astro:actions";
+import useSaveWarning from "./_hooks/useSaveWarning";
+import { DialogProvider,useDialog } from "@/components/Dialog/Dialog";
+
+function ContactForm({ contactSettings }: { contactSettings: TContactSettings }) {
+
   const [formData,updateFormData] = useState({...contactSettings});
   const [edited,updateEdited] = useState(false);
   const [isPending,updateIsPending] = useState(false)
-  
-  const beforeUnload = (e:BeforeUnloadEvent) => {
-    e.preventDefault();
-  }
-  useEffect(()=> {
-      if(!edited ||import.meta.env.DEV) return ; 
-      
-  
-    window.addEventListener('beforeunload', beforeUnload);
-      return ()=> {
-        window.removeEventListener('beforeunload', beforeUnload);
-      }
-  },[edited])
+
+  const currentValue = useMemo(() => JSON.stringify(formData),[formData])
+  const { removeSaveWarning, beforeunload } = useSaveWarning(JSON.stringify(contactSettings), currentValue);
+  const { confirm, alert } = useDialog();
   const valueChange = (key:string, value: any) => {
     updateEdited(true)
-    const payLoad :Contact  = {...formData};
-    payLoad[key as keyof Contact] = value;  
+    const payLoad :TContactSettings = {...formData};
+    payLoad[key as keyof TContactSettings] = value;
     updateFormData(prev => {
       return {...prev,...payLoad}
     })
 
   }
   const submitForm = async (e:SyntheticEvent) => {
-    
-    e.preventDefault(); 
+
+    e.preventDefault();
     updateIsPending(true);
 
-    const sendUpdatedSettings = await fetch("/api/contact/form",{
-      method:"POST",
-      body: JSON.stringify(formData)
-    })
-    updateIsPending(false); 
-    if(sendUpdatedSettings) {
-      alert("Settings updated");
-      location.reload();
-      return false; 
+    const { data, error } = await actions.settings.updateContactSettings(formData)
+
+    if (error) {
+      await alert("Couldn't update: " + String(error));
+      return
     }
+    removeSaveWarning();
+    updateIsPending(false);
+    await alert("Settings updated");
+    window.location.href = window.location.href;
+
   }
   return <form onSubmit={submitForm} className="max-w-screen-lg">
   <FormContainer label="Contact Form">
@@ -73,20 +70,31 @@ export default function ContactForm({contactSettings}:{contactSettings:Contact})
       }}
      />
   </FormContainer >
-  <FormContainer formId="hours"label={"Shop Hours"}>
-    <FormInput forValue="hours" type="textarea" value={formData.hours} onChange={(value:string)=> {
-      valueChange("hours",value)
-    }} />
+    <FormContainer formId="hours" label={"Shop Hours"}>
+      <RTEditor
+        content={formData.hours || ""}
+        updateCallback={(value:string)=> {
+          valueChange("hours",value);
+        }}
+      />
+
   </FormContainer>
   <FormContainer formId="email" label={"Email Address"}>
     <FormInput forValue="email" type="email" value={formData.email} onChange={(value:string)=> {
       valueChange("email",value)
     }} />
   </FormContainer>
-  
-  <SaveFooter 
+
+  <SaveFooter
     saveText="Update Contact page"
-    {...{isPending,beforeUnload}}
+    {...{isPending,beforeUnload:beforeunload}}
   />
   </form>
+}
+
+export default function ({contactSettings}:{contactSettings:TContactSettings}) {
+
+  return <DialogProvider>
+    <ContactForm {...{contactSettings}} />
+  </DialogProvider>
 }

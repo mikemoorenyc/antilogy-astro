@@ -94,7 +94,7 @@ export const deleteMedia = async (input:TDeleteInput,context:ActionAPIContext): 
 const getUploads = async (prefix: string):Promise<TSearchOutput["resources"]> => {
   try {
     cloudinary.config({cloud_name,api_key,api_secret});
-    const up = await cloudinary.api.resources({ prefix, type: "upload", max_results: 100 })
+    const up = await cloudinary.api.resources({ prefix, type: "upload", max_results: 99 })
     const results = SearchOutput.parse(up)
     console.log(results);
     return results.resources;

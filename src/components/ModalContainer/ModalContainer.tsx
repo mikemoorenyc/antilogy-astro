@@ -25,7 +25,7 @@ export default function ModalContainer({children}:{children:React.ReactNode}) {
   },[modalContainer])
   return <>
     {modalContainer && createPortal(<>
-      <div className="fixed  inset-0 flex items-center justify-center bg-[rgba(255,255,255,.75)]">
+      <div className="fixed z-[51] inset-0 flex items-center justify-center bg-[rgba(255,255,255,.75)]">
         <div
           style={{boxShadow:"3px 3px 0 var(--for)"}}
           className="

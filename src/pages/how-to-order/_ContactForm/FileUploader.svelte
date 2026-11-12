@@ -6,11 +6,12 @@ import InteractionContainer from "./InteractionContainer.svelte";
     type TProps = {
       updateFiles: (id:string,add:boolean,file?:File) => void
       files:{file:File,id:string}[],
-
+      label:string,
+      helperText?:string
     }
     const allowedFileTypes = [".pdf",".eps",".ai",".psd"]
     let fileInput:HTMLInputElement;
-    let {updateFiles,files}:TProps = $props();
+    let {updateFiles,files,label,helperText}:TProps = $props();
 
     let isActive = $state(false);
     let isOpen = $derived(files.length > 0)
@@ -63,7 +64,7 @@ import InteractionContainer from "./InteractionContainer.svelte";
 
 </script>
 
-<InteractionContainer helperText={"We accept .jpg,.png,.ai,.psd,.eps,.pdf files. Maximum size is 5mb."} label="Upload art" labelFor={"files"} {...{isActive,isOpen}}>
+<InteractionContainer helperText={helperText} label={label} labelFor={"files"} {...{isActive,isOpen}}>
     <div class="file-upload-field" role="region" ondragenter={dragHandler} ondragover={dragHandler} ondragleave={dragHandler} ondragend={dragHandler} ondrop={dragHandler}>
         {#if files.length<1}
             <div class="upload-field-text">Drag & drop files here or <button class="link-button" onclick={(e)=> {

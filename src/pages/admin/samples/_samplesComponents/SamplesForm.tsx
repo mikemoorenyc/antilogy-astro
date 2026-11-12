@@ -9,10 +9,12 @@ import {move} from '@dnd-kit/helpers';
 import ReactButton from "@/components/Button/ReactButton";
 import useSaveWarning from "../../_adminComponents/_hooks/useSaveWarning";
 import SaveFooter from "../../_adminComponents/formelements/SaveFooter";
-import ModalContainer from "@/components/ModalContainer/ModalContainer";
+
 
 import { actions } from 'astro:actions';
-export default function (props: TSampleSettings) {
+import { DialogProvider, useDialog } from "@/components/Dialog/Dialog";
+import UploadModal from "../../_adminComponents/UploadModal";
+function SamplesForm(props: TSampleSettings) {
   type TClientSample = TSampleImage & {
     loaded?:boolean
   }
@@ -27,7 +29,8 @@ export default function (props: TSampleSettings) {
   const [saveState, updateSaveState] = useState<"idle" | "uploading" | "pending">("idle")
   const isPending = useMemo(() => saveState === "pending", [saveState])
   const currentValue = useMemo(() => JSON.stringify({ images, pageIntro, pageTitle }),[images,pageIntro,pageTitle])
-  const { removeSaveWarning, beforeunload } = useSaveWarning(JSON.stringify({ images: props.sampleImages, pageIntro: props.pageIntro || "", pageTitle: props.pageTitle }),currentValue);
+  const { removeSaveWarning, beforeunload } = useSaveWarning(JSON.stringify({ images: props.sampleImages, pageIntro: props.pageIntro || "", pageTitle: props.pageTitle }), currentValue);
+  const { confirm, alert } = useDialog();
 
 
 
@@ -41,8 +44,8 @@ export default function (props: TSampleSettings) {
       })
     })
   }
-  const deleteImage = (sendid: number) => {
-    if (!confirm("Are you sure you want to delete this? It can't be undone")) {
+  const deleteImage = async (sendid: number) => {
+    if (!await confirm("It can't be undone","Are you sure you want to delete this?",true)) {
       return;
     }
     const img = images.find(i => i.id == sendid);
@@ -64,23 +67,23 @@ export default function (props: TSampleSettings) {
 
 
   }
-  const imageUploaded = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const imageUploaded = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const t = e.target;
     if (!t.files || t.files.length > 1) {
-      alert("Couldn't add file");
+      await alert("Couldn't add file");
       return;
     }
     const f = t.files[0];
     let size = (f.size / (1024 * 1024))
     if(size > 8) {
-      alert(`${f.name} is too big. Must be less than 10mb`)
+     await alert(`${f.name} is too big. Must be less than 10mb`)
       return ;
     }
     console.log(f);
     const reader = new FileReader();
-    reader.onloadend = (e) => {
+    reader.onloadend = async (e) => {
       if (!e.target?.result||typeof e.target.result !== "string") {
-        alert("Couldn't add file");
+        await alert("Couldn't add file");
         return;
       }
       const id = Date.now()
@@ -105,7 +108,7 @@ export default function (props: TSampleSettings) {
   const saveAction = async () => {
     const emptyalts = images.filter(i => !i.altText || i.altText.length < 1);
     if (emptyalts.length > 0) {
-      alert("You need to fill in all alt text");
+     await alert("You need to fill in all alt text");
       return;
     }
     let updatedImages = [...images];
@@ -177,13 +180,13 @@ export default function (props: TSampleSettings) {
     );
     updateSaveState("idle")
     if (error) {
-      alert("Couldn't update sample settings: " + String(error));
+      await alert("Couldn't update sample settings: " + String(error));
 
       return;
     }
     removeSaveWarning();
     updateSaveState("idle")
-    alert("Settings saved");
+    await alert("Settings saved");
     window.location.href = window.location.href;
     return;
 
@@ -195,14 +198,14 @@ export default function (props: TSampleSettings) {
       <DragDropProvider onDragOver={(event) => {
               updateImages((items) => move(items, event));
             }}>
-      <ul className="grid grid-cols-2 grid-flow-row gap-4 [&:not(:empty)]:mb-4">
+      <ul className="grid xl:grid-cols-2 grid-flow-row gap-4 [&:not(:empty)]:mb-4">
         {images.map((image, index) => {
           return <SampleItem  key={image.id} {...{index,image,updateEditingImage,editingImage,updateAltText,deleteImage}} ></SampleItem>
         })}
         </ul>
       </DragDropProvider>
       <div>
-        <input type="file" ref={uploadInput} accept="image/jpeg" style={ {display:"none"}}onChange={imageUploaded}/>
+        <input type="file" ref={uploadInput} accept="image/*" style={ {display:"none"}}onChange={imageUploaded}/>
         <ReactButton label="Add sample" icon={<span className="icon-[carbon--add] w-4 h-4" />} onClick={() => {
           if (uploadInput && uploadInput.current) {
             uploadInput.current.click();
@@ -223,39 +226,18 @@ export default function (props: TSampleSettings) {
       {...{beforeUnload:beforeunload,saveAction,isPending}}
     />
 
-    {saveState === "uploading" && <ModalContainer>
-      <div className="p-gutter">
-        <h2 className="text-lg mb-3"><strong>Saving images. Don't close this tab!</strong></h2>
-        {uploadQueue.length > 0 && <>
-          <h3 className="mb-2">Uploading</h3>
-          <ul className="mb-3">
-            {uploadQueue.map(u => {
-              return <li key={ u.id} className="flex items-center mb-1">
-
-                 <span className={`size-4 ${u.finished?"text-action":""} ${u.finished?"icon-[carbon--checkmark-filled]":"icon-[carbon--cloud-upload]"}`} />
-
-               <div className="flex-1 ml-2 font-serif">{u.file.name}</div>
-             </li>
-           })}
-
-          </ul>
-        </>}
-        {deleteQueue.length > 0 && <>
-          <h3 className="mb-2">Deleting</h3>
-          <ul className="mb-3">
-            {deleteQueue.map(u => {
-              return <li key={ u.cloud_id} className="flex items-center mb-1">
-
-                 <span className={`size-4 ${u.deleted?"text-action":""} ${u.deleted?"icon-[carbon--checkmark-filled]":"icon-[carbon--trash-can]"}`} />
-
-               <div className="flex-1 ml-2 font-serif">{u.cloud_id}</div>
-             </li>
-           })}
-
-          </ul>
-        </>}
-      </div>
-
-    </ModalContainer>}
+    {saveState === "uploading" && <UploadModal
+      filesToUpload={uploadQueue.map(u => {
+        return {uploaded:u.finished,id:u.cloud_id}
+      })}
+      filesToDelete={deleteQueue.map(d => {
+        return {id:d.cloud_id,deleted:d.deleted??false}
+      })}
+    />}
   </form>
+}
+export default function (props: TSampleSettings) {
+  return <DialogProvider>
+    <SamplesForm {...props } />
+  </DialogProvider>
 }

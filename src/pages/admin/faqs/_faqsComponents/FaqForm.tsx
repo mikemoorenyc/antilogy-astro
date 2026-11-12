@@ -4,7 +4,7 @@ import { DragDropProvider,} from "@dnd-kit/react";
 import {  isSortable } from "@dnd-kit/react/sortable";
 import { move } from "@dnd-kit/helpers";
 import ReactButton from "../../../../components/Button/ReactButton";
-
+import { DialogProvider, useDialog } from "@/components/Dialog/Dialog";
 import { type TFAQ, type TFAQSection } from "@/actions/settings/schema";
 import { actions } from 'astro:actions';
 import FaqQuestion from "./FaqQuestion";
@@ -18,12 +18,13 @@ import FaqSection from "./FaqSection";
 
 
 
-export default function FaqForm({ faqData }: { faqData: TFAQSettings }) {
+function FaqForm({ faqData }: { faqData: TFAQSettings }) {
   const [items, setItems] = useState<TFAQSection[]>(faqData.faqSection);
   const [isPending, updateIsPending] = useState(false);
   const [questionEditing, updateQuestionEditing] = useState<boolean>(false)
   const [pageTitle, updatePageTitle] = useState(faqData.pageTitle);
   const [pageIntro, updatePageIntro] = useState<string>(faqData.pageIntro || "")
+  const {confirm,alert} = useDialog()
 
   const [questions, setQuestions] = useState<Record<number, Faq[]>>(
     () => Object.fromEntries(
@@ -63,11 +64,11 @@ export default function FaqForm({ faqData }: { faqData: TFAQSettings }) {
         })
       })
   }
-  const updateQuestion = (id:number,sectionId:number,payload:{question:string,answer:string}) => {
-    setQuestions(prev => {
+  const updateQuestion = async (id:number,sectionId:number,payload:{question:string,answer:string}) => {
+    setQuestions((prev) => {
       const currentBlock = prev[sectionId];
       if (!currentBlock) {
-        alert("couldn't find section")
+         alert("couldn't find section")
         return prev;
       }
       const newBlock = currentBlock.map(q => {
@@ -91,9 +92,9 @@ export default function FaqForm({ faqData }: { faqData: TFAQSettings }) {
     })
 
   }
-  function deleteQuestion(id: number,sectionId:number): void {
+  async function deleteQuestion(id: number,sectionId:number): Promise<void>{
     console.log(id);
-    if (!confirm("Are you ok with deleting this?")) {
+    if (!await confirm("Are you ok with deleting this?",undefined,true)) {
       return;
     }
     setQuestions(prev => {
@@ -118,12 +119,12 @@ export default function FaqForm({ faqData }: { faqData: TFAQSettings }) {
       section:"faqs"
     })
     if (error) {
-      alert("couldn't update Faqs");
+      await alert("couldn't update Faqs");
       console.log(error);
     } else {
       removeSaveWarning();
       updateIsPending(false);
-      alert("Updated Faqs")
+      await alert("Updated Faqs")
       window.location.href = window.location.href;
     }
     updateIsPending(false);
@@ -253,4 +254,10 @@ export default function FaqForm({ faqData }: { faqData: TFAQSettings }) {
   />
 
   </form>
+}
+
+export default function ({ faqData }: { faqData: TFAQSettings }) {
+  return <DialogProvider>
+    <FaqForm {...{faqData}} />
+  </DialogProvider>
 }

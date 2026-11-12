@@ -1,99 +1,37 @@
 ---
-
+import {actions} from "astro:actions"
 import AdminLayout from '../../layouts/AdminLayout.astro';
 import PageHeader from './_adminComponents/PageHeader.astro';
 import SettingsForm from "./_adminComponents/SettingsForm"
 import type { Settings ,SpotifyData} from '../api/settings/_types';
-import {getSettings,newUpdate} from "../api/settings"
-import {getTempToken} from "../api/spotify/getTempToken"
+//import {getSettings,newUpdate} from "../api/settings"
+//import {getTempToken} from "../api/spotify/getTempToken"
 import { sessionCheck } from '../api/_lib';
 export const prerender = false;
 //const session = await sessionCheck(Astro.request);
-
-const defaultSettings : Settings = {
-  siteTitle: "Site Title",
-  siteDescription : "Description of site that appears on homepage",
-  section:"main"
+const {data,error} = await Astro.callAction(actions.settings.getMainSettings,"");
+if(error) {
+  console.log(String(error));
+  return Astro.redirect("/404");
 }
 
-//if(!session) {
-//  return Astro.redirect('/login');
-//}
 
 
-const settings = await getSettings() ;
-
-
-if(!settings) return Astro.redirect("/404");
-
-const spotifyAppId = import.meta.env.SPOTIFY_APP_ID || process.env.SPOTIFY_APP_ID;
-const spotifyAppSecret = import.meta.env.SPOTIFY_APP_SECRET || process.env.SPOTIFY_APP_SECRET;
-const spotifyCodeCallback = Astro.url.searchParams.get("code");
-const spotifyRefreshToken = settings?.spotifyRefreshToken
-const spotifyData : SpotifyData = {appId:spotifyAppId};
-if(spotifyAppId && spotifyAppSecret) {
-  const requestUrl = new URL("https://accounts.spotify.com/authorize")
-  requestUrl.searchParams.append("redirect_uri",Astro.url.href);
-  requestUrl.searchParams.append("client_id",spotifyAppId);
-  requestUrl.searchParams.append("response_type","code");
-  requestUrl.searchParams.append("scope","user-read-email user-read-currently-playing");
-  spotifyData.requestUrl = requestUrl.href
- 
-}
-//GET THE authorization
-if(spotifyCodeCallback && !spotifyRefreshToken ) {
-  const authorizationToken = await fetch("https://accounts.spotify.com/api/token", {
-    method: "POST",
-    headers: {
-      'content-type': 'application/x-www-form-urlencoded',
-      'Authorization': 'Basic ' + (Buffer.from(spotifyAppId+":"+spotifyAppSecret).toString('base64'))
-    },
-    body: new URLSearchParams({
-        'grant_type': 'authorization_code',
-        'code': spotifyCodeCallback,
-        'redirect_uri': Astro.url.href.split("?")[0]
-    })
-  })
-  if(authorizationToken.ok) {
-    const data=await authorizationToken.json();
-    const savedRefreshToken = await newUpdate({...settings, ...{spotifyRefreshToken: data?.refresh_token}})
-  }
-  console.log(authorizationToken.ok);
- // console.log(await authorizationToken.json());
-}
-
-if(spotifyRefreshToken ) {
-
-  const tempToken = await getTempToken();
-  if(tempToken) {
-    const userData = await fetch("https://api.spotify.com/v1/me", {
-      method:"GET",
-      headers: {
-      'content-type': 'application/json',
-      'Authorization': `Bearer ${tempToken}`
-    },
-    })
-    if(userData.ok && spotifyData) {
-      spotifyData.profileData = await userData.json();
-    }
-  }
-}
 if(import.meta.env.DEV) {
   //const fakeJson = await import("../../../public/dev/testUserProfile.json");
- 
+
  // spotifyData.profileData = fakeJson ;
 }
 
-const settingsData = !settings?.siteTitle ?   defaultSettings :settings
+//const settingsData = !settings?.siteTitle ?   defaultSettings :settings
 
 
 ---
 
-<AdminLayout pageTitle={`Settings - Admin - ${settings.siteTitle}`} settingsData={settingsData}>
+<AdminLayout pageTitle={`Settings`} >
 <PageHeader pageTitle='Settings' />
-  <SettingsForm client:only="react" settingsData={settingsData} spotifyData={spotifyData?spotifyData:undefined}/>
+  <SettingsForm client:only="react" settingsData={data} />
 
- 
+
 
 </AdminLayout>
-

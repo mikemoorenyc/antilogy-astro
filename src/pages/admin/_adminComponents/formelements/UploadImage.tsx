@@ -33,13 +33,14 @@ export default function UploadImage({accept,uploadedImage,requirements,fileCallb
     const reader = new FileReader();
     reader.onloadend = (e) => {
 
-      if(e.target?.result) {
+      if (e.target?.result) {
+        fileCallback(imageFile,e.target.result as string)
         if(e.target.result !== localFileUrl) {
           updateLocalFileUrl(e.target.result as string);
         }
       }
     }
-    fileCallback(imageFile);
+    //fileCallback(imageFile);
     reader.readAsDataURL(imageFile);
   }
 

@@ -7,12 +7,9 @@ import FaqForm from "./_faqsComponents/FaqForm"
 
 export const prerender = false;
 
-const settingsR = await Astro.callAction(actions.settings.getMainSettings,"")
-if(settingsR.error) return Astro.redirect("/404");
 
 
 
-const settings = settingsR.data;
 const faqSection = await Astro.callAction(actions.settings.getFaqSettings,"");
 if(faqSection.error) {
   console.log("couldn't get faq info");
@@ -22,7 +19,7 @@ if(faqSection.error) {
 
 ---
 
-<AdminLayout pageTitle={`FAQs - Admin`} settingsData={settings}>
+<AdminLayout pageTitle={`FAQs`} >
 <PageHeader pageTitle='FAQs' />
 <FaqForm faqData={faqSection.data} client:only="react"/>
 

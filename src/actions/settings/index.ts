@@ -1,16 +1,16 @@
 import { ActionError, defineAction } from 'astro:actions';
-import { z } from 'astro/zod';
-import { isAuthed } from "@/utils/auth";
+import { isAuthed ,auth} from "@/utils/auth";
 import { GetCommand,UpdateCommand,DeleteCommand, type UpdateCommandInput } from "@aws-sdk/lib-dynamodb";
 import { ddbDocClient } from "@/utils/dynamoDb/ddbDocClient"
 const SETTINGS_TABLE = import.meta.env.SETTINGS_TABLE;
-import { type TFAQSettings, type TMainSettings, type TContactSettings, type TFAQ, MainSettings, FAQSettings, ContactSettings, type TSampleSettings, SamplesSettings } from './schema';
+import { type TFAQSettings, type TMainSettings, type TContactSettings, type TFAQ, MainSettings, FAQSettings, ContactSettings, type TSampleSettings, SamplesSettings, type TBackgroundImageValues } from './schema';
 import type { ActionAPIContext } from 'astro/actions/runtime/entrypoints/server.js';
 
 
 const settingsSchemas = {
   main: MainSettings,
-  faqs:FAQSettings
+  faqs: FAQSettings,
+  contact: ContactSettings
 
 } as const;
 type SettingsKey = keyof typeof settingsSchemas;
@@ -61,6 +61,60 @@ const getMainSettings = async () : Promise<TMainSettings> => {
     })
   }
 }
+const updateMainSettings = async (data:TMainSettings,context:ActionAPIContext): Promise<TMainSettings> => {
+
+  const { user, error } = await checkUpdateReady(context);
+  if (error||!user) {
+    throw error;
+  }
+  const dbTable = {TableName: SETTINGS_TABLE,
+      Key :{
+        section: "main"
+      }
+  }
+  let ExpressionAttributeValues: Record<string, string | number|TBackgroundImageValues[]> = {};
+  let UpdateExpressionArray: string[] = [];
+  let newData = {
+    ...data, ...{
+      modifiedBy: user.email,
+      modifiedAt:Date.now()
+  }}
+  Object.entries(newData).forEach(([key, value]) => {
+    ExpressionAttributeValues[`:${key}`] = value;
+    UpdateExpressionArray.push(`${key}=:${key}`)
+  });
+
+
+
+  const command: UpdateCommandInput = {
+    ...dbTable, ...{
+      UpdateExpression: `set ${UpdateExpressionArray.join(',')}`,
+      ExpressionAttributeValues,
+      ReturnValues: "ALL_NEW"
+    }
+  }
+  try {
+    const update = await ddbDocClient.send(new UpdateCommand(command));
+    if(!update.Attributes) {
+      throw new ActionError({
+        code: "INTERNAL_SERVER_ERROR",
+        message:"No attributes returned "
+      });
+    }
+    const { success, error } = await rebuilder();
+    if (error) {
+      throw error;
+    }
+    return MainSettings.parse(update.Attributes);
+  } catch (err) {
+    throw new ActionError({
+      code: "INTERNAL_SERVER_ERROR",
+      message:"Couldn't update:"+String(err)
+    })
+  }
+
+
+}
 const getFaqSettings = async (): Promise<TFAQSettings> => {
   try {
     const data = await getSettingsSection("faqs");
@@ -89,8 +143,26 @@ const getSamplesSettings = async (): Promise<TSampleSettings> => {
     })
   }
 }
+export const getContactSettings = async (): Promise<TContactSettings> => {
+  try {
+    const data = await getSettingsSection("contact");
+    ;
+
+    return ContactSettings.parse(data)
+  } catch (err) {
+    if (err instanceof ActionError) throw err
+    console.log(err);
+    throw new ActionError({
+      code: "INTERNAL_SERVER_ERROR",
+      message: "Couldn't get contact settings"
+    })
+  }
+}
 const checkUpdateReady = async (context: ActionAPIContext): Promise<{
   success: boolean,
+  user?: {
+    id:string,email:string
+  }
   error?: ActionError
 }> => {
   if (!SETTINGS_TABLE) {
@@ -102,7 +174,10 @@ const checkUpdateReady = async (context: ActionAPIContext): Promise<{
       })
     }
   }
-  if (!await isAuthed(context.request)) {
+  const session = await auth.api.getSession({
+    headers:context.request.headers
+  })
+  if (!session) {
     return {
       success: false,
       error: new ActionError({
@@ -111,7 +186,11 @@ const checkUpdateReady = async (context: ActionAPIContext): Promise<{
       })
     }
   }
-  return {success:true}
+  return {
+    success: true,
+    user: session.user
+  }
+
 }
 const rebuilder = async () => {
   const deployHook = import.meta.env.DEPLOY_HOOK
@@ -134,8 +213,8 @@ const rebuilder = async () => {
 
 const updateFaqSettings = async (data:TFAQSettings,context:ActionAPIContext): Promise<TFAQSettings> => {
 
-  const { success, error } = await checkUpdateReady(context);
-  if (error) {
+  const { user, error } = await checkUpdateReady(context);
+  if (error||!user) {
     throw error;
   }
   const dbTable = {TableName: SETTINGS_TABLE,
@@ -147,14 +226,16 @@ const updateFaqSettings = async (data:TFAQSettings,context:ActionAPIContext): Pr
   const ExpressionAttributeValues = {
     ":faqSection": faqSection,
     ":pageTitle": pageTitle,
-    ":pageIntro":pageIntro
+    ":pageIntro": pageIntro,
+    ":modifiedBy": user.email,
+    ":modifiedAt":Date.now()
   }
   if (!pageIntro) {
     delete ExpressionAttributeValues[":pageIntro"];
   }
   const command: UpdateCommandInput = {
     ...dbTable, ...{
-      UpdateExpression: `set faqSection=:faqSection,pageTitle=:pageTitle${pageIntro ? ",pageIntro=:pageIntro" : ""}`,
+      UpdateExpression: `set modifiedBy=:modifiedBy,modifiedAt=:modifiedAt,faqSection=:faqSection,pageTitle=:pageTitle${pageIntro ? ",pageIntro=:pageIntro" : ""}`,
       ExpressionAttributeValues,
       ReturnValues: "ALL_NEW"
     }
@@ -184,8 +265,8 @@ const updateFaqSettings = async (data:TFAQSettings,context:ActionAPIContext): Pr
 
 const updateSampleSettings = async (data:TSampleSettings,context:ActionAPIContext): Promise<TSampleSettings> => {
 
-  const { success, error } = await checkUpdateReady(context);
-  if (error) {
+  const { user, error } = await checkUpdateReady(context);
+  if (error||!user) {
     throw error;
   }
   const dbTable = {TableName: SETTINGS_TABLE,
@@ -197,14 +278,16 @@ const updateSampleSettings = async (data:TSampleSettings,context:ActionAPIContex
   const ExpressionAttributeValues = {
     ":sampleImages": sampleImages,
     ":pageTitle": pageTitle,
-    ":pageIntro":pageIntro
+    ":pageIntro": pageIntro,
+    ":modifiedBy": user.email,
+    ":modifiedAt":Date.now()
   }
   if (!pageIntro) {
     delete ExpressionAttributeValues[":pageIntro"];
   }
   const command: UpdateCommandInput = {
     ...dbTable, ...{
-      UpdateExpression: `set sampleImages=:sampleImages,pageTitle=:pageTitle${pageIntro ? ",pageIntro=:pageIntro" : ""}`,
+      UpdateExpression: `set modifiedBy=:modifiedBy,modifiedAt=:modifiedAt,sampleImages=:sampleImages,pageTitle=:pageTitle${pageIntro ? ",pageIntro=:pageIntro" : ""}`,
       ExpressionAttributeValues,
       ReturnValues: "ALL_NEW"
     }
@@ -231,10 +314,77 @@ const updateSampleSettings = async (data:TSampleSettings,context:ActionAPIContex
 
 
 }
+const updateContactSettings = async (data: TContactSettings, context: ActionAPIContext): Promise<TContactSettings> => {
+
+  const { user, error } = await checkUpdateReady(context);
+  if (error || !user) {
+    console.log(user);
+    console.log(error)
+    throw error;
+  }
+  const dbTable = {TableName: SETTINGS_TABLE,
+      Key :{
+        section: "contact"
+      }
+  }
+  const updateString: string[] = [];
+  type Prefixed<T> = {
+    [K in keyof T as `:${K & string}`]?: T[K]
+  };
+
+  function setPrefixedValue<K extends keyof TContactSettings>(
+    target: Prefixed<TContactSettings>,
+    key: K,
+    value: TContactSettings[K]
+  ) {
+    (target as Record<string, unknown>)[`:${key}`] = value;
+  }
+
+  const ExpressionAttributeValues: Prefixed<TContactSettings> = {};
+
+  for (const key of Object.keys(data) as (keyof TContactSettings)[]) {
+    setPrefixedValue(ExpressionAttributeValues, key, data[key]);
+    updateString.push(`${key}=:${key}`)
+  }
+  console.log(ExpressionAttributeValues);
+  const command: UpdateCommandInput = {
+    ...dbTable, ...{
+      UpdateExpression: `set ${updateString.join(",")}`,
+      ExpressionAttributeValues,
+      ReturnValues: "ALL_NEW"
+    }
+  }
+  try {
+    const update = await ddbDocClient.send(new UpdateCommand(command));
+    console.log(update.Attributes);
+    if(!update.Attributes) {
+      throw new ActionError({
+        code: "INTERNAL_SERVER_ERROR",
+        message:"No attributes returned "
+      });
+    }
+    const { success, error } = await rebuilder();
+    if (error) {
+      throw error;
+    }
+    return ContactSettings.parse(update.Attributes);
+  } catch (err) {
+    throw new ActionError({
+      code: "INTERNAL_SERVER_ERROR",
+      message:"Couldn't update:"+String(err)
+    })
+  }
+
+
+}
 
 export const settings = {
   getMainSettings: defineAction({
     handler: getMainSettings
+  }),
+  updateMainSettings: defineAction({
+    handler: updateMainSettings,
+    input: MainSettings
   }),
   getFaqSettings: defineAction({
     handler: getFaqSettings,
@@ -249,5 +399,12 @@ export const settings = {
   updateSampleSettings: defineAction({
     handler: updateSampleSettings,
     input:SamplesSettings
+  }),
+  getContactSettings: defineAction({
+    handler:getContactSettings
+  }),
+  updateContactSettings: defineAction({
+    handler: updateContactSettings,
+    input:ContactSettings
   })
 }

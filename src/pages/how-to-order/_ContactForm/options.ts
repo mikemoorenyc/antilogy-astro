@@ -52,4 +52,11 @@ export const UploadPackage = z.object({
   }))),
   turnstileToken:z.optional(z.string())
 })
+export const FormValue = z.object({
+  value: z.string(),
+  selected:z.array(z.string())
+})
+export type TFormValue = z.infer<typeof FormValue>
+export const FormData = z.record(z.number(), FormValue)
+export type TFormData = z.infer<typeof FormData>;
 export type TUploadPackage = z.infer<typeof UploadPackage>

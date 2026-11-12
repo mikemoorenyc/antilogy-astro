@@ -12,12 +12,15 @@ const base_url = process.env.NODE_ENV
 
 export default defineConfig({
   //site: base_url,
+  vite: {
 
+    },
   integrations: [
     svelte(),
     react({
-      include: ['**/react/*'],
+    //  include: ['**/react/*'],
     }),
+
   ],
 
   adapter: vercel(),

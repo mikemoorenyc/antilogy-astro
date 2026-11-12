@@ -1,13 +1,18 @@
-
 <script lang="ts">
     import {type UploadApiOptions } from "cloudinary";
     import FileUploader from "./FileUploader.svelte";
-    import {interestOptions,shippingOptions, type TFormValues} from "./options";
-
+    import { type TFormValue, type TFormData } from "./options";
+    import { untrack } from "svelte";
     import TextField from "./TextField.svelte";
     import { onMount } from "svelte";
     import TurnstileInput from "./TurnstileInput.svelte";
     import { actions } from 'astro:actions';
+    import { formSectionTypes, type TContactFormSection} from "@/actions/settings/schema";
+    import CheckBoxes from "./CheckBoxes.svelte";
+    import Dropdown from "./Dropdown.svelte";
+
+    let {formStructure}:{formStructure:TContactFormSection[]} =$props();
+    const formTypes = formSectionTypes.map(t=>t.id);
 
     let successfulSubmit = $state(false);
     let submitState = $state<"Uploading files"|"idle"|"submitting"|"errored"|"sent">("idle")
@@ -20,6 +25,32 @@
       required?:boolean,
       type?:"text"|"date"|"email"|"textarea"
     }
+
+
+
+
+
+    let initialValues: Record<number, TFormValue> = untrack(() => {
+      const values: TFormData = {};
+
+      formStructure.forEach(f => {
+        const typeData = formSectionTypes.find(s => s.id == f.fieldType);
+        if (f.id === "new") return;
+        let value:string = "";
+        if(f.fieldType == "orderQuantity"&&f.max) {
+          value = String(Number(f.max)/2);
+        }
+        if((f.fieldType == "radioButtons"||(f.fieldType == "dropdown" && f.required))&&f.options) {
+          value = f.options[0].id;
+        }
+        values[f.id] = {
+          value ,
+          selected: []
+        };
+      });
+
+      return values;
+    });
 
     let buttonText = $derived.by(()=> {
       let bt = "Submit"
@@ -37,24 +68,23 @@
     const required=["name",'email']
     let errored = $state<Ids[]>([])
 
-    const formValues = $state<TFormValues>({
-      name: "",
-      email: "",
-      questions: "",
-      businessname:"",
-      quantity:500,
-      interested:[],
-      description:"",
-      date:"",
-      shipping:"shipping",
-      hear:""
-    })
+    const formValues = $state(initialValues)
     let attachments = $state<{url:string,public_id:string}[]>([])
     let files = $state<{
       file: File,
       id:string
       }[]>([])
+    const updateFiles = (id:string,add:boolean,file?:File|undefined) => {
+      if(add && file) {
+        const idExists = files.find(f=>f.id == id);
+        if(!idExists) {
+          files.push({file,id})
+        }
 
+      } else {
+        files = files.filter(f=>f.id !== id);
+      }
+    }
     const topInputs: TTextInput[] = [
       { id: "name", helperText: "*required", label: "Full name*" ,required:true}, { id: "email", helperText: "*required", label: "Email address*",type:"email",required:true },
       { id: "businessname", label: "Business name",full:true  }
@@ -70,7 +100,8 @@
 	});
 const submitForm = async (e:SubmitEvent) => {
   e.preventDefault();
-  submitState = "submitting"
+
+   submitState = "submitting"
   if(files.length > 0) {
     submitState = "Uploading files"
     const {data,error } = await actions.turnstile.validateToken(turnstileToken)
@@ -82,7 +113,7 @@ const submitForm = async (e:SubmitEvent) => {
   }
   //Start Uploading attachments
   for(const file of files) {
-    const public_id = `antilogy/tempFiles/${formValues.email}_${Date.now()}/${file.id}`
+    const public_id = `antilogy/tempFiles/_${Date.now()}/${file.id}`
     const params : UploadApiOptions & {
       public:boolean
     } = {
@@ -124,103 +155,77 @@ const submitForm = async (e:SubmitEvent) => {
   }
   submitState = "submitting"
   //FINISH UPLOADING ATTACHMENTS
-console.log({...formValues,attachments,turnstileToken})
+console.log($state.snapshot({formData:formValues,attachments,turnstileToken}))
   let {data,error} = await actions.resend.sendEmail({
-    ...formValues,
+    formData:formValues,
     attachments,
     turnstileToken
   })
   if(error) {
-    alert("Couldn't send message. Try again later")
+    alert("Couldn't send message. Try again later "+String(error))
     submitState="errored"
     return false
   }
   submitState="sent"
 
 }
+const textFieldMap = {
+  bigTextField: "textarea",
+  textField: "text",
+  emailAddress:"email",
+  datePicker:"date"
+  } as const
+const rangeText = (number:string,min:string,max:string) => {
+  const numInt = Number(number);
+  const minInt = Number(min);
+  const maxInt = Number(max);
+  let afterText= "";
+  if(numInt == minInt) {
+    afterText = " (minimum order)"
+  }
+  if(numInt >=maxInt ){
+    afterText = " or more"
+  }
+  return `${numInt}${afterText}`
 
+}
 </script>
 {#if submitState !== "sent"}
 <form class="mainContactForm" id="main-contact-form" onsubmit={submitForm}>
+    {#each formStructure as formSection,i (formSection.id)}
+        <section class={`section ${formSection.width}`}>
 
-    {#each topInputs as input,i (input.id)}
-        <section class={`section ${input.full?"":"half"}`}>
-           <TextField {...input} bind:currentValue={formValues[input.id]}/>
+            {#if (formSection.fieldType=="textField"||formSection.fieldType=="emailAddress"||formSection.fieldType=="datePicker"||formSection.fieldType=="bigTextField")}
+                <TextField type={textFieldMap[formSection.fieldType]}
+                    bind:currentValue={formValues[formSection.id as number].value}
+                    label={formSection.label}
+                    required={formSection.required}
+                    helperText={formSection.helperText}
+                    id={String(formSection.id)}/>
+            {/if}
+            {#if formSection.fieldType=="fileUploader"}
+               <FileUploader {...{...formSection,files,updateFiles}} />
+            {/if}
+            {#if (formSection.fieldType == "orderQuantity" && formSection.min&&formSection.max)}
+                <label for={"quantity"} class="checkbox-title">{formSection.label}</label>
+                <div class="range-container">
+                    <input  class="range-input"  type="range" id={"quanity"} name={"quantity"} min={Number(formSection.min)} max={Number(formSection.max)} step="2" value={formValues[formSection.id as number].value} oninput={(e) => formValues[formSection.id as number].value = String(e.currentTarget.value)} />
+                    <div  class="range-counter">{rangeText(formValues[formSection.id as number].value,formSection.min,formSection.max)}</div>
+                </div>
 
+            {/if}
+            {#if formSection.fieldType == "radioButtons"}
+                <CheckBoxes {...{formSection}} bind:currentValue={formValues[formSection.id as number].value} />
+            {/if}
+            {#if ["checkBoxes"].includes(formSection.fieldType)}
+                <CheckBoxes {...{formSection}} bind:currentValue={formValues[formSection.id as number].selected} />
+            {/if}
+            {#if formSection.fieldType == "dropdown"}
+                <TextField {...formSection} type={formSection.fieldType} id={String(formSection.id)} bind:currentValue={formValues[formSection.id as number].value}/>
+            {/if}
         </section>
     {/each}
-    <!--Full description -->
-    <section class="section half">
-        <TextField id="questions" type="textarea" label="General questions" helperText="Any questions are ok!" bind:currentValue={formValues.questions}/>
 
-    </section>
-    <!-- File Uploader -->
-    <section class="section half">
-        <FileUploader {...{files}} updateFiles={(id:string,add:boolean,file?:File)=> {
-          if(add && file) {
-            const idExists = files.find(f=>f.id == id);
-            if(!idExists) {
-              files.push({
-                file,id
-              })
-            }
-
-          } else {
-            files = files.filter(f=>f.id !== id);
-          }
-
-        }}/>
-    </section>
-    <section class="section">
-        <label for={"quantity"} class="checkbox-title">Order quantity</label>
-                <div class="range-container" >
-                <input  bind:value={formValues.quantity} class="range-input" type="range" id={"quanity"} name={"quantity"} min={36} max={2000} step="2" />
-                <div  class="range-counter">{formValues.quantity}{(formValues.quantity == 36?" (minimum order)":"")}{formValues.quantity>= 2000?" or more":""}</div>
-                </div>
-    </section>
-    <section class="section">
-        <fieldset class="checkbox-section">
-            <legend class="checkbox-title">What are you interested in?</legend>
-            {#each interestOptions as interest,i (interest.id) }
-               <label for={interest.id} class="checkbox-item">
-                   <input style="display:none"id={interest.id} type="checkbox" bind:group={formValues.interested} name="interested" value={interest.id} />
-                  <span class={
-                      `mr-2 size-4  ${formValues.interested.includes(interest.id)?"icon-[carbon--checkbox-checked-filled]":"icon-[carbon--checkbox]"}`
-                      }></span>
-                   <span class="checkbox-label">{interest.label}</span>
-               </label>
-            {/each}
-        </fieldset>
-
-    </section>
-    <section class="section">
-       <TextField id="description" label="Project description" bind:currentValue={formValues.description} type="textarea"/>
-    </section>
-    <section class="section half">
-
-            <TextField type="date" bind:currentValue={formValues.date} label="Project due date" id="date" helperText="Leave blank if no hard date" />
-
-
-    </section>
-    <section class="section half">
-        <fieldset class="checkbox-section">
-             <legend class="checkbox-title">Shipping or pickup?</legend>
-             {#each shippingOptions as s, i (s.id) }
-                 <label for={s.id} class="checkbox-item">
-                     <input style="display:none"id={s.id} type="radio" bind:group={formValues.shipping} name="shipping" value={s.id} />
-
-                     <span class={`
-                       mr-2 size-4 ${formValues.shipping.includes(s.id)?"icon-[carbon--radio-button-checked]":"icon-[carbon--radio-button]"}
-                       `}></span>
-                     <span class="checkbox-label">{s.label}</span>
-                 </label>
-             {/each}
-        </fieldset>
-
-    </section>
-    <section class="section">
-        <TextField id="hear" bind:currentValue={formValues.hear} label="How did you hear about Antilogy Design?"></TextField>
-    </section>
     <section class="section text-center">
         <TurnstileInput updateCallback={updateTurnstileToken}/>
     </section>

@@ -1,38 +1,24 @@
 ---
-import type { Settings } from '../api/settings/_types';
-import type { Contact } from '../api/contact/_types';
 import AdminLayout from '../../layouts/AdminLayout.astro';
-import { getSettings } from '../api/settings';
 import PageHeader from './_adminComponents/PageHeader.astro';
 import ContactForm from './_adminComponents/ContactForm';
 import { getContactForm } from '../api/contact/form';
-import { sessionCheck } from '../api/_lib';
+import { actions } from 'astro:actions';
 export const prerender = false
 
-
-
-const settings = await getSettings() ; 
-if(!settings) return Astro.redirect("/404");
-const contactSettings : Contact = await getContactForm(); 
-
-const starterData:Contact = {
-  pageTitle:"Contact page",
-
-  contactForm:[],
-
-}
-
-if(!contactSettings || !contactSettings?.pageTitle) {
-
+const {data,error} = await Astro.callAction(actions.settings.getContactSettings,"");
+if(error) {
+  console.log(String(error));
+  return Astro.redirect("/404")
 }
 
 
 ---
 
 
-<AdminLayout settingsData={settings} pageTitle={`Contact form & info - Admin - ${settings.siteTitle}`}>
+<AdminLayout pageTitle={`Contact form & info`}>
 <PageHeader pageTitle='Contact form & info' />
 
-  <ContactForm client:only="react" contactSettings={(!contactSettings || !contactSettings?.pageTitle)? starterData : contactSettings}/>
+  <ContactForm client:only="react" contactSettings={data}/>
 
 </AdminLayout>

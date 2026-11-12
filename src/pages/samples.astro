@@ -1,5 +1,5 @@
 ---
-import { getSettings } from "./api/settings";
+
 import { getImage,inferRemoteSize } from "astro:assets";
 import Layout from "../layouts/Layout.astro";
 import type { ImageMetadata } from "astro";
@@ -7,10 +7,7 @@ import ImageViewer from "./_svelteComponents/ImageViewer.svelte";
 import type {TImageUrls} from "@/types"
 import { imageConfig } from "astro:assets";
 import { actions } from 'astro:actions';
-const settingsData = await getSettings();
 
-
-if (!settingsData) return Astro.redirect("/404");
 
 const {data,error} = await Astro.callAction(actions.settings.getSamplesSettings,"");
 if(error) {
@@ -84,7 +81,7 @@ for (let key in images) {
     }*/
 ---
 
-<Layout settingsData={settingsData} pageTitle={data.pageTitle} slug="samples">
+<Layout pageTitle={data.pageTitle} slug="samples">
     {data.pageIntro && <div set:html={data.pageIntro} class="dt-width-container copy-section pb-2">
 
     </div>}

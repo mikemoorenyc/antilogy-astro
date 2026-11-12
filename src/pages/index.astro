@@ -1,16 +1,15 @@
 ---
-import { getSettings } from "./api/settings";
+import {actions} from "astro:actions"
 import Layout from "../layouts/Layout.astro";
 import logoImg from "../assets/homepage-logo.webp";
 import Image from "astro/components/Image.astro";
 const navigation = ["How to order", "why to order", "Faqs", "samples"];
-import Button from "@/components/Button/Button.astro";
+
 import mainMenu from "@/assets/mainMenu";
-const settingsData = await getSettings();
-if (!settingsData) return Astro.redirect("/404");
+
 ---
 
-<Layout settingsData={settingsData} slug="home">
+<Layout slug="home">
     <div id="homepage-container" class="homepage-container">
         <Image
             class="homepage-logo-img"
