@@ -1,14 +1,14 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "functions": {
-    "pages/api/crons/deleteTempFiles.ts": {
+    "src/pages/api/crons/deleteTempFiles.ts": {
       "experimentalTriggers": [{ "type": "schedule/v1beta" }]
     }
   },
   "schedules": {
     "cleanup": {
       "schedule": "1 2 * * 0",
-      "function": "pages/api/crons/deleteTempFiles"
+      "function": "src/pages/api/crons/deleteTempFiles"
     }
   }
 }
